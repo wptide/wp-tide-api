@@ -1,25 +1,25 @@
 <?php
 /**
- * Test Audit_Revision controller.
+ * Test Audit_Terms_Controller controller.
  *
  * @package WP_Tide_API
  */
 
-namespace WP_Tide_API\API\Controller;
+use WP_Tide_API\API\Controller\Audit_Terms_Controller;
 
 /**
  * Class Test_Audit_Terms_Controller
  *
- * @package WP_Tide_API\API\Endpoint
+ * @coversDefaultClass \WP_Tide_API\API\Controller\Audit_Terms_Controller
  */
-class Test_Audit_Terms_Controller extends \WP_Test_REST_Controller_TestCase {
+class Test_Audit_Terms_Controller extends WP_Test_REST_Controller_TestCase {
 
 	/**
 	 * REST Server.
 	 *
 	 * Note that this variable is already defined on the parent class but it lacks the phpdoc variable type.
 	 *
-	 * @var \WP_REST_Server
+	 * @var WP_REST_Server
 	 */
 	protected $server;
 
@@ -61,13 +61,13 @@ class Test_Audit_Terms_Controller extends \WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test getting an item permissions.
 	 *
-	 * @covers WP_Tide_API\API\Controller\Audit_Terms_Controller::get_items_permissions_check()
+	 * @covers ::get_items_permissions_check()
 	 */
 	public function test_get_items_permissions() {
 		$ar_endpoint = new Audit_Terms_Controller( 'category' );
 
 		wp_set_current_user( 0 );
-		$request = new \WP_REST_Request();
+		$request = new WP_REST_Request();
 		$request->set_param( 'context', 'test_context' );
 		$response = $ar_endpoint->get_items_permissions_check( $request );
 
@@ -99,11 +99,11 @@ class Test_Audit_Terms_Controller extends \WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test preparing item.
 	 *
-	 * @covers WP_Tide_API\API\Controller\Audit_Terms_Controller::prepare_item_for_response()
+	 * @covers ::prepare_item_for_response()
 	 */
 	public function test_prepare_item() {
 		$term_endpoint = new Audit_Terms_Controller( 'category' );
-		$request       = new \WP_REST_Request();
+		$request       = new WP_REST_Request();
 
 		wp_insert_term( 'test_term', 'category' );
 

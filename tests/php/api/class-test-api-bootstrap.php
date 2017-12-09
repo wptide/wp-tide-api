@@ -5,14 +5,14 @@
  * @package WP_Tide_API
  */
 
-namespace WP_Tide_API\API;
+use WP_Tide_API\API\API_Bootstrap;
 
 /**
  * Class Test_API_Bootstrap
  *
- * @package WP_Tide_API
+ * @coversDefaultClass \WP_Tide_API\API\API_Bootstrap
  */
-class Test_API_Bootstrap extends \WP_UnitTestCase {
+class Test_API_Bootstrap extends WP_UnitTestCase {
 
 	/**
 	 * API_Bootstrap instance.
@@ -29,13 +29,13 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 		parent::setUp();
 
 		$this->api_bootstrap         = new API_Bootstrap();
-		$this->api_bootstrap->plugin = \WP_Tide_API\Plugin::instance();
+		$this->api_bootstrap->plugin = WP_Tide_API\Plugin::instance();
 	}
 
 	/**
 	 * Test API_Bootstrap::register_post_types().
 	 *
-	 * @covers WP_Tide_API\API\API_Bootstrap::register_post_types()
+	 * @covers ::register_post_types()
 	 */
 	public function test_register_post_types() {
 
@@ -46,7 +46,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::register_meta_fields().
 	 *
-	 * @covers WP_Tide_API\API\API_Bootstrap::register_meta_fields()
+	 * @covers ::register_meta_fields()
 	 */
 	public function test_register_meta_fields() {
 		$meta_fields = array(
@@ -59,7 +59,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::register_rest_fields().
 	 *
-	 * @covers WP_Tide_API\API\API_Bootstrap::register_rest_fields()
+	 * @covers ::register_rest_fields()
 	 */
 	public function test_register_rest_fields() {
 		$rest_fields = array(
@@ -75,7 +75,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::register_taxonomies().
 	 *
-	 * @covers WP_Tide_API\API\API_Bootstrap::register_taxonomies()
+	 * @covers ::register_taxonomies()
 	 */
 	public function test_register_taxonomies() {
 		$taxonomies = array(
@@ -93,7 +93,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::rest_field_default_get_callback().
 	 *
-	 * @covers WP_Tide_API\API\API_Bootstrap::rest_field_default_get_callback()
+	 * @covers ::rest_field_default_get_callback()
 	 */
 	public function test_rest_field_default_get_callback() {
 		$audit_id = $this->factory->post->create( array(
@@ -111,7 +111,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::rest_field_default_update_callback().
 	 *
-	 * @covers WP_Tide_API\API\API_Bootstrap::rest_field_default_update_callback()
+	 * @covers ::rest_field_default_update_callback()
 	 */
 	public function test_rest_field_default_update_callback() {
 		$audit_id = $this->factory->post->create( array(
@@ -128,16 +128,16 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::rest_audit_query().
 	 *
-	 * @covers WP_Tide_API\API\API_Bootstrap::rest_audit_query()
+	 * @covers ::rest_audit_query()
 	 */
 	public function test_rest_audit_query() {
-		$request = new \WP_REST_Request();
+		$request = new WP_REST_Request();
 		$request->set_param( 'forbidden', 'test' );
 
 		$args = $this->api_bootstrap->rest_audit_query( array(), $request );
 		$this->assertEquals( array(), $args );
 
-		$request = new \WP_REST_Request();
+		$request = new WP_REST_Request();
 		$request->set_param( 'checksum', '39c7d71a68565ddd7b6a0fd68d94924d0db449a99541439b3ab8a477c5f1fc4e' );
 
 		$args = $this->api_bootstrap->rest_audit_query( array(), $request );

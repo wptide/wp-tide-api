@@ -1,9 +1,8 @@
 <?php
 /**
- * Unit tests covering WP_Test_REST_Customize_Changesets_Controller functionality.
+ * Test Audit_Posts_Controller controller.
  *
- * @package WordPress
- * @subpackage REST API
+ * @package WP_Tide_API
  */
 
 use WP_Tide_API\API\Controller\Audit_Posts_Controller;
@@ -11,7 +10,7 @@ use WP_Tide_API\API\Controller\Audit_Posts_Controller;
 /**
  * Class Test_Audit_Posts_Controller.
  *
- * @group restapi
+ * @coversDefaultClass \WP_Tide_API\API\Controller\Audit_Posts_Controller
  */
 class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 
@@ -59,7 +58,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test registering route.
 	 *
-	 * @covers WP_Tide_API\API\Controller\Audit_Posts_Controller::register_routes()
+	 * @covers ::register_routes()
 	 */
 	public function test_register_routes() {
 		$routes = $this->server->get_routes();
@@ -69,7 +68,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test getting item.
 	 *
-	 * @covers WP_Tide_API\API\Controller\Audit_Posts_Controller::get_item_altid()
+	 * @covers ::get_item_altid()
 	 */
 	public function test_get_item() {
 		wp_set_current_user( self::$admin_id );
@@ -112,7 +111,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test getting an item without permissions.
 	 *
-	 * @covers WP_Tide_API\API\Controller\Audit_Posts_Controller::get_item_permissions_check_altid()
+	 * @covers ::get_item_permissions_check_altid()
 	 */
 	public function test_get_item_permissions() {
 		wp_set_current_user( self::$subscriber_id );
@@ -133,7 +132,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test updating item.
 	 *
-	 * @covers WP_Tide_API\API\Controller\Audit_Posts_Controller::update_item_altid()
+	 * @covers ::update_item_altid()
 	 */
 	public function test_update_item() {
 		wp_set_current_user( self::$admin_id );
@@ -159,7 +158,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test deleting item.
 	 *
-	 * @covers WP_Tide_API\API\Controller\Audit_Posts_Controller::delete_item_altid()
+	 * @covers ::delete_item_altid()
 	 */
 	public function test_delete_item() {
 		wp_set_current_user( self::$admin_id );
@@ -185,7 +184,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test preparing item.
 	 *
-	 * @covers WP_Tide_API\API\Controller\Audit_Posts_Controller::delete_item_altid()
+	 * @covers ::delete_item_altid()
 	 */
 	public function test_prepare_item() {
 		wp_set_current_user( self::$admin_id );
@@ -211,7 +210,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test creating item.
 	 *
-	 * @covers WP_Tide_API\API\Controller\Audit_Posts_Controller::create_item()
+	 * @covers ::create_item()
 	 */
 	public function test_create_item() {
 		wp_set_current_user( self::$admin_id );
@@ -238,7 +237,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test handle_custom_args().
 	 *
-	 * @covers WP_Tide_API\API\Controller\Audit_Posts_Controller::handle_custom_args()
+	 * @covers ::handle_custom_args()
 	 */
 	public function test_handle_custom_args() {
 		$_GET['tags'] = 'test,test-2,test-3';

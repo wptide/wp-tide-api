@@ -1,3 +1,7 @@
 DEFAULT_BASE_BRANCH=develop
 PHPCS_IGNORE='dev-lib/*,node_modules/*,tests/*,vendor/*'
-TRAVIS_PHPUNIT_CONFIG=phpunit.xml.dist
+
+function after_wp_install {
+    echo "Setting PHPUnit File Location..."
+    export TRAVIS_PHPUNIT_CONFIG="$INSTALL_PATH/phpunit.xml.dist"
+}

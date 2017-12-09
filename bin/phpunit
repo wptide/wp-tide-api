@@ -1,0 +1,28 @@
+#!/bin/bash
+
+WP_VERSION=$(cat .travis.yml | grep 'WP_VERSION=' | sed -e 's/-[[:space:]]*WP_VERSION=//' -e 's/^[[:space:]]*//' -e "s/'//g")
+
+# Generate the tests SVN tag
+if [[ ${WP_VERSION} =~ [0-9]+\.[0-9]+(\.[0-9]+)? ]]; then
+    WP_TESTS_TAG="tags/${WP_VERSION}"
+else
+    WP_TESTS_TAG="trunk"
+fi
+
+echo "Updating WordPress Test Suite..."
+
+svn co https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ ./tests/includes --trust-server-cert --non-interactive
+svn co https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ ./tests/data --trust-server-cert --non-interactive
+
+if [ -z "$*" ]; then
+
+    while IFS= read -r line
+    do
+        export $(echo -e "$line" | sed -e 's/[[:space:]]*$//' -e "s/'//g")
+    done < <(cat .dev-lib | grep PHPUNIT_CONFIG)
+
+    docker-compose run --rm --workdir="/var/www/html/wp-content/plugins/wp-tide-api" api-php phpunit -c ${PHPUNIT_CONFIG}
+else
+    docker-compose run --rm --workdir="/var/www/html/wp-content/plugins/wp-tide-api" api-php phpunit "$@"
+fi
+

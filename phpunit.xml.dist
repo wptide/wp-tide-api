@@ -8,6 +8,7 @@
 	>
 	<php>
 		<const name="WP_TEST_ACTIVATED_PLUGINS" value="" />
+		<env name="WP_TESTS_DIR" value="./tests" />
 	</php>
 
 	<testsuites>

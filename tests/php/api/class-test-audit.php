@@ -17,7 +17,7 @@ class Test_Audit extends \WP_UnitTestCase {
 	/**
 	 * Test Audit::post_type_structure().
 	 *
-	 * @covers Audit::post_type_structure()
+	 * @covers WP_Tide_API\API\Endpoint\Audit::post_type_structure()
 	 */
 	public function test_post_type_structure() {
 		$audit           = new Audit();
@@ -29,7 +29,7 @@ class Test_Audit extends \WP_UnitTestCase {
 	/**
 	 * Test Audit::allowed_standards.
 	 *
-	 * @covers Audit::allowed_standards()
+	 * @covers WP_Tide_API\API\Endpoint\Audit::allowed_standards()
 	 */
 	public function test_allowed_standards() {
 		$audit = new Audit();
@@ -44,7 +44,7 @@ class Test_Audit extends \WP_UnitTestCase {
 	/**
 	 * Test Audit::filter_standards.
 	 *
-	 * @covers Audit::filter_standards()
+	 * @covers WP_Tide_API\API\Endpoint\Audit::filter_standards()
 	 */
 	public function test_filter_standards() {
 		$standards = array_keys( Audit::allowed_standards() );
@@ -73,7 +73,7 @@ class Test_Audit extends \WP_UnitTestCase {
 	/**
 	 * Test Audit::executable_audit_fields.
 	 *
-	 * @covers Audit::executable_audit_fields()
+	 * @covers WP_Tide_API\API\Endpoint\Audit::executable_audit_fields()
 	 */
 	public function test_executable_audit_fields() {
 		add_filter( 'tide_api_executable_audits', array( $this, 'add_custom_audits' ), 10, 1 );
@@ -88,7 +88,7 @@ class Test_Audit extends \WP_UnitTestCase {
 	/**
 	 * Test Audit::rest_field_url_update_callback.
 	 *
-	 * @covers Audit::rest_field_url_update_callback()
+	 * @covers WP_Tide_API\API\Endpoint\Audit::rest_field_url_update_callback()
 	 */
 	public function test_rest_field_url_update_callback() {
 		$audit_id = $this->factory->post->create( array(
@@ -106,7 +106,7 @@ class Test_Audit extends \WP_UnitTestCase {
 	/**
 	 * Test Audit::rest_results_update.
 	 *
-	 * @covers Audit::rest_results_update()
+	 * @covers WP_Tide_API\API\Endpoint\Audit::rest_results_update()
 	 */
 	public function test_rest_results_update() {
 		$audit_id = $this->factory->post->create( array(
@@ -128,7 +128,7 @@ class Test_Audit extends \WP_UnitTestCase {
 	/**
 	 * Test Audit::rest_results_get.
 	 *
-	 * @covers Audit::rest_results_get()
+	 * @covers WP_Tide_API\API\Endpoint\Audit::rest_results_get()
 	 */
 	public function test_rest_results_get() {
 

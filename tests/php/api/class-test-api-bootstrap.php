@@ -35,7 +35,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::register_post_types().
 	 *
-	 * @covers API_Bootstrap::register_post_types()
+	 * @covers WP_Tide_API\API\API_Bootstrap::register_post_types()
 	 */
 	public function test_register_post_types() {
 
@@ -46,7 +46,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::register_meta_fields().
 	 *
-	 * @covers API_Bootstrap::register_meta_fields()
+	 * @covers WP_Tide_API\API\API_Bootstrap::register_meta_fields()
 	 */
 	public function test_register_meta_fields() {
 		$meta_fields = array(
@@ -59,7 +59,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::register_rest_fields().
 	 *
-	 * @covers API_Bootstrap::register_rest_fields()
+	 * @covers WP_Tide_API\API\API_Bootstrap::register_rest_fields()
 	 */
 	public function test_register_rest_fields() {
 		$rest_fields = array(
@@ -75,7 +75,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::register_taxonomies().
 	 *
-	 * @covers API_Bootstrap::register_taxonomies()
+	 * @covers WP_Tide_API\API\API_Bootstrap::register_taxonomies()
 	 */
 	public function test_register_taxonomies() {
 		$taxonomies = array(
@@ -93,7 +93,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::rest_field_default_get_callback().
 	 *
-	 * @covers API_Bootstrap::rest_field_default_get_callback()
+	 * @covers WP_Tide_API\API\API_Bootstrap::rest_field_default_get_callback()
 	 */
 	public function test_rest_field_default_get_callback() {
 		$audit_id = $this->factory->post->create( array(
@@ -111,7 +111,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::rest_field_default_update_callback().
 	 *
-	 * @covers API_Bootstrap::rest_field_default_update_callback()
+	 * @covers WP_Tide_API\API\API_Bootstrap::rest_field_default_update_callback()
 	 */
 	public function test_rest_field_default_update_callback() {
 		$audit_id = $this->factory->post->create( array(
@@ -128,7 +128,7 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	/**
 	 * Test API_Bootstrap::rest_rest_audit_query().
 	 *
-	 * @covers API_Bootstrap::rest_rest_audit_query()
+	 * @covers WP_Tide_API\API\API_Bootstrap::rest_rest_audit_query()
 	 */
 	public function test_rest_audit_query() {
 		$request = new \WP_REST_Request();

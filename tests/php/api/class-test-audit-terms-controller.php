@@ -61,7 +61,7 @@ class Test_Audit_Terms_Controller extends \WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test getting an item permissions.
 	 *
-	 * @covers Audit_Terms_Controller::get_items_permissions_check()
+	 * @covers WP_Tide_API\API\Controller\Audit_Terms_Controller::get_items_permissions_check()
 	 */
 	public function test_get_items_permissions() {
 		$ar_endpoint = new Audit_Terms_Controller( 'category' );
@@ -99,7 +99,7 @@ class Test_Audit_Terms_Controller extends \WP_Test_REST_Controller_TestCase {
 	/**
 	 * Test preparing item.
 	 *
-	 * @covers Audit_Terms_Controller::prepare_item_for_response()
+	 * @covers WP_Tide_API\API\Controller\Audit_Terms_Controller::prepare_item_for_response()
 	 */
 	public function test_prepare_item() {
 		$term_endpoint = new Audit_Terms_Controller( 'category' );

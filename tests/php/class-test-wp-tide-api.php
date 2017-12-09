@@ -10,7 +10,7 @@
  *
  * @package WP_Tide_API
  */
-class Test_WP_Tide_API extends \WP_UnitTestCase {
+class Test_WP_Tide_API extends WP_UnitTestCase {
 
 	/**
 	 * Plugin instance.
@@ -64,7 +64,7 @@ class Test_WP_Tide_API extends \WP_UnitTestCase {
 	public function test_launch_plugin() {
 		global $wp_tide_api_plugin;
 
-		$this->assertInstanceOf( '\WP_Tide_API\Plugin', $wp_tide_api_plugin );
+		$this->assertInstanceOf( 'WP_Tide_API\Plugin', $wp_tide_api_plugin );
 	}
 
 	/**

@@ -5,19 +5,19 @@
  * @package WP_Tide_API
  */
 
-namespace WP_Tide_API\Integration;
+use WP_Tide_API\Integration\AWS_S3;
 
 /**
  * Class Test_AWS_S3
  *
- * @package WP_Tide_API
+ * @coversDefaultClass WP_Tide_API\Integration\AWS_S3
  */
-class Test_AWS_S3 extends \WP_UnitTestCase {
+class Test_AWS_S3 extends WP_UnitTestCase {
 
 	/**
 	 * Plugin instance.
 	 *
-	 * @var \WP_Tide_API\Plugin
+	 * @var WP_Tide_API\Plugin
 	 */
 	public $plugin;
 
@@ -36,14 +36,14 @@ class Test_AWS_S3 extends \WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->plugin = \WP_Tide_API\Plugin::instance();
+		$this->plugin = WP_Tide_API\Plugin::instance();
 		$this->aws_s3 = $this->plugin->components['aws_s3'];
 	}
 
 	/**
 	 * Test add_task().
 	 *
-	 * @see AWS_S3::get_file()
+	 * @covers ::get_file()
 	 */
 	public function test_get_file() {
 		$meta = array();
@@ -58,7 +58,7 @@ class Test_AWS_S3 extends \WP_UnitTestCase {
 
 		$mock->method( 'create_s3_client_instance' )->willReturn( $s3_client );
 
-		$aws_s3 = new \ReflectionClass( get_class( $this->aws_s3 ) );
+		$aws_s3 = new ReflectionClass( get_class( $this->aws_s3 ) );
 
 		$get_file = $aws_s3->getMethod( 'get_file' )->invoke( $mock, array(
 			'bucket_name' => 'test',

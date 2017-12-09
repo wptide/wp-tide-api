@@ -5,19 +5,19 @@
  * @package WP_Tide_API
  */
 
-namespace WP_Tide_API\Authentication;
+use WP_Tide_API\Authentication\Keypair_Auth;
 
 /**
  * Class Test_Keypair_Auth
  *
- * @package WP_Tide_API
+ * @coversDefaultClass WP_Tide_API\Authentication\Keypair_Auth
  */
-class Test_Keypair_Auth extends \WP_UnitTestCase {
+class Test_Keypair_Auth extends WP_UnitTestCase {
 
 	/**
 	 * Plugin instance.
 	 *
-	 * @var \WP_Tide_API\Plugin
+	 * @var WP_Tide_API\Plugin
 	 */
 	public $plugin;
 
@@ -58,13 +58,13 @@ class Test_Keypair_Auth extends \WP_UnitTestCase {
 		parent::setUp();
 
 		// @codingStandardsIgnoreStart
-		$GLOBALS['wp_rest_server'] = new \WP_REST_Server();
+		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
 		// @codingStandardsIgnoreEnd
 		$this->server = $GLOBALS['wp_rest_server'];
 
 		do_action( 'rest_api_init' );
 
-		$this->plugin       = \WP_Tide_API\Plugin::instance();
+		$this->plugin       = WP_Tide_API\Plugin::instance();
 		$this->keypair_auth = $this->plugin->components['keypair_auth'];
 	}
 
@@ -82,14 +82,14 @@ class Test_Keypair_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test user_profile_fields().
 	 *
-	 * @see Keypair_Auth::user_profile_fields()
+	 * @covers ::user_profile_fields()
 	 */
 	public function test_user_profile_fields() {
 		$user_id = $this->factory()->user->create( array(
 			'role' => 'administrator',
 		) );
 
-		$user       = new \WP_User( $user_id );
+		$user       = new WP_User( $user_id );
 		$api_key    = 'dummy-api-key';
 		$api_secret = 'dummy-secret';
 
@@ -112,10 +112,10 @@ class Test_Keypair_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test authenticate_key_pair().
 	 *
-	 * @see Keypair_Auth::authenticate_key_pair()
+	 * @covers ::authenticate_key_pair()
 	 */
 	public function test_authenticate_key_pair() {
-		$rest_request = new \WP_REST_Request( 'POST', sprintf( '%s/%s', $this->namespace, $this->keypair_base ) );
+		$rest_request = new WP_REST_Request( 'POST', sprintf( '%s/%s', $this->namespace, $this->keypair_base ) );
 
 		$user_id = $this->factory()->user->create( array(
 			'role' => 'administrator',
@@ -136,7 +136,7 @@ class Test_Keypair_Auth extends \WP_UnitTestCase {
 
 		$user = $this->keypair_auth->authenticate_key_pair( false, $rest_request );
 
-		$this->assertInstanceOf( '\WP_User', $user );
+		$this->assertInstanceOf( 'WP_User', $user );
 		$this->assertEquals( $user_id, $user->ID );
 		$this->assertFalse( isset( $user->data->user_pass ) );
 		$this->assertFalse( isset( $user->data->user_nicename ) );
@@ -150,24 +150,24 @@ class Test_Keypair_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test register_keypair_routes().
 	 *
-	 * @see Keypair_Auth::register_keypair_routes()
+	 * @covers ::register_keypair_routes()
 	 */
 	public function test_register_keypair_routes() {
 		$routes       = $this->server->get_routes();
 		$keypair_base = sprintf( '%s/%s', $this->namespace, $this->keypair_base );
 		$this->assertArrayHasKey( $this->namespace, $routes );
 		$this->assertArrayHasKey( $keypair_base, $routes );
-		$this->assertEquals( implode( array_keys( $routes[ $keypair_base ][0]['methods'] ), ', ' ), \WP_REST_Server::EDITABLE );
-		$this->assertEquals( implode( array_keys( $routes[ $keypair_base ][1]['methods'] ), ', ' ), \WP_REST_Server::READABLE );
+		$this->assertEquals( implode( array_keys( $routes[ $keypair_base ][0]['methods'] ), ', ' ), WP_REST_Server::EDITABLE );
+		$this->assertEquals( implode( array_keys( $routes[ $keypair_base ][1]['methods'] ), ', ' ), WP_REST_Server::READABLE );
 	}
 
 	/**
 	 * Test generate_keypair().
 	 *
-	 * @see Keypair_Auth::generate_keypair()
+	 * @covers ::generate_keypair()
 	 */
 	public function test_generate_keypair() {
-		$rest_request = new \WP_REST_Request( 'POST', sprintf( '%s/%s', $this->namespace, $this->keypair_base ) );
+		$rest_request = new WP_REST_Request( 'POST', sprintf( '%s/%s', $this->namespace, $this->keypair_base ) );
 		$key_pair     = $this->keypair_auth->generate_keypair( $rest_request );
 
 		$this->assertTrue( is_wp_error( $key_pair ) );
@@ -195,12 +195,12 @@ class Test_Keypair_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test get_keypair().
 	 *
-	 * @see Keypair_Auth::get_keypair()
+	 * @covers ::get_keypair()
 	 */
 	public function test_get_keypair() {
 		$api_key      = 'dummy-api-key';
 		$api_secret   = 'dummy-api-secret';
-		$rest_request = new \WP_REST_Request( 'POST', sprintf( '%s/%s', $this->namespace, $this->keypair_base ) );
+		$rest_request = new WP_REST_Request( 'POST', sprintf( '%s/%s', $this->namespace, $this->keypair_base ) );
 		$key_pair     = $this->keypair_auth->get_keypair( $rest_request );
 
 		$this->assertTrue( is_wp_error( $key_pair ) );

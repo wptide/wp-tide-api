@@ -5,19 +5,19 @@
  * @package WP_Tide_API
  */
 
-namespace WP_Tide_API\Restriction;
+use WP_Tide_API\Restriction\Rate_Limit;
 
 /**
  * Class Test_Rate_Limit
  *
- * @package WP_Tide_API
+ * @coversDefaultClass WP_Tide_API\Restriction\Rate_Limit
  */
-class Test_Rate_Limit extends \WP_UnitTestCase {
+class Test_Rate_Limit extends WP_UnitTestCase {
 
 	/**
 	 * Plugin instance.
 	 *
-	 * @var \WP_Tide_API\Plugin
+	 * @var WP_Tide_API\Plugin
 	 */
 	public $plugin;
 
@@ -36,7 +36,7 @@ class Test_Rate_Limit extends \WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->plugin              = \WP_Tide_API\Plugin::instance();
+		$this->plugin              = WP_Tide_API\Plugin::instance();
 		$this->restrict_rate_limit = new Rate_Limit( $this->plugin );
 	}
 

@@ -5,19 +5,19 @@
  * @package WP_Tide_API
  */
 
-namespace WP_Tide_API\Integration;
+use WP_Tide_API\Integration\AWS_SQS;
 
 /**
  * Class Test_AWS_SQS
  *
- * @package WP_Tide_API
+ * @coversDefaultClass WP_Tide_API\Integration\AWS_SQS
  */
-class Test_AWS_SQS extends \WP_UnitTestCase {
+class Test_AWS_SQS extends WP_UnitTestCase {
 
 	/**
 	 * Plugin instance.
 	 *
-	 * @var \WP_Tide_API\Plugin
+	 * @var WP_Tide_API\Plugin
 	 */
 	public $plugin;
 
@@ -36,14 +36,14 @@ class Test_AWS_SQS extends \WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->plugin  = \WP_Tide_API\Plugin::instance();
+		$this->plugin  = WP_Tide_API\Plugin::instance();
 		$this->aws_sqs = $this->plugin->components['aws_sqs'];
 	}
 
 	/**
 	 * Test get_next().
 	 *
-	 * @see AWS_SQS::get_next()
+	 * @covers ::get_next()
 	 */
 	public function test_get_next() {
 		$task = array();
@@ -58,7 +58,7 @@ class Test_AWS_SQS extends \WP_UnitTestCase {
 
 		$mock->method( 'create_sqs_client_instance' )->willReturn( $sqs_client );
 
-		$aws_sqs = new \ReflectionClass( get_class( $this->aws_sqs ) );
+		$aws_sqs = new ReflectionClass( get_class( $this->aws_sqs ) );
 
 		$next_task = $aws_sqs->getMethod( 'get_next' )->invoke( $mock, $task );
 
@@ -74,7 +74,7 @@ class Test_AWS_SQS extends \WP_UnitTestCase {
 	/**
 	 * Test add_task().
 	 *
-	 * @see AWS_SQS::add_task()
+	 * @covers ::add_task()
 	 */
 	public function test_add_task() {
 		$task = array();
@@ -89,7 +89,7 @@ class Test_AWS_SQS extends \WP_UnitTestCase {
 
 		$mock->method( 'create_sqs_client_instance' )->willReturn( $sqs_client );
 
-		$aws_sqs = new \ReflectionClass( get_class( $this->aws_sqs ) );
+		$aws_sqs = new ReflectionClass( get_class( $this->aws_sqs ) );
 
 		$this->assertEmpty( $aws_sqs->getMethod( 'add_task' )->invoke( $mock, $task ) );
 

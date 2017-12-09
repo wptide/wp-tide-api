@@ -5,19 +5,19 @@
  * @package WP_Tide_API
  */
 
-namespace WP_Tide_API\Authentication;
+use WP_Tide_API\Authentication\JWT_Auth;
 
 /**
  * Class Test_JWT_Auth
  *
- * @package WP_Tide_API
+ * @coversDefaultClass WP_Tide_API\Authentication\JWT_Auth
  */
-class Test_JWT_Auth extends \WP_UnitTestCase {
+class Test_JWT_Auth extends WP_UnitTestCase {
 
 	/**
 	 * Plugin instance.
 	 *
-	 * @var \WP_Tide_API\Plugin
+	 * @var WP_Tide_API\Plugin
 	 */
 	public $plugin;
 
@@ -63,13 +63,13 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 		parent::setUp();
 
 		// @codingStandardsIgnoreStart
-		$GLOBALS['wp_rest_server'] = new \WP_REST_Server();
+		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
 		// @codingStandardsIgnoreEnd
 		$this->server = $GLOBALS['wp_rest_server'];
 
 		do_action( 'rest_api_init' );
 
-		$this->plugin   = \WP_Tide_API\Plugin::instance();
+		$this->plugin   = WP_Tide_API\Plugin::instance();
 		$this->jwt_auth = $this->plugin->components['jwt_auth'];
 	}
 
@@ -87,7 +87,7 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test register_jwt_routes().
 	 *
-	 * @see JWT_Auth::register_jwt_routes()
+	 * @covers ::register_jwt_routes()
 	 */
 	public function test_register_jwt_routes() {
 		$routes = $this->server->get_routes();
@@ -98,7 +98,7 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test generate_token().
 	 *
-	 * @see JWT_Auth::generate_token()
+	 * @covers ::generate_token()
 	 */
 	public function test_generate_token() {
 		$user_data = array(
@@ -107,7 +107,7 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 			'user_pass'  => 'testpassword',
 		);
 
-		$rest_request = new \WP_REST_Request( 'POST', sprintf( '%s/%s', $this->namespace, $this->base ) );
+		$rest_request = new WP_REST_Request( 'POST', sprintf( '%s/%s', $this->namespace, $this->base ) );
 
 		/**
 		 * Remove filter so the method can be tested in isolation.
@@ -167,7 +167,7 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test validate_token().
 	 *
-	 * @see JWT_Auth::validate_token()
+	 * @covers ::validate_token()
 	 */
 	public function test_validate_token() {
 		$this->assertTrue( is_wp_error( $this->jwt_auth->validate_token() ) );
@@ -186,7 +186,7 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test get_token().
 	 *
-	 * @see JWT_Auth::get_token()
+	 * @covers ::get_token()
 	 */
 	public function test_get_token() {
 		$token = 'dEsdfjdsflds43kfjdslkjflkdsjflkdsjf';
@@ -201,7 +201,7 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test get_secret().
 	 *
-	 * @see JWT_Auth::get_secret()
+	 * @covers ::get_secret()
 	 */
 	public function test_get_secret() {
 		$this->assertEquals( self::SECURE_AUTH_KEY, $this->jwt_auth->get_secret() );
@@ -210,7 +210,7 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test validate_issuer().
 	 *
-	 * @see JWT_Auth::validate_issuer()
+	 * @covers ::validate_issuer()
 	 */
 	public function test_validate_issuer() {
 		$issuer = 'http://example.com';
@@ -227,10 +227,10 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test validate_token_client().
 	 *
-	 * @see JWT_Auth::validate_token_client()
+	 * @covers ::validate_token_client()
 	 */
 	public function test_validate_token_client() {
-		$token = new \stdClass();
+		$token = new stdClass();
 		$token->data = array();
 
 		// Test with invalid token.
@@ -245,10 +245,10 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test validate_token_date().
 	 *
-	 * @see JWT_Auth::validate_token_date()
+	 * @covers ::validate_token_date()
 	 */
 	public function test_validate_token_date() {
-		$token = new \stdClass();
+		$token = new stdClass();
 		$token->exp = time() - 1;
 
 		$this->assertTrue( is_wp_error( $this->jwt_auth->validate_token_date( $token ) ) );
@@ -261,7 +261,7 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test get_auth_header().
 	 *
-	 * @see JWT_Auth::get_auth_header()
+	 * @covers ::get_auth_header()
 	 */
 	public function test_get_auth_header() {
 		$http_authorization = 'test_http_authorization';
@@ -283,7 +283,7 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 	/**
 	 * Test authentication_errors().
 	 *
-	 * @see JWT_Auth::authentication_errors()
+	 * @covers ::authentication_errors()
 	 */
 	public function test_authentication_errors() {
 		$this->assertEquals( null, $this->jwt_auth->authentication_errors( null ) );
@@ -298,7 +298,7 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 		$jwt_auth_mock->method( 'validate_token' )
 			 ->willReturn( $token );
 
-		$reflected_class = new \ReflectionClass( $class_name );
+		$reflected_class = new ReflectionClass( $class_name );
 
 		// Test Success.
 		$this->assertEquals( true, $reflected_class->getMethod( 'authentication_errors' )->invoke( $jwt_auth_mock, null ) );
@@ -320,9 +320,9 @@ class Test_JWT_Auth extends \WP_UnitTestCase {
 	 * @return \stdClass $token.
 	 */
 	public function _create_dummy_token_client() {
-		$token = new \stdClass();
-		$token->data = new \stdClass();
-		$token->data->client = new \stdClass();
+		$token = new stdClass();
+		$token->data = new stdClass();
+		$token->data->client = new stdClass();
 		$token->data->client->type = 'wp_user';
 		$token->data->client->id = 1;
 		return $token;

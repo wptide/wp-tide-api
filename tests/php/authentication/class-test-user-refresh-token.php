@@ -5,21 +5,20 @@
  * @package WP_Tide_API
  */
 
-namespace WP_Tide_API\Authentication;
-
+use WP_Tide_API\Authentication\User_Refresh_Token;
 use Firebase\JWT\JWT;
 
 /**
  * Class Test_User_Refresh_Token
  *
- * @package WP_Tide_API
+ * @coversDefaultClass WP_Tide_API\Authentication\User_Refresh_Token
  */
-class Test_User_Refresh_Token extends \WP_UnitTestCase {
+class Test_User_Refresh_Token extends WP_UnitTestCase {
 
 	/**
 	 * Plugin instance.
 	 *
-	 * @var \WP_Tide_API\Plugin
+	 * @var WP_Tide_API\Plugin
 	 */
 	public $plugin;
 
@@ -65,13 +64,13 @@ class Test_User_Refresh_Token extends \WP_UnitTestCase {
 		parent::setUp();
 
 		// @codingStandardsIgnoreStart
-		$GLOBALS['wp_rest_server'] = new \WP_REST_Server();
+		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
 		// @codingStandardsIgnoreEnd
 		$this->server = $GLOBALS['wp_rest_server'];
 
 		do_action( 'rest_api_init' );
 
-		$this->plugin             = \WP_Tide_API\Plugin::instance();
+		$this->plugin             = WP_Tide_API\Plugin::instance();
 		$this->user_refresh_token = new User_Refresh_Token( $this->plugin );
 	}
 
@@ -89,15 +88,15 @@ class Test_User_Refresh_Token extends \WP_UnitTestCase {
 	/**
 	 * Test append_refresh_token().
 	 *
-	 * @see User_Refresh_Token::append_refresh_token()
+	 * @covers ::append_refresh_token()
 	 */
 	public function test_append_refresh_token() {
-		$rest_request = new \WP_REST_Request( 'POST', $this->namespace );
+		$rest_request = new WP_REST_Request( 'POST', $this->namespace );
 		$secret       = $this->_set_secret();
 		$user_id      = $this->factory()->user->create( array(
 			'role' => 'administrator',
 		) );
-		$client       = new \stdClass();
+		$client       = new stdClass();
 		$client->type = 'other';
 		$client->ID   = $user_id;
 
@@ -146,7 +145,7 @@ class Test_User_Refresh_Token extends \WP_UnitTestCase {
 		$this->user_refresh_token->append_refresh_token( array(), $rest_request, $client, false );
 
 		// Test with static property set to true.
-		$reflector              = new \ReflectionClass( get_class( $this->user_refresh_token ) );
+		$reflector              = new ReflectionClass( get_class( $this->user_refresh_token ) );
 		$refresh_authentication = $reflector->getProperty( 'refresh_authentication' );
 		$refresh_authentication->setAccessible( true );
 
@@ -160,10 +159,10 @@ class Test_User_Refresh_Token extends \WP_UnitTestCase {
 	/**
 	 * Test authenticate_with_refresh_token().
 	 *
-	 * @see User_Refresh_Token::authenticate_with_refresh_token()
+	 * @covers ::authenticate_with_refresh_token()
 	 */
 	public function test_authenticate_with_refresh_token() {
-		$rest_request = new \WP_REST_Request( 'POST', $this->namespace );
+		$rest_request = new WP_REST_Request( 'POST', $this->namespace );
 		$this->assertFalse( $this->user_refresh_token->authenticate_with_refresh_token( false, $rest_request ) );
 
 		$secret  = $this->_set_secret();
@@ -210,7 +209,7 @@ class Test_User_Refresh_Token extends \WP_UnitTestCase {
 	/**
 	 * Test get_secret().
 	 *
-	 * @see User_Refresh_Token::get_secret()
+	 * @covers ::get_secret()
 	 */
 	public function test_get_secret() {
 		/**

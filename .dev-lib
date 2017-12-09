@@ -1,0 +1,2 @@
+DEFAULT_BASE_BRANCH=develop
+PHPCS_IGNORE='dev-lib/*,node_modules/*,tests/*,vendor/*'

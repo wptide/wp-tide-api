@@ -1,0 +1,19 @@
+{
+  "name": "xwp/wp-tide-api",
+  "authors": [
+    {
+      "name": "Rheinard Korf",
+      "email": "rheinard.korf@xwp.co"
+    }
+  ],
+  "require": {
+    "firebase/php-jwt": "^4.0",
+    "aws/aws-sdk-php": "^3.22",
+    "php": ">=7.1"
+  },
+  "require-dev": {
+    "wp-coding-standards/wpcs": "*",
+    "wimg/php-compatibility": "*",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4"
+  }
+}

@@ -126,9 +126,9 @@ class Test_API_Bootstrap extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test API_Bootstrap::rest_rest_audit_query().
+	 * Test API_Bootstrap::rest_audit_query().
 	 *
-	 * @covers WP_Tide_API\API\API_Bootstrap::rest_rest_audit_query()
+	 * @covers WP_Tide_API\API\API_Bootstrap::rest_audit_query()
 	 */
 	public function test_rest_audit_query() {
 		$request = new \WP_REST_Request();

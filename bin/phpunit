@@ -1,6 +1,22 @@
 #!/bin/bash
 
-WP_VERSION=$(cat .travis.yml | grep 'WP_VERSION=' | sed -e 's/-[[:space:]]*WP_VERSION=//' -e 's/^[[:space:]]*//' -e "s/'//g")
+function upsearch {
+	# via http://unix.stackexchange.com/a/13474
+	slashes=${PWD//[^\/]/}
+	directory="./"
+	for (( n=${#slashes}; n>0; --n )); do
+		test -e "$directory/$1" && echo "$directory/$1" && return
+		if [ "$2" != 'git_boundless' ] && test -e '.git'; then
+			return
+		fi
+		directory="$directory/.."
+	done
+}
+
+ENV_FILE=$( upsearch .dev-lib )
+if [ ! -z "$ENV_FILE" ]; then
+    source "$ENV_FILE"
+fi
 
 # Generate the tests SVN tag
 if [[ ${WP_VERSION} =~ [0-9]+\.[0-9]+(\.[0-9]+)? ]]; then
@@ -11,18 +27,14 @@ fi
 
 echo "Updating WordPress Test Suite..."
 
-svn co https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ ./tests/includes --trust-server-cert --non-interactive
-svn co https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ ./tests/data --trust-server-cert --non-interactive
+svn co https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ ./tests/includes --trust-server-cert --non-interactive -q
+svn co https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ ./tests/data --trust-server-cert --non-interactive -q
+
+echo "Running PHPUnit Test Suite in Docker..."
 
 if [ -z "$*" ]; then
-
-    while IFS= read -r line
-    do
-        export $(echo -e "$line" | sed -e 's/[[:space:]]*$//' -e "s/'//g")
-    done < <(cat .dev-lib | grep PHPUNIT_CONFIG)
-
-    docker-compose run --rm --workdir="/var/www/html/wp-content/plugins/wp-tide-api" api-php phpunit -c ${PHPUNIT_CONFIG}
+    docker-compose run --rm -w ${DOCKER_WORKDIR} ${DOCKER_IMAGE} phpunit -c ${PHPUNIT_CONFIG}
 else
-    docker-compose run --rm --workdir="/var/www/html/wp-content/plugins/wp-tide-api" api-php phpunit "$@"
+    docker-compose run --rm -w ${DOCKER_WORKDIR} ${DOCKER_IMAGE} phpunit "$@"
 fi
 

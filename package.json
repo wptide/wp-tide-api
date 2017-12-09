@@ -1,9 +1,9 @@
 {
   "name": "wp-tide-api",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "This is the WP Tide API plugin.",
   "author": "XWP",
-  "license": "GPL-2.0",
+  "license": "GPL-2.0+",
   "main": "",
   "repository": {
     "type": "git",

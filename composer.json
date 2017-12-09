@@ -1,9 +1,9 @@
 {
-  "name": "xwp/wp-tide-api",
+  "name": "wptide/wp-tide-api",
   "authors": [
     {
-      "name": "Rheinard Korf",
-      "email": "rheinard.korf@xwp.co"
+      "name": "XWP",
+      "email": "contact@xwp.co"
     }
   ],
   "require": {

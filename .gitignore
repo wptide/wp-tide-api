@@ -2,3 +2,5 @@ vendor
 node_modules
 tests/data
 tests/includes
+.env
+report

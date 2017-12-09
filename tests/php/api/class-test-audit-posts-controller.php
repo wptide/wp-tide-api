@@ -10,7 +10,7 @@ use WP_Tide_API\API\Controller\Audit_Posts_Controller;
 /**
  * Class Test_Audit_Posts_Controller.
  *
- * @coversDefaultClass \WP_Tide_API\API\Controller\Audit_Posts_Controller
+ * @coversDefaultClass WP_Tide_API\API\Controller\Audit_Posts_Controller
  */
 class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 

@@ -10,7 +10,7 @@ use WP_Tide_API\API\Endpoint\Audit;
 /**
  * Class Test_Audit
  *
- * @coversDefaultClass \WP_Tide_API\API\Endpoint\Audit
+ * @coversDefaultClass WP_Tide_API\API\Endpoint\Audit
  */
 class Test_Audit extends WP_UnitTestCase {
 

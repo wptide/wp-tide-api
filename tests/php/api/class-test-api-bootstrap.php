@@ -10,7 +10,7 @@ use WP_Tide_API\API\API_Bootstrap;
 /**
  * Class Test_API_Bootstrap
  *
- * @coversDefaultClass \WP_Tide_API\API\API_Bootstrap
+ * @coversDefaultClass WP_Tide_API\API\API_Bootstrap
  */
 class Test_API_Bootstrap extends WP_UnitTestCase {
 

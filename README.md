@@ -18,7 +18,7 @@ Run `composer update` (or `php composer.phar update`) to update dependencies.
 JWT is implemented for token-based authentication of REST API requests. Each request to the API will need to specify an
 HTTP Authorization header with the JWT provided as the Bearer Token.
 
-A JWT token can be obtained by sending a POST {site}/{rest-api-prefix}/tide/v2/auth with the relevant
+A JWT token can be obtained by sending a POST {site}/{rest-api-prefix}/tide/v1/auth with the relevant
 authentication method.  The following methods are currently available:  
 
 * User Authentication: POST-ing `username` and `password` as form data (not recommended and will be disabled)
@@ -28,12 +28,12 @@ Both above authentication methods will return a JWT that contains the user's ID 
 
 Example: Get token with User Authentication
 ```
-curl -X POST -F 'username=admin' -F 'password=password' http://local.dev/wp-json/tide/v2/auth
+curl -X POST -F 'username=admin' -F 'password=password' http://local.dev/wp-json/tide/v1/auth
 ```
 
 Example: Get token with API Key and API Secret
 ```
-curl -X POST -F 'api_key=1guJ0omfNkzoXsUu6NRp9rwCr' -F 'api_secret=X)WxT3Wp&NPHPWFFxRGDioP1UUVNuBfH' http://local.dev/wp-json/tide/v2/auth
+curl -X POST -F 'api_key=1guJ0omfNkzoXsUu6NRp9rwCr' -F 'api_secret=X)WxT3Wp&NPHPWFFxRGDioP1UUVNuBfH' http://local.dev/api/tide/v2/auth
 ```
 
 Once a token is obtained you can access other REST API resources by specifying the HTTP Authorization header with a bearer token.
@@ -61,7 +61,7 @@ that software clients use "Refresh Tokens" to authenticate when possible to avoi
 
 Format:
 ```
-curl -X POST -H "Authorization: Bearer [REFRESH_TOKEN]" "https://[SITE]/api/tide/v2/auth"
+curl -X POST -H "Authorization: Bearer [REFRESH_TOKEN]" "https://[SITE]/api/tide/v1/auth"
 ```
 
 Example: Re-authenticate with a "Refresh Token"

@@ -62,7 +62,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	 */
 	public function test_register_routes() {
 		$routes = $this->server->get_routes();
-		$this->assertArrayHasKey( '/tide/v2/audit/(?P<checksum>' . static::CHECKSUM_PATTERN . ')', $routes );
+		$this->assertArrayHasKey( '/tide/v1/audit/(?P<checksum>' . static::CHECKSUM_PATTERN . ')', $routes );
 	}
 
 	/**
@@ -81,7 +81,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		update_post_meta( $audit_id, 'checksum', $checksum );
 		update_post_meta( $audit_id, 'source_type', 'zip' );
 
-		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v2/audit/%s', $checksum ) );
+		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertNotInstanceOf( 'WP_Error', $response );
@@ -102,7 +102,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 
 		$checksum = '7d9e35c703a7f8c6def92d5dbcf4a85a9271ce390474339cef7e404a00000000';
 
-		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v2/audit/%s', $checksum ) );
+		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_post_invalid_altid_lookup', $response, 404 );
@@ -123,7 +123,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		$checksum = '7d9e35c703a7f8c6def92d5dbcf4a85a9271ce390474339cef7e404abb600000';
 		update_post_meta( $audit_id, 'checksum', $checksum );
 
-		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v2/audit/%s', $checksum ) );
+		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
@@ -145,7 +145,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		update_post_meta( $audit_id, 'checksum', $checksum );
 		update_post_meta( $audit_id, 'source_type', 'zip' );
 
-		$request = new WP_REST_Request( 'PUT', sprintf( '/tide/v2/audit/%s', $checksum ) );
+		$request = new WP_REST_Request( 'PUT', sprintf( '/tide/v1/audit/%s', $checksum ) );
 		$request->set_param( 'source_type', 'repo' );
 		$response = $this->server->dispatch( $request );
 
@@ -170,7 +170,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		$checksum = '7d9e35c703a7f8c6def92d5dbcf4a85a9271ce390474339cef7e404abb600000';
 		update_post_meta( $audit_id, 'checksum', $checksum );
 
-		$request  = new WP_REST_Request( 'DELETE', sprintf( '/tide/v2/audit/%s', $checksum ) );
+		$request  = new WP_REST_Request( 'DELETE', sprintf( '/tide/v1/audit/%s', $checksum ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertNotInstanceOf( 'WP_Error', $response );
@@ -222,7 +222,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 			'content'     => 'Plugin Test',
 		);
 
-		$request = new WP_REST_Request( 'POST', '/tide/v2/audit' );
+		$request = new WP_REST_Request( 'POST', '/tide/v1/audit' );
 		$request->set_body_params( $params );
 		$response = $this->server->dispatch( $request );
 

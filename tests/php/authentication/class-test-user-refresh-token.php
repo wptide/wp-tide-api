@@ -27,7 +27,7 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	public $namespace = '/tide/v2';
+	public $namespace = '/tide/v1';
 
 	/**
 	 * REST Server.

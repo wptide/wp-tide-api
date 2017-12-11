@@ -4,7 +4,7 @@
  *
  * This allows a user to be identified by via REST without using login credentials.
  *
- * A POST request is made to {api_prefix}/tide/v2/auth with the following fields:
+ * A POST request is made to {api_prefix}/tide/v1/auth with the following fields:
  *
  *   * `api_key` : User's API key
  *   * `api_secret` : User's API secret

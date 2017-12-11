@@ -10,7 +10,7 @@
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: tide-api
  * Domain Path: languages
- * API Version: v2
+ * API Version: v1
  * API Namespace: tide
  *
  * @package WP_Tide_API

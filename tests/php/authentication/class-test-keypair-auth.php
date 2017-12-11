@@ -26,7 +26,7 @@ class Test_Keypair_Auth extends WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	public $namespace = '/tide/v2';
+	public $namespace = '/tide/v1';
 
 	/**
 	 * REST Server.

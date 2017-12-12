@@ -28,19 +28,19 @@ Both above authentication methods will return a JWT that contains the user's ID 
 
 Example: Get token with User Authentication
 ```
-curl -X POST -F 'username=admin' -F 'password=password' http://local.dev/wp-json/tide/v1/auth
+curl -X POST -F 'username=admin' -F 'password=password' http://[SITE]/wp-json/tide/v1/auth
 ```
 
 Example: Get token with API Key and API Secret
 ```
-curl -X POST -F 'api_key=1guJ0omfNkzoXsUu6NRp9rwCr' -F 'api_secret=X)WxT3Wp&NPHPWFFxRGDioP1UUVNuBfH' http://local.dev/api/tide/v2/auth
+curl -X POST -F 'api_key=1guJ0omfNkzoXsUu6NRp9rwCr' -F 'api_secret=X)WxT3Wp&NPHPWFFxRGDioP1UUVNuBfH' http://[SITE]/api/tide/v1/auth
 ```
 
 Once a token is obtained you can access other REST API resources by specifying the HTTP Authorization header with a bearer token.
 
 Example: Standard WordPress endpoint request with JWT authentication active and using a Bearer token
 ```
-curl -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0ODc1NzAwOTIsImlzcyI6Imh0dHA6XC9cL3NpbmdsZTUuZGV2IiwiZXhwIjoxNDkwMTYyMDkyLCJkYXRhIjp7ImNsaWVudCI6eyJpZCI6MSwidHlwZSI6IndwX3VzZXIifX19.HGqNFaH742QPsMy0zkFmuiiRvlBczVoeorr6uVnwwZ4" http://local.dev/wp-json/wp/v2/posts
+curl -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0ODc1NzAwOTIsImlzcyI6Imh0dHA6XC9cL3NpbmdsZTUuZGV2IiwiZXhwIjoxNDkwMTYyMDkyLCJkYXRhIjp7ImNsaWVudCI6eyJpZCI6MSwidHlwZSI6IndwX3VzZXIifX19.HGqNFaH742QPsMy0zkFmuiiRvlBczVoeorr6uVnwwZ4" http://[SITE]/wp-json/wp/v1/posts
 ```
 
 ### Refresh tokens (optional, but recommended)
@@ -66,5 +66,5 @@ curl -X POST -H "Authorization: Bearer [REFRESH_TOKEN]" "https://[SITE]/api/tide
 
 Example: Re-authenticate with a "Refresh Token"
 ```
-curl -X POST -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0ODgxNjYwNjQsImlzcyI6Imh0dHA6XC9cL3NpbmdsZTUuZGV2IiwiZXhwIjoxNTE5NzAyMDY0LCJkYXRhIjp7InRva2VuX3R5cGUiOiJyZWZyZXNoIiwiY2xpZW50Ijp7ImlkIjoxLCJ0eXBlIjoid3BfdXNlciJ9fX0.FP11UCDo-5AiYKacL545tPwgsEQUYwMXkqapqoPVYuw" "http://example.dev/wp-json/tide/v2/auth"
+curl -X POST -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0ODgxNjYwNjQsImlzcyI6Imh0dHA6XC9cL3NpbmdsZTUuZGV2IiwiZXhwIjoxNTE5NzAyMDY0LCJkYXRhIjp7InRva2VuX3R5cGUiOiJyZWZyZXNoIiwiY2xpZW50Ijp7ImlkIjoxLCJ0eXBlIjoid3BfdXNlciJ9fX0.FP11UCDo-5AiYKacL545tPwgsEQUYwMXkqapqoPVYuw" "http://example.dev/wp-json/tide/v1/auth"
 ```

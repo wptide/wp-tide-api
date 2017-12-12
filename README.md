@@ -66,5 +66,5 @@ curl -X POST -H "Authorization: Bearer [REFRESH_TOKEN]" "https://[SITE]/api/tide
 
 Example: Re-authenticate with a "Refresh Token"
 ```
-curl -X POST -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0ODgxNjYwNjQsImlzcyI6Imh0dHA6XC9cL3NpbmdsZTUuZGV2IiwiZXhwIjoxNTE5NzAyMDY0LCJkYXRhIjp7InRva2VuX3R5cGUiOiJyZWZyZXNoIiwiY2xpZW50Ijp7ImlkIjoxLCJ0eXBlIjoid3BfdXNlciJ9fX0.FP11UCDo-5AiYKacL545tPwgsEQUYwMXkqapqoPVYuw" "http://example.dev/api/tide/v1/auth"
+curl -X POST -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0ODgxNjYwNjQsImlzcyI6Imh0dHA6XC9cL3NpbmdsZTUuZGV2IiwiZXhwIjoxNTE5NzAyMDY0LCJkYXRhIjp7InRva2VuX3R5cGUiOiJyZWZyZXNoIiwiY2xpZW50Ijp7ImlkIjoxLCJ0eXBlIjoid3BfdXNlciJ9fX0.FP11UCDo-5AiYKacL545tPwgsEQUYwMXkqapqoPVYuw" "http://[SITE]/api/tide/v1/auth"
 ```

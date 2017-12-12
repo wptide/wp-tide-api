@@ -26,7 +26,7 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	public $namespace = '/tide/v2';
+	public $namespace = '/tide/v1';
 
 	/**
 	 * The base route for JWT authentication.

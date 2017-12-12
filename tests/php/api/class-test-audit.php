@@ -138,7 +138,7 @@ class Test_Audit extends WP_UnitTestCase {
 			'post_type' => 'audit',
 		) );
 
-		$request = new WP_REST_Request( 'GET', rest_url( "tide/v2/audit/{$audit_id}" ) );
+		$request = new WP_REST_Request( 'GET', rest_url( "tide/v1/audit/{$audit_id}" ) );
 
 		$response = array(
 			'id' => $audit_id,

@@ -28,7 +28,7 @@ Both above authentication methods will return a JWT that contains the user's ID 
 
 Example: Get token with User Authentication
 ```
-curl -X POST -F 'username=admin' -F 'password=password' http://[SITE]/wp-json/tide/v1/auth
+curl -X POST -F 'username=admin' -F 'password=password' http://[SITE]/api/tide/v1/auth
 ```
 
 Example: Get token with API Key and API Secret
@@ -40,7 +40,7 @@ Once a token is obtained you can access other REST API resources by specifying t
 
 Example: Standard WordPress endpoint request with JWT authentication active and using a Bearer token
 ```
-curl -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0ODc1NzAwOTIsImlzcyI6Imh0dHA6XC9cL3NpbmdsZTUuZGV2IiwiZXhwIjoxNDkwMTYyMDkyLCJkYXRhIjp7ImNsaWVudCI6eyJpZCI6MSwidHlwZSI6IndwX3VzZXIifX19.HGqNFaH742QPsMy0zkFmuiiRvlBczVoeorr6uVnwwZ4" http://[SITE]/wp-json/wp/v1/posts
+curl -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0ODc1NzAwOTIsImlzcyI6Imh0dHA6XC9cL3NpbmdsZTUuZGV2IiwiZXhwIjoxNDkwMTYyMDkyLCJkYXRhIjp7ImNsaWVudCI6eyJpZCI6MSwidHlwZSI6IndwX3VzZXIifX19.HGqNFaH742QPsMy0zkFmuiiRvlBczVoeorr6uVnwwZ4" http://[SITE]/api/wp/v1/posts
 ```
 
 ### Refresh tokens (optional, but recommended)
@@ -66,5 +66,5 @@ curl -X POST -H "Authorization: Bearer [REFRESH_TOKEN]" "https://[SITE]/api/tide
 
 Example: Re-authenticate with a "Refresh Token"
 ```
-curl -X POST -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0ODgxNjYwNjQsImlzcyI6Imh0dHA6XC9cL3NpbmdsZTUuZGV2IiwiZXhwIjoxNTE5NzAyMDY0LCJkYXRhIjp7InRva2VuX3R5cGUiOiJyZWZyZXNoIiwiY2xpZW50Ijp7ImlkIjoxLCJ0eXBlIjoid3BfdXNlciJ9fX0.FP11UCDo-5AiYKacL545tPwgsEQUYwMXkqapqoPVYuw" "http://example.dev/wp-json/tide/v1/auth"
+curl -X POST -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0ODgxNjYwNjQsImlzcyI6Imh0dHA6XC9cL3NpbmdsZTUuZGV2IiwiZXhwIjoxNTE5NzAyMDY0LCJkYXRhIjp7InRva2VuX3R5cGUiOiJyZWZyZXNoIiwiY2xpZW50Ijp7ImlkIjoxLCJ0eXBlIjoid3BfdXNlciJ9fX0.FP11UCDo-5AiYKacL545tPwgsEQUYwMXkqapqoPVYuw" "http://example.dev/api/tide/v1/auth"
 ```

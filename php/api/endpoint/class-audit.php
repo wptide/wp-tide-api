@@ -246,6 +246,11 @@ class Audit extends Base {
 		foreach ( $standards as $standard ) {
 			$meta = get_post_meta( $rest_post['id'], sprintf( '_audit_%s', $standard ), true );
 
+			// If we don't have any data for the standard then there's no point in adding an empty element to the results.
+			if ( empty( $meta ) ) {
+				continue;
+			}
+
 			$results[ $standard ] = $meta;
 
 			// Setup the detailed report.

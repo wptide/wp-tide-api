@@ -137,6 +137,8 @@ class Test_Audit extends WP_UnitTestCase {
 		$audit_id = $this->factory->post->create( array(
 			'post_type' => 'audit',
 		) );
+		update_post_meta( $audit_id, '_audit_phpcs_wordpress', '{"value":"not empty"}' );
+		update_post_meta( $audit_id, '_audit_phpcs_wordpress-core', '{"value":"not empty"}' );
 
 		$request = new WP_REST_Request( 'GET', rest_url( "tide/v1/audit/{$audit_id}" ) );
 

@@ -75,7 +75,6 @@ class Audit extends Base {
 					'checksum'         => array(),
 					'version'          => array(),
 					'standards'        => array(),
-					'rating'           => array(),
 					'results'          => array(
 						'get_callback'    => array( $this, 'rest_results_get' ),
 						'update_callback' => array( $this, 'rest_results_update' ),
@@ -245,7 +244,8 @@ class Audit extends Base {
 		$results = array();
 
 		foreach ( $standards as $standard ) {
-			$meta                 = get_post_meta( $rest_post['id'], sprintf( '_audit_%s', $standard ), true );
+			$meta = get_post_meta( $rest_post['id'], sprintf( '_audit_%s', $standard ), true );
+
 			$results[ $standard ] = $meta;
 
 			// Setup the detailed report.

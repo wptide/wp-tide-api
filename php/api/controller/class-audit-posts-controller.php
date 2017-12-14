@@ -510,26 +510,6 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				'options' => $options,
 			);
 
-			// @todo phpcompatibility may not be the only standard without weightings.
-			if ( 'phpcompatibility' !== $standard ) {
-				/*
-				 * Note that the weightings files are located in the repo directory
-				 * 'services/audit-server/audit-weightings/phpcs'
-				 * (which is mapped in the container to 'services/audit-server/audit-weightings/phpcs')
-				 * So we just need to pass the pass of the file from that base directory.
-				 * If the weightings_file is 'tide/weightings.json' then it should be located at
-				 * 'services/audit-server/audit-weightings/phpcs/tide/weightings.json'
-				 * (which is mapped in the container to 'services/audit-server/audit-weightings/phpcs/tide/weightings.json')
-				 * Also, note that I have not included this key inside the options key because
-				 * options are only PHPCS command line options.
-				 *
-				 * @TODO: This is hardcoded but the weightings_file property should be populated from the endpoint parameter.
-				 */
-				$args['scoring'] = array(
-					'weightings_file' => 'tide/weightings.json',
-				);
-			}
-
 			$task_args['audits'][] = $args;
 		}
 

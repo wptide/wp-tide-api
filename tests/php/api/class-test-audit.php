@@ -55,7 +55,7 @@ class Test_Audit extends WP_UnitTestCase {
 
 		$filtered_standards = Audit::filter_standards( $standards );
 
-		$this->assertTrue( in_array( 'phpcs_tide-default', $filtered_standards, true ) );
+		$this->assertTrue( in_array( 'phpcs_wordpress', $filtered_standards, true ) );
 		$this->assertFalse( in_array( 'disallowed_standard', $filtered_standards, true ) );
 	}
 
@@ -82,7 +82,7 @@ class Test_Audit extends WP_UnitTestCase {
 		$exec_fields = $audit->executable_audit_fields();
 
 		$this->assertTrue( isset( $exec_fields['test_audit'] ) );
-		$this->assertTrue( isset( $exec_fields['phpcs_tide-default'] ) );
+		$this->assertTrue( isset( $exec_fields['phpcs_wordpress'] ) );
 	}
 
 	/**
@@ -117,12 +117,12 @@ class Test_Audit extends WP_UnitTestCase {
 		$audit      = new Audit();
 
 		$results = array(
-			'phpcs_tide-default' => 'test_value',
+			'phpcs_wordpress' => 'test_value',
 		);
 
 		$audit->rest_results_update( $results, $audit_post, 'results', null, null );
 
-		$this->assertEquals( 'test_value', get_post_meta( $audit_id, '_audit_phpcs_tide-default', true ) );
+		$this->assertEquals( 'test_value', get_post_meta( $audit_id, '_audit_phpcs_wordpress', true ) );
 	}
 
 	/**
@@ -146,12 +146,12 @@ class Test_Audit extends WP_UnitTestCase {
 
 		// Test request without `standards` param.
 		$results = $audit->rest_results_get( $response, 'results', $request );
-		$this->assertTrue( isset( $results['phpcs_tide-default'] ) );
+		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
 
 		// Test request with `standards` param.
-		$request->set_param( 'standards', 'phpcs_wordpress' );
+		$request->set_param( 'standards', 'phpcs_wordpress-core' );
 		$results = $audit->rest_results_get( $response, 'results', $request );
-		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
-		$this->assertFalse( isset( $results['phpcs_tide-default'] ) );
+		$this->assertTrue( isset( $results['phpcs_wordpress-core'] ) );
+		$this->assertFalse( isset( $results['phpcs_wordpress'] ) );
 	}
 }

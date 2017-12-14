@@ -495,9 +495,14 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				'report'   => 'json',
 			);
 
-			// Lowest version set to WordPress minimum version.
 			if ( 'phpcompatibility' === $standard ) {
+
+				// Lowest version set to WordPress minimum version.
 				$options['runtime-set'] = 'testVersion 5.2-';
+			} else {
+
+				// Ignore 3rd-party directories.
+				$options['ignore'] = '*/vendor/*,*/node_modules/*';
 			}
 
 			$args = array(

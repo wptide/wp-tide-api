@@ -234,11 +234,15 @@ class Audit extends Base {
 		// If "standards" has been passed with the request then use those standard.
 		$standards = $request->get_param( 'standards' );
 
-		// If not, then use TIDE default standards.
-		if ( $standards ) {
-			$standards = explode( ',', $standards );
+		// If not, then use default standards.
+		if ( ! empty( $standards ) ) {
+			$allowed_standards = array_keys( self::allowed_standards() );
+
+			$standards = array_filter( explode( ',', $standards ), function ( $standard ) use ( $allowed_standards ) {
+				return in_array( $standard, $allowed_standards, true );
+			} );
 		} else {
-			$standards = array_keys( self::allowed_standards() );
+			$standards = array_keys( self::executable_audit_fields() );
 		}
 
 		$results = array();

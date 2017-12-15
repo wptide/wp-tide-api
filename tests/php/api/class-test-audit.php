@@ -138,6 +138,8 @@ class Test_Audit extends WP_UnitTestCase {
 			'post_type' => 'audit',
 		) );
 		update_post_meta( $audit_id, '_audit_phpcs_wordpress', '{"value":"not empty"}' );
+		update_post_meta( $audit_id, '_audit_phpcs_phpcompatibility', '{"value":"not empty"}' );
+		update_post_meta( $audit_id, '_audit_phpcs_invalid-standard', '{"value":"not empty"}' );
 		update_post_meta( $audit_id, '_audit_phpcs_wordpress-core', '{"value":"not empty"}' );
 
 		$request = new WP_REST_Request( 'GET', rest_url( "tide/v1/audit/{$audit_id}" ) );
@@ -149,11 +151,14 @@ class Test_Audit extends WP_UnitTestCase {
 		// Test request without `standards` param.
 		$results = $audit->rest_results_get( $response, 'results', $request );
 		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
+		$this->assertTrue( isset( $results['phpcs_phpcompatibility'] ) );
 
 		// Test request with `standards` param.
-		$request->set_param( 'standards', 'phpcs_wordpress-core' );
+		$request->set_param( 'standards', 'phpcs_wordpress-core,phpcs_invalid-standard' );
 		$results = $audit->rest_results_get( $response, 'results', $request );
 		$this->assertTrue( isset( $results['phpcs_wordpress-core'] ) );
 		$this->assertFalse( isset( $results['phpcs_wordpress'] ) );
+		$this->assertFalse( isset( $results['phpcs_phpcompatibility'] ) );
+		$this->assertFalse( isset( $results['phpcs_invalid-standard'] ) );
 	}
 }

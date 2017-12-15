@@ -44,6 +44,18 @@ class Test_API_Bootstrap extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test API_Bootstrap::register_roles().
+	 *
+	 * @covers ::register_roles()
+	 */
+	public function test_register_roles() {
+
+		$this->api_bootstrap->register_roles();
+		$role = get_role( 'api_client' );
+		$this->assertInstanceOf( WP_Role::class, $role );
+	}
+
+	/**
 	 * Test API_Bootstrap::register_meta_fields().
 	 *
 	 * @covers ::register_meta_fields()

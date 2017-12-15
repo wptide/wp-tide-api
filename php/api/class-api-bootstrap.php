@@ -87,6 +87,28 @@ class API_Bootstrap extends Base {
 	}
 
 	/**
+	 * Register a new role for API Client.
+	 *
+	 * @action init
+	 */
+	public function register_roles() {
+
+	    // Add API Client role.
+        add_role('api_client', 'API Client');
+
+        // Add caps for API Client role
+        $role = get_role('api_client');
+        $role->add_cap('upload_files');
+        $role->add_cap('edit_posts');
+        $role->add_cap('edit_published_posts');
+        $role->add_cap('publish_posts');
+        $role->add_cap('read');
+        $role->add_cap('level_2');
+        $role->add_cap('level_1');
+        $role->add_cap('level_0');
+	}
+
+	/**
 	 * Register meta_fields for CPTs based on data in $custom_post_types property.
 	 *
 	 * @param string $object_type Post Type.

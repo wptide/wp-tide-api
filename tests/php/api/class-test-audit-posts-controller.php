@@ -37,6 +37,13 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	 */
 	protected static $admin_id;
 
+	/**
+	 * API client user ID.
+	 *
+	 * @var int
+	 */
+	protected static $api_client_id;
+
 	const CHECKSUM_PATTERN = '[a-fA-F\d]{64}';
 
 	/**
@@ -71,7 +78,13 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	 * @covers ::get_item_altid()
 	 */
 	public function test_get_item() {
-		wp_set_current_user( self::$admin_id );
+
+		add_role( 'api_client', 'API Client' );
+
+		$client_id = $this->factory()->user->create( array(
+			'role' => 'api_client',
+		) );
+		wp_set_current_user( $client_id );
 
 		$audit_id = $this->factory()->post->create( array(
 			'post_type' => 'audit',

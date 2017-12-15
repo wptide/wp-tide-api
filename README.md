@@ -70,3 +70,9 @@ or
 ```
 curl -H "Authorization: Bearer <TOKEN>" http://tide.local/api/tide/v1/audit/<USER_LOGIN>/<SLUG>
 ```
+
+## Props  
+
+[@rheinardkorf](https://github.com/rheinardkorf), [@valendesigns](https://github.com/valendesigns), [@danlouw](https://github.com/danlouw), [@miina](https://github.com/miina), [@sayedtaqui](https://github.com/sayedtaqui), [@DavidCramer](https://github.com/DavidCramer), [@PatelUtkarsh](https://github.com/PatelUtkarsh), [@davidlonjon](https://github.com/davidlonjon), [@kopepasah](https://github.com/kopepasah)   
+
+

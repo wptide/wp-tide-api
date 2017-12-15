@@ -20,6 +20,7 @@ class Test_API_Bootstrap extends WP_UnitTestCase {
 	 * @var API_Bootstrap
 	 */
 	public $api_bootstrap;
+
 	/**
 	 * Setup.
 	 *

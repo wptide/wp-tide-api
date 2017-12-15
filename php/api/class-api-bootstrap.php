@@ -93,19 +93,19 @@ class API_Bootstrap extends Base {
 	 */
 	public function register_roles() {
 
-	    // Add API Client role.
-        add_role('api_client', 'API Client');
+		// Add API Client role.
+		add_role( 'api_client', 'API Client' );
 
-        // Add caps for API Client role
-        $role = get_role('api_client');
-        $role->add_cap('upload_files');
-        $role->add_cap('edit_posts');
-        $role->add_cap('edit_published_posts');
-        $role->add_cap('publish_posts');
-        $role->add_cap('read');
-        $role->add_cap('level_2');
-        $role->add_cap('level_1');
-        $role->add_cap('level_0');
+		// Add caps for API Client role.
+		$role = get_role( 'api_client' );
+		$role->add_cap( 'upload_files' );
+		$role->add_cap( 'edit_posts' );
+		$role->add_cap( 'edit_published_posts' );
+		$role->add_cap( 'publish_posts' );
+		$role->add_cap( 'read' );
+		$role->add_cap( 'level_2' );
+		$role->add_cap( 'level_1' );
+		$role->add_cap( 'level_0' );
 	}
 
 	/**
@@ -147,7 +147,8 @@ class API_Bootstrap extends Base {
 	public function register_rest_fields( $object_type, $rest_fields ) {
 		$default_meta_args = array(
 			'single'       => true,
-			'show_in_rest' => false, // These meta_fields are only to store rest_field data in, not to be used in REST response directly.
+			'show_in_rest' => false,
+			// These meta_fields are only to store rest_field data in, not to be used in REST response directly.
 		);
 
 		$default_rest_field_args = array(
@@ -204,6 +205,7 @@ class API_Bootstrap extends Base {
 		 * That's why we can use $field_name here to look up the meta
 		 */
 		$meta_value = get_post_meta( $object['id'], $field_name, true );
+
 		return $meta_value;
 	}
 
@@ -250,7 +252,7 @@ class API_Bootstrap extends Base {
 	/**
 	 * Update the WP_Query args to map REST fields to post_meta.
 	 *
-	 * @todo Find a better place for this filter.
+	 * @todo   Find a better place for this filter.
 	 *
 	 * @filter rest_audit_query 10, 2
 	 *

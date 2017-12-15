@@ -104,8 +104,6 @@ class Test_WP_Tide_API extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'base_name', $wp_tide_api_plugin->info );
 		$this->assertArrayHasKey( 'include_dir', $wp_tide_api_plugin->info );
 		$this->assertArrayHasKey( 'include_url', $wp_tide_api_plugin->info );
-		$this->assertArrayHasKey( 'assets_dir', $wp_tide_api_plugin->info );
-		$this->assertArrayHasKey( 'assets_url', $wp_tide_api_plugin->info );
 		$this->assertArrayHasKey( 'languages_dir', $wp_tide_api_plugin->info );
 		$this->assertArrayHasKey( 'languages_url', $wp_tide_api_plugin->info );
 	}

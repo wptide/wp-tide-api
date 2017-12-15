@@ -68,7 +68,6 @@ class WP_Tide_API {
 		$data       = array(
 			'__FILE__'     => __FILE__,
 			'library_path' => 'php',
-			'assets_path'  => 'assets',
 		);
 		$data       = array_merge( $data, $this->parse_header_information() );
 		$this->info = $this->setup_paths( $data );
@@ -204,8 +203,6 @@ class WP_Tide_API {
 		$data['base_name']     = dirname( plugin_basename( __FILE__ ) );
 		$data['include_dir']   = $data['plugin_dir'] . $data['library_path'] . DIRECTORY_SEPARATOR;
 		$data['include_url']   = $data['plugin_url'] . $data['library_path'] . DIRECTORY_SEPARATOR;
-		$data['assets_dir']    = $data['plugin_dir'] . $data['assets_path'] . DIRECTORY_SEPARATOR;
-		$data['assets_url']    = $data['plugin_url'] . $data['assets_path'] . DIRECTORY_SEPARATOR;
 		$data['languages_dir'] = $data['plugin_dir'] . trim( $data['domain_path'], '/' ) . DIRECTORY_SEPARATOR;
 		$data['languages_url'] = $data['plugin_url'] . trim( $data['domain_path'], '/' ) . DIRECTORY_SEPARATOR;
 

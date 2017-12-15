@@ -121,61 +121,6 @@ class Plugin extends Base {
 	}
 
 	/**
-	 * Add the Plugin menus.
-	 *
-	 * @action admin_menu
-	 */
-	public function admin_menu() {
-
-		add_menu_page( static::MENU_PARENT_TITLE,
-			static::MENU_PARENT_TITLE,
-			'manage_options',
-			static::MENU_PARENT,
-			array( $this, 'render_main_plugin_page' ),
-			$this->info['assets_url'] . 'images/admin-menu-icon.svg'
-		);
-
-		do_action( static::HOOK_PREFIX . '_submenu', static::MENU_PARENT );
-	}
-
-	/**
-	 * Render the primary admin menu.
-	 */
-	public function render_main_plugin_page() {
-
-		echo 'Hello World!'; // WPCS: xss ok.
-	}
-
-	/**
-	 * Enqueue Plugin admin scripts.
-	 *
-	 * @action admin_enqueue_scripts
-	 *
-	 * @param String $hook The page hook to enqueue scripts conditionally.
-	 */
-	public function admin_scripts( $hook ) {
-
-		// Other plugins can allow these scripts to be loaded.
-		$load_plugin_admin_scripts = apply_filters( static::HOOK_PREFIX . '_load_admin_scripts', false );
-
-		if ( preg_match( '/' . static::PAGE_HOOK_BASE . '/i', $hook ) || $load_plugin_admin_scripts ) {
-
-			wp_enqueue_script( static::PRIMARY_JS_SLUG, $this->info['assets_url'] . 'js/plugin.js', array(
-				'jquery',
-				'backbone',
-			), $this->info['version'], false );
-
-			wp_localize_script( static::PRIMARY_JS_SLUG, static::PRIMARY_JS_OBJECT, array() );
-
-			do_action( static::HOOK_PREFIX . '_enqueue_scripts' );
-
-			wp_enqueue_style( static::PRIMARY_CSS_SLUG, $this->info['assets_url'] . 'css/plugin.css', array(), $this->info['version'] );
-
-			do_action( static::HOOK_PREFIX . '_enqueue_style' );
-		}
-	}
-
-	/**
 	 * Convenience method to get the plugin settings.
 	 *
 	 * Will get settings from site options if on a network, or regular options for single site install.

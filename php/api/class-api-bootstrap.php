@@ -93,19 +93,19 @@ class API_Bootstrap extends Base {
 	 */
 	public function register_roles() {
 
-		// Add API Client role.
-		add_role( 'api_client', 'API Client' );
+		// Caps for API Client role.
+		$capabilities = array(
+			'delete_posts'           => true,
+			'delete_published_posts' => true,
+			'edit_posts'             => true,
+			'edit_published_posts'   => true,
+			'publish_posts'          => true,
+			'read'                   => true,
+			'upload_files'           => true,
+		);
 
-		// Add caps for API Client role.
-		$role = get_role( 'api_client' );
-		$role->add_cap( 'upload_files' );
-		$role->add_cap( 'edit_posts' );
-		$role->add_cap( 'edit_published_posts' );
-		$role->add_cap( 'publish_posts' );
-		$role->add_cap( 'read' );
-		$role->add_cap( 'level_2' );
-		$role->add_cap( 'level_1' );
-		$role->add_cap( 'level_0' );
+		// Add API Client role.
+		add_role( 'api_client', __( 'API Client', 'tide-api' ), $capabilities );
 	}
 
 	/**

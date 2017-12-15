@@ -20,6 +20,7 @@ class Test_API_Bootstrap extends WP_UnitTestCase {
 	 * @var API_Bootstrap
 	 */
 	public $api_bootstrap;
+
 	/**
 	 * Setup.
 	 *
@@ -41,6 +42,18 @@ class Test_API_Bootstrap extends WP_UnitTestCase {
 
 		$this->api_bootstrap->register_post_types();
 		$this->assertTrue( post_type_exists( 'audit' ) );
+	}
+
+	/**
+	 * Test API_Bootstrap::register_roles().
+	 *
+	 * @covers ::register_roles()
+	 */
+	public function test_register_roles() {
+
+		$this->api_bootstrap->register_roles();
+		$role = get_role( 'api_client' );
+		$this->assertInstanceOf( WP_Role::class, $role );
 	}
 
 	/**

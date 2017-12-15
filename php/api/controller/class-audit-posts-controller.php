@@ -662,8 +662,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		 * Still allowed users with the right capabilities to read this post.
 		 */
 		$visibility   = get_post_meta( $post->ID, 'visibility', true );
-		$current_user = get_current_user_id();
-		if ( 'public' !== $visibility && $post->post_author !== $current_user && ! current_user_can( 'read_private_posts' ) ) {
+		$current_user = wp_get_current_user();
+		$is_author    = $post->post_author === $current_user->ID && in_array( 'api_client', (array) $current_user->roles, true );
+
+		if ( 'public' !== $visibility && ( ! $is_author || ! current_user_can( 'read_private_posts' ) ) ) {
 			$allowed = false;
 		}
 

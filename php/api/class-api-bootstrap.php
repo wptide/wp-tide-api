@@ -87,6 +87,28 @@ class API_Bootstrap extends Base {
 	}
 
 	/**
+	 * Register a new role for API Client.
+	 *
+	 * @action init
+	 */
+	public function register_roles() {
+
+		// Caps for API Client role.
+		$capabilities = array(
+			'delete_posts'           => true,
+			'delete_published_posts' => true,
+			'edit_posts'             => true,
+			'edit_published_posts'   => true,
+			'publish_posts'          => true,
+			'read'                   => true,
+			'upload_files'           => true,
+		);
+
+		// Add API Client role.
+		add_role( 'api_client', __( 'API Client', 'tide-api' ), $capabilities );
+	}
+
+	/**
 	 * Register meta_fields for CPTs based on data in $custom_post_types property.
 	 *
 	 * @param string $object_type Post Type.
@@ -125,7 +147,8 @@ class API_Bootstrap extends Base {
 	public function register_rest_fields( $object_type, $rest_fields ) {
 		$default_meta_args = array(
 			'single'       => true,
-			'show_in_rest' => false, // These meta_fields are only to store rest_field data in, not to be used in REST response directly.
+			'show_in_rest' => false,
+			// These meta_fields are only to store rest_field data in, not to be used in REST response directly.
 		);
 
 		$default_rest_field_args = array(
@@ -182,6 +205,7 @@ class API_Bootstrap extends Base {
 		 * That's why we can use $field_name here to look up the meta
 		 */
 		$meta_value = get_post_meta( $object['id'], $field_name, true );
+
 		return $meta_value;
 	}
 
@@ -228,7 +252,7 @@ class API_Bootstrap extends Base {
 	/**
 	 * Update the WP_Query args to map REST fields to post_meta.
 	 *
-	 * @todo Find a better place for this filter.
+	 * @todo   Find a better place for this filter.
 	 *
 	 * @filter rest_audit_query 10, 2
 	 *

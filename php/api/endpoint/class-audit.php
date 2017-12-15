@@ -75,6 +75,7 @@ class Audit extends Base {
 					'checksum'         => array(),
 					'version'          => array(),
 					'standards'        => array(),
+					'project_type'     => array(),
 					'results'          => array(
 						'get_callback'    => array( $this, 'rest_results_get' ),
 						'update_callback' => array( $this, 'rest_results_update' ),

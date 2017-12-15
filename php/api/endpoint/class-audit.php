@@ -65,17 +65,17 @@ class Audit extends Base {
 				),
 				'rest_fields' => array(
 					// @todo we need to specify the schema of each field
+					'visibility'       => array(),
+					'version'          => array(),
+					'checksum'         => array(),
+					'project_type'     => array(),
 					'source_url'       => array(
 						'update_callback' => array( $this, 'rest_field_url_update_callback' ),
 					),
 					'source_type'      => array(), // e.g. 'zip', 'repo'.
 					'original_request' => array(),
 					'code_info'        => array(),
-					'visibility'       => array(),
-					'checksum'         => array(),
-					'version'          => array(),
 					'standards'        => array(),
-					'project_type'     => array(),
 					'results'          => array(
 						'get_callback'    => array( $this, 'rest_results_get' ),
 						'update_callback' => array( $this, 'rest_results_update' ),

@@ -277,6 +277,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			'password',
 			'status',
 			'post_name',
+			'original_request',
 			'project', // Hide the rest field in the response.
 		) );
 

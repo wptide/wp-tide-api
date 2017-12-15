@@ -1,9 +1,12 @@
 sudo: required
 
 notifications:
-  email:
-    on_success: never
-    on_failure: change
+    email:
+        on_success: never
+        on_failure: change
+    slack:
+        rooms:
+            secure: alvBj3MTDE71BXCKXcglnHRI4DWrG7pYhTXJ04XAzBnD3/nGlFCKY9N7M4DCyt+WXkHR2hV6JGpvfnbjB1iZ3W9iAKAla8Aq/+HbOVKyqVes9c7hugzpERLPepo8F8n727LWnD2yXdTosYko7f5sI+cZPZpfP5fkqYXk212aT4+Z55HycBQwlbuYlARvv3Tbl+NU3XuQVPPGeJLEqfpKWxxbJ266BEd9qM3zNK01gsJnsmwNabcrs01DKXY2PNOPuGthZv+va9IcR669M93MAg6T3mXsovvMNbxz4KglHntIZ6BEx+EtCoK1/Suw+CkHqG0mNRpo+JLsZLGoPhP/y0/BcLcq8pSxKeW17dO+2Fgw4qmxvAFWTaMA0Ay8H45WXN/V70XRb1PZQyj3xLSfsdxK3eRZSLkEl549V3zzNaxTKj9aHFKazioeFDUky7AwmOPflRxdo/x8WlMPQTlzu2Mfc1c7kYG52sIMxurXiSkPXHTtkJeNXxgsTmr84GhZAPHJpLIHBJjpg6ANS65YKBf5COzBFzIk3YYSn9q5+xp4PCQVK0s8i9yoU1VJH6+80ohC3wNFsvODGwAhqr7s31PKaaPMm2rBlGkMES8D5d4z+GWriSvkzlX0sEF1nGZpFJS2XSy+tQ0keJC1zflOUQ7ma5KKjnqas2W+b6eGbvc=
 
 cache:
   directories:

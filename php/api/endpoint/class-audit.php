@@ -258,11 +258,25 @@ class Audit extends Base {
 
 			$results[ $standard ] = $meta;
 
+			// Get the details value.
+			$request_details = isset( $_REQUEST['details'] ) ? wp_unslash( $_REQUEST['details'] ) : ''; // WPCS: input var okay. CSRF ok.
+
+			// Set the available details options.
+			$available_details = array(
+				'all',
+				$standard,
+			);
+
+			// Validate the details option.
+			$is_valid_details = (
+				! empty( $request_details )
+				&&
+				in_array( $request_details, $available_details, true )
+			);
+
 			// Setup the detailed report.
-			if ( isset( $results[ $standard ]['details'] ) && isset( $_REQUEST['details'] ) ) {
-				$details = $results[ $standard ]['details'];
-				unset( $results[ $standard ]['details'] );
-				$results[ $standard ]['details'] = $this->plugin->components['aws_s3']->get_file( $details );
+			if ( isset( $results[ $standard ]['details'] ) && $is_valid_details ) {
+				$results[ $standard ]['details'] = $this->plugin->components['aws_s3']->get_file( $results[ $standard ]['details'] );
 			}
 		}
 

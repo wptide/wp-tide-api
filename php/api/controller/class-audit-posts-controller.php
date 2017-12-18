@@ -494,6 +494,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$options = array(
 				'standard' => $standard,
 				'report'   => 'json',
+				'encoding' => 'utf-8',
 			);
 
 			if ( 'phpcompatibility' === $standard ) {

@@ -248,6 +248,9 @@ class Audit extends Base {
 
 		$results = array();
 
+		// Get the details value.
+		$request_details = isset( $_REQUEST['details'] ) ? wp_unslash( $_REQUEST['details'] ) : ''; // WPCS: input var okay. CSRF ok.
+
 		foreach ( $standards as $standard ) {
 			$meta = get_post_meta( $rest_post['id'], sprintf( '_audit_%s', $standard ), true );
 
@@ -258,20 +261,15 @@ class Audit extends Base {
 
 			$results[ $standard ] = $meta;
 
-			// Get the details value.
-			$request_details = isset( $_REQUEST['details'] ) ? wp_unslash( $_REQUEST['details'] ) : ''; // WPCS: input var okay. CSRF ok.
-
-			// Set the available details options.
-			$available_details = array(
-				'all',
-				$standard,
-			);
-
 			// Validate the details option.
 			$is_valid_details = (
 				! empty( $request_details )
 				&&
-				in_array( $request_details, $available_details, true )
+				(
+					$standard === $request_details
+					||
+					'all' === $request_details
+				)
 			);
 
 			// Setup the detailed report.

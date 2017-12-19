@@ -188,7 +188,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	 *
 	 * @covers ::get_item_permissions_check_altid()
 	 */
-	public function test_get_item_permissions_private_visibility() {
+	public function test_get_item_permissions_private_visibility_fails() {
 		$audit_id = $this->factory()->post->create( array(
 			'post_type'   => 'audit',
 			'post_author' => self::$api_client_id,
@@ -206,6 +206,30 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
+	}
+
+	/**
+	 * Test getting an item without permissions.
+	 *
+	 * @covers ::get_item_permissions_check_altid()
+	 */
+	public function test_get_item_permissions_private_visibility_passes() {
+		$audit_id = $this->factory()->post->create( array(
+			'post_type'   => 'audit',
+			'post_author' => self::$api_client_id,
+		) );
+
+		wp_set_current_user( self::$api_client_id );
+
+		$checksum = '7d9e35c703a7f8c6def92d5dbcf4a85a9271ce390474339cef7e404abb600000';
+		update_post_meta( $audit_id, 'checksum', $checksum );
+		update_post_meta( $audit_id, 'visibility', 'private' );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertNotInstanceOf( 'WP_Error', $response );
+		$this->assertEquals( 200, $response->get_status() );
 	}
 
 	/**

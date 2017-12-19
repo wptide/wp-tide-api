@@ -662,7 +662,13 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		// Determine an item's visibility and allow users with the right capabilities to read this post.
 		$visibility   = get_post_meta( $post->ID, 'visibility', true );
 		$current_user = wp_get_current_user();
-		$is_author    = $post->post_author === $current_user->ID && in_array( 'api_client', (array) $current_user->roles, true );
+		$is_author    = (
+			! is_wp_error( $current_user )
+			&&
+			absint( $post->post_author ) === absint( $current_user->ID )
+			&&
+			in_array( 'api_client', (array) $current_user->roles, true )
+		);
 
 		if ( 'private' === $visibility && ! ( $is_author || current_user_can( 'read_private_posts' ) ) ) {
 			$allowed = false;
@@ -735,7 +741,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	protected function elevate_audit_client_permission( $allowed ) {
 		$current_user = wp_get_current_user();
 
-		if ( in_array( 'audit_client', (array) $current_user->roles, true ) ) {
+		if ( ! is_wp_error( $current_user ) && in_array( 'audit_client', (array) $current_user->roles, true ) ) {
 			$allowed = true;
 		}
 

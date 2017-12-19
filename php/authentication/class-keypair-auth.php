@@ -188,6 +188,8 @@ class Keypair_Auth extends Base {
 		unset( $user->cap_key );
 		unset( $user->filter );
 
+		wp_set_current_user( $user->ID );
+
 		return $user;
 	}
 

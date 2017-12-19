@@ -108,16 +108,7 @@ class API_Bootstrap extends Base {
 		add_role( 'api_client', __( 'API Client', 'tide-api' ), $capabilities );
 
 		// Caps for Audit Client role.
-		$capabilities = array(
-			'delete_posts'           => true,
-			'delete_published_posts' => true,
-			'edit_posts'             => true,
-			'edit_published_posts'   => true,
-			'edit_others_posts'      => true,
-			'publish_posts'          => true,
-			'read'                   => true,
-			'upload_files'           => true,
-		);
+		$capabilities['edit_others_posts'] = true;
 
 		// Add API Client role.
 		add_role( 'audit_client', __( 'Audit Client', 'tide-api' ), $capabilities );

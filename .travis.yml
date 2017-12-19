@@ -10,8 +10,6 @@ notifications:
 
 cache:
   directories:
-    - node_modules
-    - vendor
     - $HOME/phpunit-bin
 
 language:

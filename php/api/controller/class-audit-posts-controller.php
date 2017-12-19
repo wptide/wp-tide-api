@@ -667,7 +667,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			&&
 			absint( $post->post_author ) === absint( $current_user->ID )
 			&&
-			in_array( 'api_client', (array) $current_user->roles, true )
+			$current_user->has_cap( 'api_client' )
 		);
 
 		if ( 'private' === $visibility && ! ( $is_author || current_user_can( 'read_private_posts' ) ) ) {
@@ -741,7 +741,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	protected function elevate_audit_client_permission( $allowed ) {
 		$current_user = wp_get_current_user();
 
-		if ( ! is_wp_error( $current_user ) && in_array( 'audit_client', (array) $current_user->roles, true ) ) {
+		if ( ! is_wp_error( $current_user ) && $current_user->has_cap( 'audit_client' ) ) {
 			$allowed = true;
 		}
 

@@ -19,8 +19,7 @@
   ],
   "require": {
     "firebase/php-jwt": "^4.0",
-    "aws/aws-sdk-php": "^3.22",
-    "php": ">=7.1"
+    "aws/aws-sdk-php": "^3.22"
   },
   "require-dev": {
     "wp-coding-standards/wpcs": "*",

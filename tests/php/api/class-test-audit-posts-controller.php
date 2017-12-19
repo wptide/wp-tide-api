@@ -209,7 +209,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	}
 
 	/**
-	 * Test getting an item without permissions.
+	 * Test getting an item with permissions.
 	 *
 	 * @covers ::get_item_permissions_check_altid()
 	 */

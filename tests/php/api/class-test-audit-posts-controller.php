@@ -30,6 +30,13 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	 */
 	protected static $api_client_id;
 
+	/**
+	 * Audit client user ID.
+	 *
+	 * @var int
+	 */
+	protected static $audit_client_id;
+
 	const CHECKSUM_PATTERN = '[a-fA-F\d]{64}';
 
 	/**
@@ -41,6 +48,11 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		self::$api_client_id = $factory->user->create( array(
 			'role' => 'api_client',
 		) );
+
+		self::$audit_client_id = $factory->user->create( array(
+			'user_login' => 'audit-server',
+			'role'       => 'audit_client',
+		) );
 	}
 
 	/**
@@ -48,6 +60,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	 */
 	public static function wpTearDownAfterClass() {
 		self::delete_user( self::$api_client_id );
+		self::delete_user( self::$audit_client_id );
 	}
 
 	/**
@@ -57,7 +70,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		wp_set_current_user( self::$api_client_id );
+		wp_set_current_user( self::$audit_client_id );
 	}
 
 	/**
@@ -110,10 +123,6 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	 * @covers ::get_item_altid()
 	 */
 	public function test_get_item_private_visibility() {
-		$this->markTestSkipped(
-			'This test is broken because the current user is not matching the post_author ID.'
-		);
-
 		$audit_id = $this->factory()->post->create( array(
 			'post_type'   => 'audit',
 			'post_author' => self::$api_client_id,
@@ -160,13 +169,67 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 			'post_author' => self::$api_client_id,
 		) );
 
+		wp_set_current_user( $this->factory()->post->create( array(
+			'role' => 'subscriber',
+		) ) );
+
 		$checksum = '7d9e35c703a7f8c6def92d5dbcf4a85a9271ce390474339cef7e404abb600000';
 		update_post_meta( $audit_id, 'checksum', $checksum );
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
 		$response = $this->server->dispatch( $request );
 
+		$this->assertNotInstanceOf( 'WP_Error', $response );
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Test getting an item without permissions.
+	 *
+	 * @covers ::get_item_permissions_check_altid()
+	 */
+	public function test_get_item_permissions_private_visibility_fails() {
+		$audit_id = $this->factory()->post->create( array(
+			'post_type'   => 'audit',
+			'post_author' => self::$api_client_id,
+		) );
+
+		wp_set_current_user( $this->factory()->post->create( array(
+			'role' => 'subscriber',
+		) ) );
+
+		$checksum = '7d9e35c703a7f8c6def92d5dbcf4a85a9271ce390474339cef7e404abb600000';
+		update_post_meta( $audit_id, 'checksum', $checksum );
+		update_post_meta( $audit_id, 'visibility', 'private' );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
+		$response = $this->server->dispatch( $request );
+
 		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
+	}
+
+	/**
+	 * Test getting an item with permissions.
+	 *
+	 * @covers ::get_item_permissions_check_altid()
+	 */
+	public function test_get_item_permissions_private_visibility_passes() {
+		$audit_id = $this->factory()->post->create( array(
+			'post_type'   => 'audit',
+			'post_author' => self::$api_client_id,
+		) );
+
+		wp_set_current_user( self::$api_client_id );
+
+		$checksum = '7d9e35c703a7f8c6def92d5dbcf4a85a9271ce390474339cef7e404abb600000';
+		update_post_meta( $audit_id, 'checksum', $checksum );
+		update_post_meta( $audit_id, 'visibility', 'private' );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertNotInstanceOf( 'WP_Error', $response );
+		$this->assertEquals( 200, $response->get_status() );
 	}
 
 	/**

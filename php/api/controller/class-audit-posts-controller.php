@@ -645,7 +645,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	public function get_items_permissions_check( $request ) {
 		$allowed = parent::get_items_permissions_check( $request );
 
-		return apply_filters( 'tide_api_audit_can_get_items', $allowed, $this );
+		return apply_filters( 'tide_api_audit_can_get_items', self::elevate_audit_client_permission( $allowed ), $this );
 	}
 
 	/**
@@ -659,19 +659,22 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	public function check_read_permission( $post ) {
 		$allowed = parent::check_read_permission( $post );
 
-		/**
-		 * Determine an item's visibility.
-		 * Still allowed users with the right capabilities to read this post.
-		 */
+		// Determine an item's visibility and allow users with the right capabilities to read this post.
 		$visibility   = get_post_meta( $post->ID, 'visibility', true );
 		$current_user = wp_get_current_user();
-		$is_author    = $post->post_author === $current_user->ID && in_array( 'api_client', (array) $current_user->roles, true );
+		$is_author    = (
+			! is_wp_error( $current_user )
+			&&
+			absint( $post->post_author ) === absint( $current_user->ID )
+			&&
+			$current_user->has_cap( 'api_client' )
+		);
 
-		if ( 'public' !== $visibility && ( ! $is_author || ! current_user_can( 'read_private_posts' ) ) ) {
+		if ( 'private' === $visibility && ! ( $is_author || current_user_can( 'read_private_posts' ) ) ) {
 			$allowed = false;
 		}
 
-		return apply_filters( 'tide_api_audit_can_read', $allowed, $post );
+		return apply_filters( 'tide_api_audit_can_read', self::elevate_audit_client_permission( $allowed ), $post );
 	}
 
 	/**
@@ -684,7 +687,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	protected function check_update_permission( $post ) {
 		$allowed = parent::check_update_permission( $post );
 
-		return apply_filters( 'tide_api_audit_can_update', $allowed, $post );
+		return apply_filters( 'tide_api_audit_can_update', self::elevate_audit_client_permission( $allowed ), $post );
 	}
 
 	/**
@@ -697,7 +700,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	protected function check_create_permission( $post ) {
 		$allowed = parent::check_create_permission( $post );
 
-		return apply_filters( 'tide_api_audit_can_create', $allowed, $post );
+		return apply_filters( 'tide_api_audit_can_create', self::elevate_audit_client_permission( $allowed ), $post );
 	}
 
 	/**
@@ -710,7 +713,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	protected function check_delete_permission( $post ) {
 		$allowed = parent::check_delete_permission( $post );
 
-		return apply_filters( 'tide_api_audit_can_delete', $allowed, $post );
+		return apply_filters( 'tide_api_audit_can_delete', self::elevate_audit_client_permission( $allowed ), $post );
 	}
 
 	/**
@@ -725,7 +728,24 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	protected function check_assign_terms_permission( $request ) {
 		$allowed = parent::check_assign_terms_permission( $request );
 
-		return apply_filters( 'tide_api_audit_can_assign_terms', $allowed, $request );
+		return apply_filters( 'tide_api_audit_can_assign_terms', self::elevate_audit_client_permission( $allowed ), $request );
+	}
+
+	/**
+	 * Checks if the current user is an audit_client and elevate permissions.
+	 *
+	 * @param bool $allowed Whether the current user is allowed to modify a post.
+	 *
+	 * @return bool Whether the current user is an audit_client.
+	 */
+	protected function elevate_audit_client_permission( $allowed ) {
+		$current_user = wp_get_current_user();
+
+		if ( ! is_wp_error( $current_user ) && $current_user->has_cap( 'audit_client' ) ) {
+			$allowed = true;
+		}
+
+		return $allowed;
 	}
 
 	/**

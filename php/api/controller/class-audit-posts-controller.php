@@ -30,6 +30,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 	const PROJECT_PATTERN = '(?P<project>[\w-]{1,32})';
 
+	const PROJECT_TYPE_PATTERN = '(?P<project_type>[\w-]{1,32})';
+
 	const SLUG_PATTERN = '(?P<slug>[\w-]+)';
 
 	/**
@@ -139,13 +141,36 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			'schema' => array( $this, 'get_public_item_schema' ),
 		) );
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_PATTERN . '/' . static::SLUG_PATTERN, array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN, array(
 			'args'   => array(
-				'project' => array(
+				'project'      => array(
 					'description' => __( 'The users slug.' ),
 					'type'        => 'string',
 				),
-				'slug'    => array(
+				'project_type' => array(
+					'description' => __( 'The project type: theme or plugin.' ),
+					'type'        => 'string',
+				),
+			),
+			array(
+				'methods'  => \WP_REST_Server::READABLE,
+				'callback' => array( $this, 'get_audits' ),
+				'args'     => $get_item_args,
+			),
+			'schema' => array( $this, 'get_public_item_schema' ),
+		) );
+
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN . '/' . static::SLUG_PATTERN, array(
+			'args'   => array(
+				'project'      => array(
+					'description' => __( 'The users slug.' ),
+					'type'        => 'string',
+				),
+				'project_type' => array(
+					'description' => __( 'The project type: theme or plugin.' ),
+					'type'        => 'string',
+				),
+				'slug'         => array(
 					'description' => __( 'The plugin slug as per taxonomy.' ),
 					'type'        => 'string',
 				),
@@ -186,6 +211,18 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			}
 			$args['author'] = $user->ID;
 		}
+
+		if ( null !== $request->get_param( 'project_type' ) ) {
+
+			$args['meta_query'] = array(
+				array(
+					'key'     => 'project_type',
+					'value'   => $request->get_param( 'project_type' ),
+					'compare' => '=',
+				),
+			);
+		}
+
 		if ( null !== $request->get_param( 'slug' ) ) {
 
 			$args['tax_query'] = array(

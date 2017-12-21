@@ -28,11 +28,11 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 	const CHECKSUM_PATTERN = '(?P<checksum>[a-fA-F\d]{64})';
 
-	const PROJECT_PATTERN = '(?P<project>[\w-]{1,32})';
+	const PROJECT_CLIENT_PATTERN = '(?P<project_client>[\w-]{1,32})';
 
 	const PROJECT_TYPE_PATTERN = '(?P<project_type>[\w-]{1,32})';
 
-	const SLUG_PATTERN = '(?P<slug>[\w-]+)';
+	const PROJECT_SLUG_PATTERN = '(?P<project_slug>[\w-]+)';
 
 	/**
 	 * Allowed source URL extensions.
@@ -126,10 +126,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			'schema' => array( $this, 'get_public_item_schema' ),
 		) );
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_PATTERN, array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN, array(
 			'args'   => array(
-				'project' => array(
-					'description' => __( 'The users slug.' ),
+				'project_client' => array(
+					'description' => __( 'User login name representing a project client.' ),
 					'type'        => 'string',
 				),
 			),
@@ -141,13 +141,13 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			'schema' => array( $this, 'get_public_item_schema' ),
 		) );
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN, array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN, array(
 			'args'   => array(
-				'project'      => array(
-					'description' => __( 'The users slug.' ),
+				'project_client' => array(
+					'description' => __( 'User login name representing a project client.' ),
 					'type'        => 'string',
 				),
-				'project_type' => array(
+				'project_type'   => array(
 					'description' => __( 'The project type: theme or plugin.' ),
 					'type'        => 'string',
 				),
@@ -160,18 +160,18 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			'schema' => array( $this, 'get_public_item_schema' ),
 		) );
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN . '/' . static::SLUG_PATTERN, array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN . '/' . static::PROJECT_SLUG_PATTERN, array(
 			'args'   => array(
-				'project'      => array(
-					'description' => __( 'The users slug.' ),
+				'project_client' => array(
+					'description' => __( 'User login name representing a project client.' ),
 					'type'        => 'string',
 				),
-				'project_type' => array(
+				'project_type'   => array(
 					'description' => __( 'The project type: theme or plugin.' ),
 					'type'        => 'string',
 				),
-				'slug'         => array(
-					'description' => __( 'The plugin slug as per taxonomy.' ),
+				'project_slug'   => array(
+					'description' => __( 'The taxonomy term representing the project.' ),
 					'type'        => 'string',
 				),
 			),
@@ -202,8 +202,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			'orderby'   => 'post_date',
 		);
 
-		if ( null !== $request->get_param( 'project' ) ) {
-			$user = get_user_by( 'login', $request->get_param( 'project' ) );
+		if ( null !== $request->get_param( 'project_client' ) ) {
+			$user = get_user_by( 'login', $request->get_param( 'project_client' ) );
 			if ( false === $user ) {
 				return new \WP_Error( 'tide_audit_invalid_project', __( 'Invalid project.' ), array(
 					'status' => 404,
@@ -223,13 +223,13 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			);
 		}
 
-		if ( null !== $request->get_param( 'slug' ) ) {
+		if ( null !== $request->get_param( 'project_slug' ) ) {
 
 			$args['tax_query'] = array(
 				array(
 					'taxonomy' => 'audit_project',
-					'field'    => 'slug',
-					'terms'    => $request->get_param( 'slug' ),
+					'field'    => 'slug', // search by taxonomy slug.
+					'terms'    => $request->get_param( 'project_slug' ),
 				),
 			);
 			// Only a single one.

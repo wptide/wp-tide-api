@@ -25,6 +25,6 @@
     "wp-coding-standards/wpcs": "*",
     "wimg/php-compatibility": "*",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
-    "satooshi/php-coveralls": "2.0.0"
+    "satooshi/php-coveralls": "~2.0"
   }
 }

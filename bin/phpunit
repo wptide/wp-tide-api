@@ -1,0 +1,40 @@
+#!/bin/bash
+
+function upsearch {
+	# via http://unix.stackexchange.com/a/13474
+	slashes=${PWD//[^\/]/}
+	directory="./"
+	for (( n=${#slashes}; n>0; --n )); do
+		test -e "$directory/$1" && echo "$directory/$1" && return
+		if [ "$2" != 'git_boundless' ] && test -e '.git'; then
+			return
+		fi
+		directory="$directory/.."
+	done
+}
+
+ENV_FILE=$( upsearch .dev-lib )
+if [ ! -z "$ENV_FILE" ]; then
+    source "$ENV_FILE"
+fi
+
+# Generate the tests SVN tag
+if [[ ${WP_VERSION} =~ [0-9]+\.[0-9]+(\.[0-9]+)? ]]; then
+    WP_TESTS_TAG="tags/${WP_VERSION}"
+else
+    WP_TESTS_TAG="trunk"
+fi
+
+echo "Updating WordPress Test Suite..."
+
+svn co https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ ./tests/includes --trust-server-cert --non-interactive -q
+svn co https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ ./tests/data --trust-server-cert --non-interactive -q
+
+echo "Running PHPUnit Test Suite in Docker..."
+
+if [ -z "$*" ]; then
+    docker-compose run --rm -w ${DOCKER_WORKDIR} ${DOCKER_IMAGE} phpunit -c ${PHPUNIT_CONFIG}
+else
+    docker-compose run --rm -w ${DOCKER_WORKDIR} ${DOCKER_IMAGE} phpunit "$@"
+fi
+

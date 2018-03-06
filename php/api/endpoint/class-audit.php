@@ -252,7 +252,7 @@ class Audit extends Base {
 		$request_details = isset( $_REQUEST['details'] ) ? wp_unslash( $_REQUEST['details'] ) : ''; // WPCS: input var okay. CSRF ok.
 
 		$route = $request->get_route();
-		// If route does not end with a post ID or a SHA256 checksum its a collection request
+		// If route does not end with a post ID or a SHA256 checksum its a collection request.
 		$is_collection = ! preg_match( '/[a-fA-F\d]{64}/', $route ) && ! preg_match( '/([\d]+)$/', $route );
 
 		foreach ( $standards as $standard ) {

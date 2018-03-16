@@ -334,6 +334,38 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	}
 
 	/**
+	 * Test updating item instead of creating new item when audit post with matching checksum exists.
+	 *
+	 * @covers ::create_item()
+	 */
+	public function test_create_item_matching_checksum_post_exists() {
+		$audit_id = $this->factory()->post->create( array(
+			'post_type'   => 'audit',
+			'post_author' => self::$api_client_id,
+		) );
+
+		$checksum = '7d9e35c703a7f8c6def92d5dbcf4a85a9271ce390474339cef7e404abb600000';
+		update_post_meta( $audit_id, 'checksum', $checksum );
+		update_post_meta( $audit_id, 'visibility', 'public' );
+
+		$params = array(
+			'source_url'  => 'http://example.com/example.zip',
+			'source_type' => 'zip',
+			'title'       => 'Post title',
+			'content'     => 'Plugin Test',
+			'checksum'    => $checksum,
+		);
+
+		$request = new WP_REST_Request( 'POST', '/tide/v1/audit' );
+		$request->set_body_params( $params );
+		$response = $this->server->dispatch( $request );
+
+		$data = $response->get_data();
+
+		$this->assertEquals( $data['id'], $audit_id );
+	}
+
+	/**
 	 * Test handle_custom_args().
 	 *
 	 * @covers ::handle_custom_args()

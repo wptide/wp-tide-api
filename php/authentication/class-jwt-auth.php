@@ -255,7 +255,7 @@ class JWT_Auth extends Base {
 	public function get_secret() {
 
 		// Use SECURE_AUTH_KEY defined in wp-config.php as secret.
-		if ( defined( 'SECURE_AUTH_KEY' ) && ! empty( SECURE_AUTH_KEY ) ) {
+		if ( defined( 'SECURE_AUTH_KEY' ) && 'put your unique phrase here' !== SECURE_AUTH_KEY ) {
 			$secret = SECURE_AUTH_KEY;
 		} else {
 			$secret = new WP_Error(

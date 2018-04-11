@@ -526,22 +526,33 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				continue;
 			}
 
-			list( $x, $y, $type, $standard ) = explode( '_', $audit );
+			$audit_keys = explode( '_', $audit );
 
-			$options = array(
-				'standard' => $standard,
-				'report'   => 'json',
-				'encoding' => 'utf-8',
-			);
-
-			if ( 'phpcompatibility' === $standard ) {
-
-				// Lowest version set to WordPress minimum version.
-				$options['runtime-set'] = 'testVersion 5.2-';
+			if ( 3 === count( $audit_keys ) ) {
+				list( $x, $y, $type ) = $audit_keys;
+				unset( $standard );
 			} else {
+				list( $x, $y, $type, $standard ) = $audit_keys;
+			}
 
-				// Ignore 3rd-party directories.
-				$options['ignore'] = '*/vendor/*,*/node_modules/*';
+			$options = array();
+
+			if ( isset( $standard ) ) {
+				$options = array(
+					'standard' => $standard,
+					'report'   => 'json',
+					'encoding' => 'utf-8',
+				);
+
+				if ( 'phpcompatibility' === $standard ) {
+
+					// Lowest version set to WordPress minimum version.
+					$options['runtime-set'] = 'testVersion 5.2-';
+				} else {
+
+					// Ignore 3rd-party directories.
+					$options['ignore'] = '*/vendor/*,*/node_modules/*';
+				}
 			}
 
 			$args = array(

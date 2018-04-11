@@ -152,6 +152,7 @@ class Audit extends Base {
 		return array_merge( apply_filters( 'tide_api_executable_audits', array() ), array(
 			'phpcs_wordpress'        => array(), // Always include the WordPress standard.
 			'phpcs_phpcompatibility' => array(), // Always include the PHP Compatibility standard.
+			'lighthouse'             => array(),
 		) );
 	}
 

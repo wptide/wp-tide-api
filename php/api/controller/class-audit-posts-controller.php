@@ -356,6 +356,20 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	 *                                     WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		$checksum = $request->get_param( 'checksum' );
+
+		// if $checksum exists, mimic update_item_altid() to an extend.
+		if ( $checksum ) {
+			// check if an audit post with that checksum exists.
+			$post_id = $this->get_altid_post_id( $request );
+
+			if ( ! is_wp_error( $post_id ) ) {
+				// An audit post does exist, short-circuit create_item() execution.
+				$request['id'] = $post_id;
+				return parent::update_item( $request );
+			}
+			// If no audit post exists, just continue what we were doing in create_item().
+		}
 
 		$response      = false;
 		$is_fill_error = $this->fill_data_from_wp_org_api( $request );
@@ -366,7 +380,6 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$source_url     = $request->get_param( 'source_url' );
 		$source_type    = $request->get_param( 'source_type' );
 		$standards      = $request->get_param( 'standards' );
-		$checksum       = $request->get_param( 'checksum' );
 		$request_client = $request->get_param( 'request_client' );
 
 		if ( ! is_array( $standards ) ) {

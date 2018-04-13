@@ -48,8 +48,8 @@ class AWS_S3 extends Base {
 			'version'     => defined( 'AWS_S3_VERSION' ) ? AWS_S3_VERSION : '',
 			'region'      => defined( 'AWS_S3_REGION' ) ? AWS_S3_REGION : '',
 			'credentials' => [
-				'key'    => defined( 'AWS_S3_KEY' ) ? AWS_S3_KEY : '',
-				'secret' => defined( 'AWS_S3_SECRET' ) ? AWS_S3_SECRET : '',
+				'key'    => defined( 'AWS_API_KEY' ) ? AWS_API_KEY : '',
+				'secret' => defined( 'AWS_API_SECRET' ) ? AWS_API_SECRET : '',
 			],
 		] );
 	}

@@ -28,7 +28,7 @@ class AWS_SQS extends Base {
 			$sqs_client = $this->create_sqs_client_instance();
 
 			// Get the queue URL from the queue name.
-			$sqs_queue = defined( 'AWS_SQS_QUEUE_NAME' ) ? AWS_SQS_QUEUE_NAME : '';
+			$sqs_queue = defined( 'AWS_SQS_QUEUE_PHPCS' ) ? AWS_SQS_QUEUE_PHPCS : '';
 			$result    = $sqs_client->getQueueUrl( array(
 				'QueueName' => $sqs_queue,
 			) );
@@ -80,7 +80,7 @@ class AWS_SQS extends Base {
 			$sqs_client = $this->create_sqs_client_instance();
 
 			// Get the queue URL from the queue name.
-			$sqs_queue = defined( 'AWS_SQS_QUEUE_NAME' ) ? AWS_SQS_QUEUE_NAME : '';
+			$sqs_queue = defined( 'AWS_SQS_QUEUE_PHPCS' ) ? AWS_SQS_QUEUE_PHPCS : '';
 			$result    = $sqs_client->getQueueUrl( array(
 				'QueueName' => $sqs_queue,
 			) );
@@ -114,8 +114,8 @@ class AWS_SQS extends Base {
 			'version'               => defined( 'AWS_SQS_VERSION' ) ? AWS_SQS_VERSION : '',
 			'region'                => defined( 'AWS_SQS_REGION' ) ? AWS_SQS_REGION : '',
 			'credentials'           => array(
-				'key'    => defined( 'AWS_SQS_KEY' ) ? AWS_SQS_KEY : '',
-				'secret' => defined( 'AWS_SQS_SECRET' ) ? AWS_SQS_SECRET : '',
+				'key'    => defined( 'AWS_API_KEY' ) ? AWS_API_KEY : '',
+				'secret' => defined( 'AWS_API_SECRET' ) ? AWS_API_SECRET : '',
 			),
 		) );
 	}

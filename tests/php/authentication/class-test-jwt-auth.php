@@ -52,7 +52,7 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 	/**
 	 * Random auth key.
 	 */
-	const SECURE_AUTH_KEY = '54fda65we2aeb65abaq354150966b198e3444198';
+	static $SECURE_AUTH_KEY = '54fda65we2aeb65abaq354150966b198e3444198';
 
 	/**
 	 * Setup.
@@ -117,13 +117,15 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 		/**
 		 * Test if error is thrown when SECURE_AUTH_KEY is not defined.
 		 */
-		$token = $this->jwt_auth->generate_token( $rest_request );
-		$this->assertTrue( is_wp_error( $token ) );
-		$this->assertEquals( 'rest_auth_key', $token->get_error_code() );
+		if ( ! defined( 'SECURE_AUTH_KEY' ) ) {
+			$token = $this->jwt_auth->generate_token( $rest_request );
+            $this->assertTrue( is_wp_error( $token ) );
+            $this->assertEquals( 'rest_auth_key', $token->get_error_code() );
+			define( 'SECURE_AUTH_KEY', self::$SECURE_AUTH_KEY );
+		}
+		self::$SECURE_AUTH_KEY = SECURE_AUTH_KEY;
 
 		$user_id = $this->factory->user->create( $user_data );
-
-		define( 'SECURE_AUTH_KEY', self::SECURE_AUTH_KEY );
 
 		/**
 		 * Set incorrect credentials.
@@ -204,7 +206,7 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 	 * @covers ::get_secret()
 	 */
 	public function test_get_secret() {
-		$this->assertEquals( self::SECURE_AUTH_KEY, $this->jwt_auth->get_secret() );
+		$this->assertEquals( self::$SECURE_AUTH_KEY, $this->jwt_auth->get_secret() );
 	}
 
 	/**

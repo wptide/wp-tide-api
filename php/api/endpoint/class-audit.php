@@ -232,14 +232,24 @@ class Audit extends Base {
 	 */
 	public function rest_results_get( $rest_post, $field_name, $request ) {
 
-		// If "standards" has been passed with the request then use those standard.
+		// If "standards" has been passed with the request then use those standards.
 		$standards = $request->get_param( 'standards' );
 
-		// If not, then use default standards.
+		// Get "standards" from the post meta.
+		if ( empty( $standards ) ) {
+			$standards = get_post_meta( $rest_post['id'], 'standards', true );
+		}
+
+		// Convert a csv string to an array.
+		if ( ! is_array( $standards ) ) {
+			$standards = array_filter( explode( ',', $standards ) );
+		}
+
+		// Filter using the allowed standards.
 		if ( ! empty( $standards ) ) {
 			$allowed_standards = array_keys( self::allowed_standards() );
 
-			$standards = array_filter( explode( ',', $standards ), function ( $standard ) use ( $allowed_standards ) {
+			$standards = array_filter( $standards, function ( $standard ) use ( $allowed_standards ) {
 				return in_array( $standard, $allowed_standards, true );
 			} );
 		} else {

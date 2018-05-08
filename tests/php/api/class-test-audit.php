@@ -139,8 +139,8 @@ class Test_Audit extends WP_UnitTestCase {
 		) );
 		update_post_meta( $audit_id, '_audit_phpcs_wordpress', '{"value":"not empty"}' );
 		update_post_meta( $audit_id, '_audit_phpcs_phpcompatibility', '{"value":"not empty"}' );
+		update_post_meta( $audit_id, '_audit_lighthouse', '{"value":"not empty"}' );
 		update_post_meta( $audit_id, '_audit_phpcs_invalid-standard', '{"value":"not empty"}' );
-		update_post_meta( $audit_id, '_audit_phpcs_wordpress-core', '{"value":"not empty"}' );
 
 		$request = new WP_REST_Request( 'GET', rest_url( "tide/v1/audit/{$audit_id}" ) );
 
@@ -152,13 +152,28 @@ class Test_Audit extends WP_UnitTestCase {
 		$results = $audit->rest_results_get( $response, 'results', $request );
 		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
 		$this->assertTrue( isset( $results['phpcs_phpcompatibility'] ) );
+		$this->assertFalse( isset( $results['lighthouse'] ) );
+		$this->assertFalse( isset( $results['phpcs_invalid-standard'] ) );
+
+		update_post_meta( $audit_id, 'standards', array(
+			'phpcs_wordpress',
+			'phpcs_phpcompatibility',
+			'lighthouse',
+		) );
+
+		// Test request without `standards` param but the "standards" meta is set.
+		$results = $audit->rest_results_get( $response, 'results', $request );
+		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
+		$this->assertTrue( isset( $results['phpcs_phpcompatibility'] ) );
+		$this->assertTrue( isset( $results['lighthouse'] ) );
+		$this->assertFalse( isset( $results['phpcs_invalid-standard'] ) );
 
 		// Test request with `standards` param.
-		$request->set_param( 'standards', 'phpcs_wordpress-core,phpcs_invalid-standard' );
+		$request->set_param( 'standards', 'phpcs_wordpress,phpcs_invalid-standard,lighthouse' );
 		$results = $audit->rest_results_get( $response, 'results', $request );
-		$this->assertTrue( isset( $results['phpcs_wordpress-core'] ) );
-		$this->assertFalse( isset( $results['phpcs_wordpress'] ) );
+		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
 		$this->assertFalse( isset( $results['phpcs_phpcompatibility'] ) );
+		$this->assertTrue( isset( $results['lighthouse'] ) );
 		$this->assertFalse( isset( $results['phpcs_invalid-standard'] ) );
 	}
 }

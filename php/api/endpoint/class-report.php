@@ -86,8 +86,18 @@ class Report extends Base {
 			return rest_ensure_response( $this->report_error( 'report_standard_not_fount', 'could not retrieve report for standard', 404 ) );
 		}
 
-		// Successful response.
-		return rest_ensure_response( $meta );
+		// Get temporary signed url.
+		$meta = maybe_unserialize( $meta );
+		$url  = $this->plugin->components['aws_s3']->get_temp_url( $meta['full']['bucket_name'], $meta['full']['key'] );
+
+		// Error fetching from S3.
+		if ( is_wp_error( $url ) ) {
+			return rest_ensure_response( $this->report_error( 'report_fetch_error', 'fetching report failed', 500 ) );
+		}
+
+		// Redirect to URL to download.
+		wp_redirect( $url );
+		exit;
 	}
 
 

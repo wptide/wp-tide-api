@@ -499,21 +499,25 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$post = $post->ID;
 		}
 
-		// Fallback request client.
-		$current_user    = wp_get_current_user();
 		$fallback_client = '';
-		if ( ( $current_user instanceof \WP_User ) ) {
-			$fallback_client = $current_user->user_login;
+
+		$user = User::authenticated();
+		if ( $user instanceof \WP_User ) {
+			$fallback_client = $user->user_login;
 		}
 
-		$title          = $request->get_param( 'title' ) ? $request->get_param( 'title' ) : '';
-		$content        = $request->get_param( 'content' ) ? $request->get_param( 'content' ) : '';
-		$source_url     = $request->get_param( 'source_url' ) ? $request->get_param( 'source_url' ) : '';
-		$source_type    = $request->get_param( 'source_type' ) ? $request->get_param( 'source_type' ) : '';
-		$request_client = $request->get_param( 'request_client' ) ? $request->get_param( 'request_client' ) : $fallback_client;
-		$force          = $request->get_param( 'force' ) ? $request->get_param( 'force' ) : false;
-		$visibility     = $request->get_param( 'visibility' ) ? $request->get_param( 'visibility' ) : 'private';
-		$slug           = $request->get_param( 'slug' ) ? $request->get_param( 'slug' ) : '';
+		$request_client = $fallback_client;
+		if ( ! empty( $request->get_param( 'request_client' ) ) && User::has_cap( 'audit_client' ) ) {
+			$request_client = $request->get_param( 'request_client' );
+		}
+
+		$title       = $request->get_param( 'title' ) ? $request->get_param( 'title' ) : '';
+		$content     = $request->get_param( 'content' ) ? $request->get_param( 'content' ) : '';
+		$source_url  = $request->get_param( 'source_url' ) ? $request->get_param( 'source_url' ) : '';
+		$source_type = $request->get_param( 'source_type' ) ? $request->get_param( 'source_type' ) : '';
+		$force       = $request->get_param( 'force' ) ? $request->get_param( 'force' ) : false;
+		$visibility  = $request->get_param( 'visibility' ) ? $request->get_param( 'visibility' ) : 'private';
+		$slug        = $request->get_param( 'slug' ) ? $request->get_param( 'slug' ) : '';
 
 		// Cant go much further without these.
 		if ( empty( $source_type ) || empty( $source_url ) ) {
@@ -530,15 +534,19 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$response_api_endpoint = rest_url( sprintf( '%s/%s/%d', $this->namespace, $this->rest_base, $post ) );
 		}
 
+		$standards = array_map( function ( $standard ) {
+			return sanitize_text_field( $standard );
+		}, $standards );
+
 		$task_args = array(
-			'response_api_endpoint' => $response_api_endpoint,
-			'title'                 => $title,
-			'content'               => $content,
-			'source_url'            => $source_url,
-			'source_type'           => $source_type,
-			'request_client'        => $request_client,
-			'force'                 => $force,
-			'visibility'            => $visibility,
+			'response_api_endpoint' => esc_url_raw( $response_api_endpoint ),
+			'title'                 => sanitize_text_field( $title ),
+			'content'               => wp_kses_post( $content ),
+			'source_url'            => esc_url_raw( $source_url ),
+			'source_type'           => sanitize_text_field( $source_type ),
+			'request_client'        => sanitize_text_field( $request_client ),
+			'force'                 => (bool) $force,
+			'visibility'            => sanitize_text_field( $visibility ),
 			'standards'             => $standards,
 			'audits'                => array(),
 		);
@@ -548,7 +556,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		}
 
 		if ( ! empty( $slug ) ) {
-			$task_args['slug'] = $slug;
+			$task_args['slug'] = sanitize_text_field( $slug );
 		}
 
 		$audits = Audit::executable_audit_fields();

@@ -26,4 +26,22 @@ class User {
 		}
 		return $is_user_logged_in;
 	}
+
+	/**
+	 * Determine if a user is authenticated and has the given capability.
+	 *
+	 * @param string $cap Capability to check.
+	 *
+	 * @return bool Success or not.
+	 */
+	public static function has_cap( $cap ) {
+
+		$user = static::authenticated();
+
+		if ( ! $user instanceof \WP_User ) {
+			return false;
+		}
+
+		return $user->has_cap( $cap );
+	}
 }

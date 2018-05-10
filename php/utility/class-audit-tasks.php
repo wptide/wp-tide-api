@@ -16,15 +16,6 @@ namespace WP_Tide_API\Utility;
 class Audit_Tasks {
 
 	/**
-	 * Get next audit tasks.
-	 *
-	 * @return mixed
-	 */
-	public static function get_next() {
-		return apply_filters( 'tide_api_audit_tasks_get_tasks', false );
-	}
-
-	/**
 	 * Record a new audit task to perform.
 	 *
 	 * @param array $task The task array.

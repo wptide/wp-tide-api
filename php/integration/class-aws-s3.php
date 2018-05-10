@@ -18,7 +18,7 @@ class AWS_S3 extends Base {
 	/**
 	 * Get a file from S3.
 	 *
-	 * @param string $meta File data to retrieve.
+	 * @param array $meta Object data to retrieve.
 	 *
 	 * @return mixed
 	 */
@@ -41,23 +41,22 @@ class AWS_S3 extends Base {
 	/**
 	 * Get temporary URL to object.
 	 *
-	 * @param string $bucket Bucket to retrieve from.
-	 * @param string $key Object key.
+	 * @param array $meta Object data to retrieve.
 	 *
 	 * @return mixed Valid URL or \WP_Error.
 	 */
-	public function get_temp_url( $bucket, $key ) {
+	public function get_url( $meta ) {
 		try {
 			$s3_client = $this->create_s3_client_instance();
 
 			$cmd = $s3_client->getCommand( 'GetObject', [
-				'Bucket' => $bucket,
-				'Key'    => $key,
+				'Bucket' => $meta['bucket_name'],
+				'Key'    => $meta['key'],
 			] );
 
 			$request = $s3_client->createPresignedRequest( $cmd, '+5 minutes' );
 
-			// A temporaty pre-signed url.
+			// A temporary pre-signed url.
 			return (string) $request->getUri();
 
 		} catch ( \Exception $e ) {

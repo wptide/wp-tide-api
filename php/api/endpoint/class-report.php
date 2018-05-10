@@ -40,6 +40,11 @@ class Report extends Base {
 	 */
 	public function register_routes() {
 
+		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
+			'methods'  => 'GET',
+			'callback' => array( $this, 'report_response' ),
+		) );
+
 		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::CHECKSUM_PATTERN . '/' . static::STANDARD_PATTERN, array(
 			'methods'  => 'GET',
 			'callback' => array( $this, 'report_response' ),
@@ -60,6 +65,14 @@ class Report extends Base {
 	 */
 	public function report_response( \WP_REST_Request $request ) {
 
+		// These reports are not for unauthenticated users.
+		if ( ! is_user_logged_in() ) {
+			return rest_ensure_response( $this->report_error( 'unauthenticated_call', __( 'unauthenticated report request', 'tide-api' ), 301 ) );
+		}
+
+		// @todo get the cloud storage source from configuration. For now this is AWS S3 only.
+		$object_source = 'aws_s3';
+
 		$checksum = $request->get_param( 'checksum' );
 		$post_id  = $request->get_param( 'post_id' );
 		$standard = $request->get_param( 'standard' );
@@ -71,7 +84,7 @@ class Report extends Base {
 
 			if ( $response->is_error() ) {
 				// Don't be too verbose about the error.
-				return rest_ensure_response( $this->report_error( 'report_error', 'error occured in report api', 301 ) );
+				return rest_ensure_response( $this->report_error( 'report_error', __( 'error occured in report api', 'tide-api' ), 301 ) );
 			}
 
 			// Set the post_id to get the meta for.
@@ -83,16 +96,20 @@ class Report extends Base {
 
 		// Could not get the meta for the given standard.
 		if ( empty( $meta ) ) {
-			return rest_ensure_response( $this->report_error( 'report_standard_not_fount', 'could not retrieve report for standard', 404 ) );
+			return rest_ensure_response( $this->report_error( 'report_standard_not_fount', __( 'could not retrieve report for standard', 'tide-api' ), 404 ) );
+		}
+
+		if ( empty( $this->plugin->components[ $object_source ] ) ) {
+			return rest_ensure_response( $this->report_error( 'report_source_error', __( 'could not retrieve report from source', 'tide-api' ), 404 ) );
 		}
 
 		// Get temporary signed url.
 		$meta = maybe_unserialize( $meta );
-		$url  = $this->plugin->components['aws_s3']->get_temp_url( $meta['full']['bucket_name'], $meta['full']['key'] );
+		$url  = $this->plugin->components[ $object_source ]->get_url( $meta['full'] );
 
 		// Error fetching from S3.
 		if ( is_wp_error( $url ) ) {
-			return rest_ensure_response( $this->report_error( 'report_fetch_error', 'fetching report failed', 500 ) );
+			return rest_ensure_response( $this->report_error( 'report_fetch_error', __( 'fetching report failed', 'tide-api' ), 500 ) );
 		}
 
 		// Redirect to URL to download.

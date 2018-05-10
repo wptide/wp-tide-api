@@ -75,10 +75,9 @@ class Audit extends Base {
 					'source_type'      => array(), // e.g. 'zip', 'repo'.
 					'original_request' => array(),
 					'code_info'        => array(),
-					'standards'        => array(),
-					'results'          => array(
-						'get_callback'    => array( $this, 'rest_results_get' ),
-						'update_callback' => array( $this, 'rest_results_update' ),
+					'reports'          => array(
+						'get_callback'    => array( $this, 'rest_reports_get' ),
+						'update_callback' => array( $this, 'rest_reports_update' ),
 					),
 					// This is the plugin/theme author. Not the user attributed to the audit.
 					'project_author'   => array(
@@ -192,19 +191,19 @@ class Audit extends Base {
 	}
 
 	/**
-	 * A custom update callback for the `results` rest field.
+	 * A custom update callback for the `reports` rest field.
 	 *
-	 * Breaks each result into separate post_meta.
+	 * Breaks each report into separate post_meta.
 	 *
 	 * @param mixed            $field_value The field value.
-	 * @param mixed            $post      The object data.
+	 * @param mixed            $post        The object data.
 	 * @param string           $field_name  The name of the field.
 	 * @param \WP_REST_Request $request     The WP REST Request.
 	 * @param string           $object_type The type of object.
 	 *
 	 * @return bool|int
 	 */
-	public function rest_results_update( $field_value, $post, $field_name, $request, $object_type ) {
+	public function rest_reports_update( $field_value, $post, $field_name, $request, $object_type ) {
 
 		/**
 		 * Check of an audit standards is allowed and then write the result to
@@ -222,15 +221,15 @@ class Audit extends Base {
 	}
 
 	/**
-	 * Get the `results` rest field to send via request.
+	 * Get the `reports` rest field to send via request.
 	 *
 	 * @param array            $rest_post  The post.
-	 * @param string           $field_name "results".
+	 * @param string           $field_name "reports".
 	 * @param \WP_REST_Request $request    The REST request.
 	 *
 	 * @return array Return the requested standards.
 	 */
-	public function rest_results_get( $rest_post, $field_name, $request ) {
+	public function rest_reports_get( $rest_post, $field_name, $request ) {
 
 		// If "standards" has been passed with the request then use those standards.
 		$standards = $request->get_param( 'standards' );
@@ -258,9 +257,6 @@ class Audit extends Base {
 
 		$results = array();
 
-		// Get the details value.
-		$request_details = isset( $_REQUEST['details'] ) ? wp_unslash( $_REQUEST['details'] ) : ''; // WPCS: input var okay. CSRF ok.
-
 		foreach ( $standards as $standard ) {
 			$meta = get_post_meta( $rest_post['id'], sprintf( '_audit_%s', $standard ), true );
 
@@ -269,23 +265,15 @@ class Audit extends Base {
 				continue;
 			}
 
-			$results[ $standard ] = $meta;
-
-			// Validate the details option.
-			$is_valid_details = (
-				! empty( $request_details )
-				&&
-				(
-					$standard === $request_details
-					||
-					'all' === $request_details
-				)
-			);
-
-			// Setup the detailed report.
-			if ( isset( $results[ $standard ]['details'] ) && $is_valid_details ) {
-				$results[ $standard ]['details'] = $this->plugin->components['aws_s3']->get_file( $results[ $standard ]['details'] );
+			if ( ! empty( $meta['full'] ) ) {
+				unset( $meta['full'] );
 			}
+
+			if ( ! empty( $meta['details'] ) ) {
+				unset( $meta['details'] );
+			}
+
+			$results[ $standard ] = $meta;
 		}
 
 		return $results;
@@ -294,9 +282,9 @@ class Audit extends Base {
 	/**
 	 * This is the theme/plugin author details.
 	 *
-	 * @param array            $rest_post The post.
+	 * @param array            $rest_post  The post.
 	 * @param string           $field_name "project_author".
-	 * @param \WP_REST_Request $request The REST request.
+	 * @param \WP_REST_Request $request    The REST request.
 	 *
 	 * @return array
 	 */
@@ -324,9 +312,9 @@ class Audit extends Base {
 	 * Turn the supplied values into taxonomy terms.
 	 *
 	 * @param string           $field_value The field value.
-	 * @param \WP_Post         $object The object data.
-	 * @param string           $field_name The name of the field.
-	 * @param \WP_REST_Request $request The WP REST Request.
+	 * @param \WP_Post         $object      The object data.
+	 * @param string           $field_name  The name of the field.
+	 * @param \WP_REST_Request $request     The WP REST Request.
 	 * @param string           $object_type The type of object.
 	 *
 	 * @return bool

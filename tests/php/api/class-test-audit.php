@@ -104,11 +104,11 @@ class Test_Audit extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test Audit::rest_results_update.
+	 * Test Audit::rest_reports_update.
 	 *
-	 * @covers ::rest_results_update()
+	 * @covers ::rest_reports_update()
 	 */
-	public function test_rest_results_update() {
+	public function test_rest_reports_update() {
 		$audit_id = $this->factory->post->create( array(
 			'post_type' => 'audit',
 		) );
@@ -120,17 +120,17 @@ class Test_Audit extends WP_UnitTestCase {
 			'phpcs_wordpress' => 'test_value',
 		);
 
-		$audit->rest_results_update( $results, $audit_post, 'results', null, null );
+		$audit->rest_reports_update( $results, $audit_post, 'results', null, null );
 
 		$this->assertEquals( 'test_value', get_post_meta( $audit_id, '_audit_phpcs_wordpress', true ) );
 	}
 
 	/**
-	 * Test Audit::rest_results_get.
+	 * Test Audit::rest_reports_get.
 	 *
-	 * @covers ::rest_results_get()
+	 * @covers ::rest_reports_get()
 	 */
-	public function test_rest_results_get() {
+	public function test_rest_reports_get() {
 
 		$audit = new Audit();
 
@@ -149,7 +149,7 @@ class Test_Audit extends WP_UnitTestCase {
 		);
 
 		// Test request without `standards` param.
-		$results = $audit->rest_results_get( $response, 'results', $request );
+		$results = $audit->rest_reports_get( $response, 'results', $request );
 		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
 		$this->assertTrue( isset( $results['phpcs_phpcompatibility'] ) );
 		$this->assertFalse( isset( $results['lighthouse'] ) );
@@ -162,7 +162,7 @@ class Test_Audit extends WP_UnitTestCase {
 		) );
 
 		// Test request without `standards` param but the "standards" meta is set.
-		$results = $audit->rest_results_get( $response, 'results', $request );
+		$results = $audit->rest_reports_get( $response, 'results', $request );
 		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
 		$this->assertTrue( isset( $results['phpcs_phpcompatibility'] ) );
 		$this->assertTrue( isset( $results['lighthouse'] ) );
@@ -170,7 +170,7 @@ class Test_Audit extends WP_UnitTestCase {
 
 		// Test request with `standards` param.
 		$request->set_param( 'standards', 'phpcs_wordpress,phpcs_invalid-standard,lighthouse' );
-		$results = $audit->rest_results_get( $response, 'results', $request );
+		$results = $audit->rest_reports_get( $response, 'results', $request );
 		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
 		$this->assertFalse( isset( $results['phpcs_phpcompatibility'] ) );
 		$this->assertTrue( isset( $results['lighthouse'] ) );

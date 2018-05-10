@@ -50,8 +50,9 @@ class AWS_S3 extends Base {
 			$s3_client = $this->create_s3_client_instance();
 
 			$cmd = $s3_client->getCommand( 'GetObject', [
-				'Bucket' => $meta['bucket_name'],
-				'Key'    => $meta['key'],
+				'Bucket'              => $meta['bucket_name'],
+				'Key'                 => $meta['key'],
+				'ResponseContentType' => 'application/json',
 			] );
 
 			$request = $s3_client->createPresignedRequest( $cmd, '+5 minutes' );

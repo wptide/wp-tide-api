@@ -12,6 +12,7 @@ namespace WP_Tide_API\API\Controller;
 use WP_Tide_API\API\Endpoint\Audit;
 use WP_Tide_API\Plugin;
 use WP_Tide_API\Utility\Audit_Tasks;
+use WP_Tide_API\Utility\User;
 
 /**
  * Class Tide_REST_Audit_Posts_Controller
@@ -344,7 +345,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		}
 
 		// Only for authenticated users.
-		if ( is_user_logged_in() ) {
+		if ( User::authenticated() ) {
 
 			// Only interested in _audit_<standard> meta.
 			$meta = array_filter( get_post_meta( $post->ID ), function ( $k ) {

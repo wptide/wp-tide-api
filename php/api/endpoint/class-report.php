@@ -8,6 +8,7 @@
 namespace WP_Tide_API\API\Endpoint;
 
 use WP_Tide_API\Base;
+use WP_Tide_API\Utility\User;
 
 /**
  * Class Report
@@ -66,7 +67,7 @@ class Report extends Base {
 	public function report_response( \WP_REST_Request $request ) {
 
 		// These reports are not for unauthenticated users.
-		if ( ! is_user_logged_in() ) {
+		if ( ! User::authenticated() ) {
 			return rest_ensure_response( $this->report_error( 'unauthenticated_call', __( 'unauthenticated report request', 'tide-api' ), 301 ) );
 		}
 
@@ -107,14 +108,18 @@ class Report extends Base {
 		$meta = maybe_unserialize( $meta );
 		$url  = $this->plugin->components[ $object_source ]->get_url( $meta['full'] );
 
-		// Error fetching from S3.
+		// Error fetching from storage provider.
 		if ( is_wp_error( $url ) ) {
 			return rest_ensure_response( $this->report_error( 'report_fetch_error', __( 'fetching report failed', 'tide-api' ), 500 ) );
 		}
 
-		// Redirect to URL to download.
-		wp_redirect( $url );
-		exit;
+		$response_object = [
+			'rel'     => 'download',
+			'url'     => $url,
+			'expires' => date( DATE_ISO8601, time() + ( 60 * 5 ) ),
+		];
+
+		return rest_ensure_response( $response_object );
 	}
 
 

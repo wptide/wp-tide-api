@@ -41,37 +41,6 @@ class Test_AWS_SQS extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_next().
-	 *
-	 * @covers ::get_next()
-	 */
-	public function test_get_next() {
-		$task = array();
-
-		$next_task = $this->aws_sqs->get_next( $task );
-		$this->assertTrue( is_wp_error( $next_task ) );
-		$this->assertEquals( $next_task->get_error_code(), 'sqs_get_tasks_fail' );
-
-		$mock = $this->getMockBuilder( get_class( $this->aws_sqs ) )->getMock();
-
-		$sqs_client = $this->_create_dummy_sqs_client_instance();
-
-		$mock->method( 'create_sqs_client_instance' )->willReturn( $sqs_client );
-
-		$aws_sqs = new ReflectionClass( get_class( $this->aws_sqs ) );
-
-		$next_task = $aws_sqs->getMethod( 'get_next' )->invoke( $mock, $task );
-
-		$this->assertArrayHasKey( 'result_message', $next_task );
-		$this->assertArrayHasKey( 'queue_handle', $next_task );
-		$this->assertArrayHasKey( 'message_json', $next_task );
-		$this->assertArrayHasKey( 'ReceiptHandle', $next_task['result_message'] );
-		$this->assertArrayHasKey( 'Body', $next_task['result_message'] );
-		$this->assertEquals( $sqs_client->results['queue_handle'], $next_task['queue_handle'] );
-		$this->assertEquals( $sqs_client->results['message_json'], $next_task['message_json'] );
-	}
-
-	/**
 	 * Test add_task().
 	 *
 	 * @covers ::add_task()
@@ -106,45 +75,47 @@ class Test_AWS_SQS extends WP_UnitTestCase {
 	 * @return object.
 	 */
 	public function _create_dummy_sqs_client_instance() {
-		// @codingStandardsIgnoreStarts
-		return new class {
-			public $results = array(
-				'result_message' => 'result message',
-				'queue_handle' => 'queue handle',
-				'message_json' => 'message json',
-			);
-
-			public $queue_url = 'test queue url';
-
-			function getQueueUrl( $queue_url ) {
-				$this->queue_url = $queue_url;
-				return $this;
-			}
-
-			function receiveMessage() {
-				return array(
-					'Messages' => array(
-						array(
-							'ReceiptHandle' => $this->results['queue_handle'],
-							'Body' => $this->results['message_json'],
-						),
-					),
-				);
-			}
-
-			function sendMessage( $array ) {
-				$this->queue_url = $array['QueueUrl'];
-				return $this;
-			}
-
-			function get( $queue_url ) {
-				return $queue_url;
-			}
-
-			function deleteMessage( $array ) {
-				return $array;
-			}
-		};
-		// @codingStandardsIgnoreEnds
+		return new DummyClient();
 	}
 }
+
+// @codingStandardsIgnoreStarts
+class DummyClient{
+	public $results = array(
+		'result_message' => 'result message',
+		'queue_handle' => 'queue handle',
+		'message_json' => 'message json',
+	);
+
+	public $queue_url = 'test queue url';
+
+	function getQueueUrl( $queue_url ) {
+		$this->queue_url = $queue_url;
+		return $this;
+	}
+
+	function receiveMessage() {
+		return array(
+			'Messages' => array(
+				array(
+					'ReceiptHandle' => $this->results['queue_handle'],
+					'Body' => $this->results['message_json'],
+				),
+			),
+		);
+	}
+
+	function sendMessage( $array ) {
+		$this->queue_url = $array['QueueUrl'];
+		return $this;
+	}
+
+	function get( $queue_url ) {
+		return $queue_url;
+	}
+
+	function deleteMessage( $array ) {
+		return $array;
+	}
+};
+// @codingStandardsIgnoreEnds

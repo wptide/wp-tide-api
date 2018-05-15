@@ -32,11 +32,6 @@ svn co https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ ./t
 
 echo "Running PHPUnit Test Suite in Docker..."
 
-## Check for phpunit command.
-if [ -z "${DEV_LIB_PATH}" ]; then
-    PHPUNIT_BIN=/app/vendor/bin/phpunit
-fi
-
 if [ -z "$*" ]; then
     docker-compose run --rm -w ${DOCKER_WORKDIR} ${DOCKER_IMAGE} ${PHPUNIT_BIN:-phpunit} -c ${PHPUNIT_CONFIG}
 else

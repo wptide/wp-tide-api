@@ -14,6 +14,7 @@ use WP_Tide_API\Authentication\JWT_Auth;
 use WP_Tide_API\Authentication\Keypair_Auth;
 use WP_Tide_API\Integration\AWS_S3;
 use WP_Tide_API\Integration\AWS_SQS;
+use WP_Tide_API\Integration\GCP_Storage;
 use WP_Tide_API\Restriction\Rate_Limit;
 use WP_Tide_API\User\User;
 
@@ -99,8 +100,9 @@ class Plugin extends Base {
 		/**
 		 * Integrations
 		 */
-		$this->components['aws_sqs'] = new AWS_SQS( $this );
-		$this->components['aws_s3']  = new AWS_S3( $this );
+		$this->components['aws_sqs']           = new AWS_SQS( $this );
+		$this->components['aws_s3']            = new AWS_S3( $this );
+		$this->components['gcp_cloud_storage'] = new GCP_Storage( $this );
 
 		/**
 		 * User setting

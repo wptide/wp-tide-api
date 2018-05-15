@@ -85,7 +85,7 @@ class Report extends Base {
 
 			if ( $response->is_error() ) {
 				// Don't be too verbose about the error.
-				return rest_ensure_response( $this->report_error( 'report_error', __( 'error occured in report api', 'tide-api' ), 301 ) );
+				return rest_ensure_response( $this->report_error( 'report_error', __( 'error occured in report api', 'tide-api' ), 500 ) );
 			}
 
 			// Set the post_id to get the meta for.
@@ -97,7 +97,7 @@ class Report extends Base {
 
 		// Could not get the meta for the given standard.
 		if ( empty( $meta ) ) {
-			return rest_ensure_response( $this->report_error( 'report_standard_not_fount', __( 'could not retrieve report for standard', 'tide-api' ), 404 ) );
+			return rest_ensure_response( $this->report_error( 'report_standard_not_found', __( 'could not retrieve report for standard', 'tide-api' ), 404 ) );
 		}
 
 		if ( empty( $this->plugin->components[ $object_source ] ) ) {
@@ -106,7 +106,8 @@ class Report extends Base {
 
 		// Get temporary signed url.
 		$meta = maybe_unserialize( $meta );
-		$url  = $this->plugin->components[ $object_source ]->get_url( $meta['full'] );
+
+		$url = $this->plugin->components[ $object_source ]->get_url( $meta['full'] );
 
 		// Error fetching from storage provider.
 		if ( is_wp_error( $url ) ) {
@@ -132,7 +133,7 @@ class Report extends Base {
 	 *
 	 * @return array An error array.
 	 */
-	private function report_error( $code, $message, $status ) {
+	public function report_error( $code, $message, $status ) {
 		return [
 			'code'    => $code,
 			'message' => $message,

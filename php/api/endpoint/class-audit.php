@@ -76,6 +76,7 @@ class Audit extends Base {
 					'source_type'      => array(), // e.g. 'zip', 'repo'.
 					'original_request' => array(),
 					'code_info'        => array(),
+					'standards'        => array(),
 					'reports'          => array(
 						'get_callback'    => array( $this, 'rest_reports_get' ),
 						'update_callback' => array( $this, 'rest_reports_update' ),

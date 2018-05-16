@@ -6,8 +6,10 @@
  */
 
 namespace WP_Tide_API;
+
 use WP_Tide_API\API\API_Bootstrap;
 use WP_Tide_API\API\Endpoint\Audit;
+use WP_Tide_API\API\Endpoint\Report;
 use WP_Tide_API\Authentication\JWT_Auth;
 use WP_Tide_API\Authentication\Keypair_Auth;
 use WP_Tide_API\Integration\AWS_S3;
@@ -80,8 +82,9 @@ class Plugin extends Base {
 		/**
 		 * API
 		 */
-		$this->components['api_bootstrap']      = new API_Bootstrap( $this ); // Prepares the API.
-		$this->components['api_endpoint_audit'] = new Audit( $this ); // Prepares the Audit endpoints.
+		$this->components['api_bootstrap']       = new API_Bootstrap( $this ); // Prepares the API.
+		$this->components['api_endpoint_audit']  = new Audit( $this ); // Prepares the Audit endpoints.
+		$this->components['api_endpoint_report'] = new Report( $this ); // Prepares the Report endpoints.
 
 		/**
 		 * Authentication

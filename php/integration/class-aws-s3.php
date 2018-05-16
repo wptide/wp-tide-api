@@ -18,7 +18,7 @@ class AWS_S3 extends Base {
 	/**
 	 * Get a file from S3.
 	 *
-	 * @param string $meta File data to retrieve.
+	 * @param array $meta Object data to retrieve.
 	 *
 	 * @return mixed
 	 */
@@ -30,7 +30,36 @@ class AWS_S3 extends Base {
 				'Key'    => $meta['key'],
 			) );
 			$data      = $object->get( 'Body' )->getContents();
+
 			return json_decode( $data );
+		} catch ( \Exception $e ) {
+
+			return new \WP_Error( 's3_get_file_fail', $e->getMessage(), $e );
+		}
+	}
+
+	/**
+	 * Get temporary URL to object.
+	 *
+	 * @param array $meta Object data to retrieve.
+	 *
+	 * @return mixed Valid URL or \WP_Error.
+	 */
+	public function get_url( $meta ) {
+		try {
+			$s3_client = $this->create_s3_client_instance();
+
+			$cmd = $s3_client->getCommand( 'GetObject', [
+				'Bucket'              => $meta['bucket_name'],
+				'Key'                 => $meta['key'],
+				'ResponseContentType' => 'application/json',
+			] );
+
+			$request = $s3_client->createPresignedRequest( $cmd, '+5 minutes' );
+
+			// A temporary pre-signed url.
+			return (string) $request->getUri();
+
 		} catch ( \Exception $e ) {
 
 			return new \WP_Error( 's3_get_file_fail', $e->getMessage(), $e );

@@ -11,7 +11,9 @@ namespace WP_Tide_API\API\Controller;
 
 use WP_Tide_API\API\Endpoint\Audit;
 use WP_Tide_API\Plugin;
+use WP_Tide_API\Utility\Audit_Meta;
 use WP_Tide_API\Utility\Audit_Tasks;
+use WP_Tide_API\Utility\User;
 
 /**
  * Class Tide_REST_Audit_Posts_Controller
@@ -316,6 +318,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			'post_name',
 			'original_request',
 			'project', // Hide the rest field in the response.
+			'meta',
 		) );
 
 		$removed_hal_link_fields = array(
@@ -342,6 +345,24 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$response->remove_link( $field );
 		}
 
+		$standards = Audit_Meta::get_filtered_standards( $post->ID );
+
+		if ( ! empty( $standards ) && is_array( $standards ) ) {
+			foreach ( $standards as $standard ) {
+				// Pretty path or query path?
+				if ( get_option( 'permalink_structure' ) ) {
+					$path = sprintf( '/%s/%s/%s/%s', $this->namespace, 'report', $post->ID, $standard );
+				} else {
+					$path = sprintf( '/%s/%s?post_id=%s&standard=%s', $this->namespace, 'report', $post->ID, $standard );
+				}
+
+				$response->add_link( 'report', rest_url( $path ), [
+					'standard' => $standard,
+					'rel'      => 'download',
+				] );
+			}
+		}
+
 		$response = apply_filters( 'tide_api_modify_response', $response, $request );
 
 		return rest_ensure_response( $response );
@@ -366,6 +387,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			if ( ! is_wp_error( $post_id ) ) {
 				// An audit post does exist, short-circuit create_item() execution.
 				$request['id'] = $post_id;
+
 				return parent::update_item( $request );
 			}
 			// If no audit post exists, just continue what we were doing in create_item().
@@ -461,8 +483,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	 *
 	 * @see ::filter_available_standards( $standards )
 	 *
-	 * @param \WP_REST_Request $request Full details about the request.
-	 * @param mixed            $post The post or post->ID of an audit that needs to be audited.
+	 * @param \WP_REST_Request $request   Full details about the request.
+	 * @param mixed            $post      The post or post->ID of an audit that needs to be audited.
 	 * @param array            $standards The audit standards.
 	 */
 	public function create_audit_request( $request, $post = false, $standards = array() ) {
@@ -471,21 +493,25 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$post = $post->ID;
 		}
 
-		// Fallback request client.
-		$current_user    = wp_get_current_user();
 		$fallback_client = '';
-		if ( ( $current_user instanceof \WP_User ) ) {
-			$fallback_client = $current_user->user_login;
+
+		$user = User::authenticated();
+		if ( $user instanceof \WP_User ) {
+			$fallback_client = $user->user_login;
 		}
 
-		$title          = $request->get_param( 'title' ) ?? '';
-		$content        = $request->get_param( 'content' ) ?? '';
-		$source_url     = $request->get_param( 'source_url' ) ?? '';
-		$source_type    = $request->get_param( 'source_type' ) ?? '';
-		$request_client = $request->get_param( 'request_client' ) ?? $fallback_client;
-		$force          = $request->get_param( 'force' ) ?? false;
-		$visibility     = $request->get_param( 'visibility' ) ?? 'private';
-		$slug           = $request->get_param( 'slug' ) ?? '';
+		$request_client = $fallback_client;
+		if ( ! empty( $request->get_param( 'request_client' ) ) && User::has_cap( 'audit_client' ) ) {
+			$request_client = $request->get_param( 'request_client' );
+		}
+
+		$title       = $request->get_param( 'title' ) ? $request->get_param( 'title' ) : '';
+		$content     = $request->get_param( 'content' ) ? $request->get_param( 'content' ) : '';
+		$source_url  = $request->get_param( 'source_url' ) ? $request->get_param( 'source_url' ) : '';
+		$source_type = $request->get_param( 'source_type' ) ? $request->get_param( 'source_type' ) : '';
+		$force       = $request->get_param( 'force' ) ? $request->get_param( 'force' ) : false;
+		$visibility  = $request->get_param( 'visibility' ) ? $request->get_param( 'visibility' ) : 'private';
+		$slug        = $request->get_param( 'slug' ) ? $request->get_param( 'slug' ) : '';
 
 		// Cant go much further without these.
 		if ( empty( $source_type ) || empty( $source_url ) ) {
@@ -502,15 +528,19 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$response_api_endpoint = rest_url( sprintf( '%s/%s/%d', $this->namespace, $this->rest_base, $post ) );
 		}
 
+		$standards = array_map( function ( $standard ) {
+			return sanitize_text_field( $standard );
+		}, $standards );
+
 		$task_args = array(
-			'response_api_endpoint' => $response_api_endpoint,
-			'title'                 => $title,
-			'content'               => $content,
-			'source_url'            => $source_url,
-			'source_type'           => $source_type,
-			'request_client'        => $request_client,
-			'force'                 => $force,
-			'visibility'            => $visibility,
+			'response_api_endpoint' => esc_url_raw( $response_api_endpoint ),
+			'title'                 => sanitize_text_field( $title ),
+			'content'               => wp_kses_post( $content ),
+			'source_url'            => esc_url_raw( $source_url ),
+			'source_type'           => sanitize_text_field( $source_type ),
+			'request_client'        => sanitize_text_field( $request_client ),
+			'force'                 => (bool) $force,
+			'visibility'            => sanitize_text_field( $visibility ),
 			'standards'             => $standards,
 			'audits'                => array(),
 		);
@@ -520,7 +550,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		}
 
 		if ( ! empty( $slug ) ) {
-			$task_args['slug'] = $slug;
+			$task_args['slug'] = sanitize_text_field( $slug );
 		}
 
 		$audits = Audit::executable_audit_fields();
@@ -1070,7 +1100,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				$audits = array(); // Clear original audit list.
 
 				foreach ( $standards as $standard ) {
-					$standard            = str_replace( array( 'audit_', '_audit_' ), '', strtolower( $standard ) ); // Get rid of legacy "audit_" and "_audit_" just in case.
+					$standard            = str_replace( array(
+						'audit_',
+						'_audit_',
+					), '', strtolower( $standard ) ); // Get rid of legacy "audit_" and "_audit_" just in case.
 					$audits[ $standard ] = array();
 				}
 

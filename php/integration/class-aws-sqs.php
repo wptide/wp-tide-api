@@ -9,6 +9,7 @@ namespace WP_Tide_API\Integration;
 
 use Aws\Sqs\SqsClient;
 use WP_Tide_API\Base;
+use WP_Tide_API\Utility\User;
 
 /**
  * Class Rate_Limit
@@ -16,64 +17,12 @@ use WP_Tide_API\Base;
 class AWS_SQS extends Base {
 
 	/**
-	 * Get Audit Tasks
-	 *
-	 * @filter tide_api_audit_tasks_get_tasks 10
-	 *
-	 * @param mixed $task The tasks to perform.
-	 * @return mixed|\WP_Error
-	 */
-	public function get_next( $task ) {
-		try {
-			$sqs_client = $this->create_sqs_client_instance();
-
-			// Get the queue URL from the queue name.
-			$sqs_queue = defined( 'AWS_SQS_QUEUE_PHPCS' ) ? AWS_SQS_QUEUE_PHPCS : '';
-			$result    = $sqs_client->getQueueUrl( array(
-				'QueueName' => $sqs_queue,
-			) );
-			$queue_url = $result->get( 'QueueUrl' );
-
-			// Receive a message from the queue.
-			$data = array(
-				'QueueUrl' => $queue_url,
-			);
-
-			$result = $sqs_client->receiveMessage( $data );
-
-			// Nothing to return.
-			if ( null === $result['Messages'] ) {
-				return $task;
-			}
-
-			// Get the message information.
-			$result_message = array_pop( $result['Messages'] );
-			$queue_handle   = $result_message['ReceiptHandle'];
-			$message_json   = $result_message['Body'];
-
-			$sqs_client->deleteMessage( array(
-				'QueueUrl'      => $queue_url,
-				'ReceiptHandle' => $queue_handle,
-			) );
-
-			return array(
-				'result_message' => $result_message,
-				'queue_handle'   => $queue_handle,
-				'message_json'   => $message_json,
-			);
-		} catch ( \Exception $e ) {
-
-			return new \WP_Error( 'sqs_get_tasks_fail', __( 'Failed to get SQS tasks:', 'tide-api' ), $e );
-		} // End try().
-	}
-
-	/**
 	 * Add a new task to the SQS queue.
 	 *
 	 * @action tide_api_audit_tasks_add_task
 	 *
 	 * @param mixed $task The task to add to the queue.
-	 * @return void|\WP_Error
+	 * @return mixed|\WP_Error
 	 */
 	public function add_task( $task ) {
 		try {
@@ -93,7 +42,7 @@ class AWS_SQS extends Base {
 			);
 
 			if ( preg_match( '/.fifo$/', $sqs_queue ) ) {
-				$data['MessageGroupId'] = $this->get_message_group_id( $task );
+				$data['MessageGroupId'] = $this->get_request_client( $task );
 			}
 			$sqs_client->sendMessage( $data );
 
@@ -121,21 +70,19 @@ class AWS_SQS extends Base {
 	}
 
 	/**
-	 * Get the MessageGroupId for SQS.
+	 * Get the request client from the task.
 	 *
 	 * @param array $task The audit task.
 	 *
-	 * @return string The MessageGroupId.
+	 * @return string The request client login name.
 	 */
-	private function get_message_group_id( $task ) {
-		// Generate MessageGroupId for FIFO queues.
-		$request_client = $task['request_client'];
-		$slug           = $task['slug'] ?? '';
+	private function get_request_client( $task ) {
 
-		if ( empty( $slug ) ) {
-			$slug = str_replace( ' ', '', strtolower( $task['title'] ) );
+		$request_client = $task['request_client'];
+		if ( empty( $request_client ) && User::authenticated() instanceof \WP_User ) {
+			$request_client = User::authenticated()->user_login;
 		}
 
-		return sprintf( '%s-%s', $request_client, $slug );
+		return $request_client;
 	}
 }

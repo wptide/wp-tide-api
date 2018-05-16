@@ -170,7 +170,7 @@ class Test_Report extends WP_UnitTestCase {
 				'attr'   => [],
 				'want'   => $report->report_error(
 					'unauthenticated_call',
-					'unauthenticated report request',
+					'Unauthenticated report request',
 					301
 				),
 			],
@@ -187,7 +187,7 @@ class Test_Report extends WP_UnitTestCase {
 				],
 				'want'   => $report->report_error(
 					'report_standard_not_found',
-					'could not retrieve report for standard',
+					'Could not retrieve report for standard',
 					404
 				),
 			],
@@ -207,7 +207,7 @@ class Test_Report extends WP_UnitTestCase {
 				],
 				'want'   => $report->report_error(
 					'report_source_error',
-					'could not retrieve report from source',
+					'Could not retrieve report from source',
 					404
 				),
 			],
@@ -265,7 +265,7 @@ class Test_Report extends WP_UnitTestCase {
 				],
 				'want'   => $report->report_error(
 					'report_error',
-					'error occured in report api',
+					'Error occurred in report api',
 					500
 				),
 			],
@@ -284,7 +284,7 @@ class Test_Report extends WP_UnitTestCase {
 				],
 				'want'   => $report->report_error(
 					'report_fetch_error',
-					'fetching report failed',
+					'Fetching report failed',
 					500
 				),
 			],

@@ -345,25 +345,21 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$response->remove_link( $field );
 		}
 
-		// Only for authenticated users.
-		if ( User::authenticated() ) {
+		$standards = Audit_Meta::get_filtered_standards( $post->ID );
 
-			$standards = Audit_Meta::get_filtered_standards( $post->ID );
-
-			if ( ! empty( $standards ) && is_array( $standards ) ) {
-				foreach ( $standards as $standard ) {
-					// Pretty path or query path?
-					if ( get_option( 'permalink_structure' ) ) {
-						$path = sprintf( '/%s/%s/%s/%s', $this->namespace, 'report', $post->ID, $standard );
-					} else {
-						$path = sprintf( '/%s/%s?post_id=%s&standard=%s', $this->namespace, 'report', $post->ID, $standard );
-					}
-
-					$response->add_link( 'report', rest_url( $path ), [
-						'standard' => $standard,
-						'rel'      => 'download',
-					] );
+		if ( ! empty( $standards ) && is_array( $standards ) ) {
+			foreach ( $standards as $standard ) {
+				// Pretty path or query path?
+				if ( get_option( 'permalink_structure' ) ) {
+					$path = sprintf( '/%s/%s/%s/%s', $this->namespace, 'report', $post->ID, $standard );
+				} else {
+					$path = sprintf( '/%s/%s?post_id=%s&standard=%s', $this->namespace, 'report', $post->ID, $standard );
 				}
+
+				$response->add_link( 'report', rest_url( $path ), [
+					'standard' => $standard,
+					'rel'      => 'download',
+				] );
 			}
 		}
 

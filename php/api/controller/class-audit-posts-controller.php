@@ -11,6 +11,7 @@ namespace WP_Tide_API\API\Controller;
 
 use WP_Tide_API\API\Endpoint\Audit;
 use WP_Tide_API\Plugin;
+use WP_Tide_API\Utility\Audit_Meta;
 use WP_Tide_API\Utility\Audit_Tasks;
 use WP_Tide_API\Utility\User;
 
@@ -347,25 +348,22 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		// Only for authenticated users.
 		if ( User::authenticated() ) {
 
-			// Only interested in _audit_<standard> meta.
-			$meta = array_filter( get_post_meta( $post->ID ), function ( $k ) {
-				return strpos( $k, '_audit_' ) !== false;
-			}, ARRAY_FILTER_USE_KEY );
+			$standards = Audit_Meta::get_filtered_standards( $post->ID );
 
-			foreach ( array_keys( $meta ) as $standard ) {
-				$standard = str_replace( '_audit_', '', $standard );
+			if ( ! empty( $standards ) && is_array( $standards ) ) {
+				foreach ( $standards as $standard ) {
+					// Pretty path or query path?
+					if ( get_option( 'permalink_structure' ) ) {
+						$path = sprintf( '/%s/%s/%s/%s', $this->namespace, 'report', $post->ID, $standard );
+					} else {
+						$path = sprintf( '/%s/%s?post_id=%s&standard=%s', $this->namespace, 'report', $post->ID, $standard );
+					}
 
-				// Pretty path or query path?
-				if ( get_option( 'permalink_structure' ) ) {
-					$path = sprintf( '/%s/%s/%s/%s', $this->namespace, 'report', $post->ID, $standard );
-				} else {
-					$path = sprintf( '/%s/%s?post_id=%s&standard=%s', $this->namespace, 'report', $post->ID, $standard );
+					$response->add_link( 'report', rest_url( $path ), [
+						'standard' => $standard,
+						'rel'      => 'download',
+					] );
 				}
-
-				$response->add_link( 'report', rest_url( $path ), [
-					'standard' => $standard,
-					'rel'      => 'download',
-				] );
 			}
 		}
 

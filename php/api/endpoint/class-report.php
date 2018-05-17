@@ -68,7 +68,7 @@ class Report extends Base {
 
 		// These reports are not for unauthenticated users.
 		if ( ! User::authenticated() ) {
-			return rest_ensure_response( $this->report_error( 'unauthenticated_call', __( 'unauthenticated report request', 'tide-api' ), 301 ) );
+			return rest_ensure_response( $this->report_error( 'unauthenticated_call', __( 'Unauthenticated report request', 'tide-api' ), 301 ) );
 		}
 
 		// @todo get the cloud storage source from configuration. For now this is AWS S3 only.
@@ -85,7 +85,7 @@ class Report extends Base {
 
 			if ( $response->is_error() ) {
 				// Don't be too verbose about the error.
-				return rest_ensure_response( $this->report_error( 'report_error', __( 'error occured in report api', 'tide-api' ), 301 ) );
+				return rest_ensure_response( $this->report_error( 'report_error', __( 'Error occurred in report api', 'tide-api' ), 500 ) );
 			}
 
 			// Set the post_id to get the meta for.
@@ -97,20 +97,21 @@ class Report extends Base {
 
 		// Could not get the meta for the given standard.
 		if ( empty( $meta ) ) {
-			return rest_ensure_response( $this->report_error( 'report_standard_not_fount', __( 'could not retrieve report for standard', 'tide-api' ), 404 ) );
+			return rest_ensure_response( $this->report_error( 'report_standard_not_found', __( 'Could not retrieve report for standard', 'tide-api' ), 404 ) );
 		}
 
 		if ( empty( $this->plugin->components[ $object_source ] ) ) {
-			return rest_ensure_response( $this->report_error( 'report_source_error', __( 'could not retrieve report from source', 'tide-api' ), 404 ) );
+			return rest_ensure_response( $this->report_error( 'report_source_error', __( 'Could not retrieve report from source', 'tide-api' ), 404 ) );
 		}
 
 		// Get temporary signed url.
 		$meta = maybe_unserialize( $meta );
-		$url  = $this->plugin->components[ $object_source ]->get_url( $meta['full'] );
+
+		$url = $this->plugin->components[ $object_source ]->get_url( $meta['full'] );
 
 		// Error fetching from storage provider.
 		if ( is_wp_error( $url ) ) {
-			return rest_ensure_response( $this->report_error( 'report_fetch_error', __( 'fetching report failed', 'tide-api' ), 500 ) );
+			return rest_ensure_response( $this->report_error( 'report_fetch_error', __( 'Fetching report failed', 'tide-api' ), 500 ) );
 		}
 
 		$response_object = [
@@ -132,7 +133,7 @@ class Report extends Base {
 	 *
 	 * @return array An error array.
 	 */
-	private function report_error( $code, $message, $status ) {
+	public function report_error( $code, $message, $status ) {
 		return [
 			'code'    => $code,
 			'message' => $message,

@@ -9,6 +9,7 @@ namespace WP_Tide_API\API\Endpoint;
 
 use WP_Tide_API\Base;
 use WP_Tide_API\Integration\AWS_S3;
+use WP_Tide_API\Utility\Audit_Meta;
 
 /**
  * Class Audit
@@ -75,6 +76,7 @@ class Audit extends Base {
 					'source_type'      => array(), // e.g. 'zip', 'repo'.
 					'original_request' => array(),
 					'code_info'        => array(),
+					'standards'        => array(),
 					'reports'          => array(
 						'get_callback'    => array( $this, 'rest_reports_get' ),
 						'update_callback' => array( $this, 'rest_reports_update' ),
@@ -244,16 +246,8 @@ class Audit extends Base {
 			$standards = array_filter( explode( ',', $standards ) );
 		}
 
-		// Filter using the allowed standards.
-		if ( ! empty( $standards ) ) {
-			$allowed_standards = array_keys( self::allowed_standards() );
-
-			$standards = array_filter( $standards, function ( $standard ) use ( $allowed_standards ) {
-				return in_array( $standard, $allowed_standards, true );
-			} );
-		} else {
-			$standards = array_keys( self::executable_audit_fields() );
-		}
+		// Filter standards for allowed standards (audit fields as fallback).
+		$standards = Audit_Meta::filter_standards( $standards );
 
 		$results = array();
 

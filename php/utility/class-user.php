@@ -17,11 +17,11 @@ class User {
 	/**
 	 * Check whether we have an authenticated user.
 	 *
-	 * @return bool|false|\WP_User
+	 * @return bool|\WP_User
 	 */
 	public static function authenticated() {
-		$is_user_logged_in = is_user_logged_in();
-		if ( false === $is_user_logged_in ) {
+		$is_user_logged_in = wp_get_current_user();
+		if ( 0 === $is_user_logged_in->ID ) {
 			$is_user_logged_in = get_user_by( 'id', Plugin::instance()->components['jwt_auth']->get_user_id() );
 		}
 		return $is_user_logged_in;

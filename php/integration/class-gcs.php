@@ -25,18 +25,26 @@ class GCS extends Base {
 	public function get_url( $meta ) {
 		// Catch all failures.
 		try {
-			// Don't need to specify 'projectID'. Its already picked up in the service account file.
-			$storage = new StorageClient();
+			$storage = $this->create_gcs_client_instance();
 
-			$bucket = $storage->bucket( $meta['bucket_name'] );
-			$object = $bucket->object( $meta['key'] );
+			$bucket = $storage->bucket( $meta['path'] );
+			$object = $bucket->object( $meta['filename'] );
 			$url    = $object->signedUrl( time() + ( 60 * 5 ) );
 
 			// A temporary pre-signed url.
 			return (string) $url;
 		} catch ( \Exception $e ) {
 
-			return new \WP_Error( 'gcp_storage_get_url_fail', $e->getMessage(), $e );
+			return new \WP_Error( 'gcs_get_url_fail', $e->getMessage(), $e );
 		}
+	}
+
+	/**
+	 * Create new StorageClient instance.
+	 *
+	 * @return S3Client
+	 */
+	public function create_gcs_client_instance() {
+		return new StorageClient();
 	}
 }

@@ -19,7 +19,8 @@
   ],
   "require": {
     "firebase/php-jwt": "^4.0",
-    "aws/aws-sdk-php": "^3.22"
+    "aws/aws-sdk-php": "^3.22",
+    "google/cloud-storage": "^1.4"
   },
   "require-dev": {
     "wp-coding-standards/wpcs": "*",

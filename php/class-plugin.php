@@ -12,6 +12,7 @@ use WP_Tide_API\API\Endpoint\Audit;
 use WP_Tide_API\API\Endpoint\Report;
 use WP_Tide_API\Authentication\JWT_Auth;
 use WP_Tide_API\Authentication\Keypair_Auth;
+use WP_Tide_API\Integration\GCS;
 use WP_Tide_API\Integration\Local;
 use WP_Tide_API\Integration\S3;
 use WP_Tide_API\Integration\SQS;
@@ -100,9 +101,10 @@ class Plugin extends Base {
 		/**
 		 * Integrations
 		 */
-		$this->components['queue_sqs']     = new SQS( $this );
-		$this->components['storage_s3']    = new S3( $this );
+		$this->components['storage_gcs']   = new GCS( $this );
 		$this->components['storage_local'] = new Local( $this );
+		$this->components['storage_s3']    = new S3( $this );
+		$this->components['queue_sqs']     = new SQS( $this );
 
 		/**
 		 * User setting

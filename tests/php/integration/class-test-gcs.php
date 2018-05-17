@@ -75,9 +75,10 @@ class Test_GCS extends WP_UnitTestCase {
 	 */
 	public function test_create_gcs_client_instance() {
 		try{
+			putenv("GOOGLE_APPLICATION_CREDENTIALS=/bad/path/service-account.json");
 			$gcs_client = $this->storage_gcs->create_gcs_client_instance();
 		} catch ( \Exception $e ) {
-			$this->assertEquals( $e->getMessage(), 'Unable to read the credential file specified by  GOOGLE_APPLICATION_CREDENTIALS: file /app/service-account.json does not exist' );
+			$this->assertEquals( $e->getMessage(), 'Unable to read the credential file specified by  GOOGLE_APPLICATION_CREDENTIALS: file /bad/path/service-account.json does not exist' );
 		}
 	}
 

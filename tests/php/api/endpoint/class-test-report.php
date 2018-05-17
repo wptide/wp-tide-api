@@ -293,7 +293,7 @@ class Test_Report extends WP_UnitTestCase {
 		foreach ( $tests as $test ) {
 
 			// Use Mock_Storage provider.
-			$report->plugin->components['aws_s3'] = new Mock_Storage();
+			$report->plugin->components['storage_s3'] = new Mock_Storage();
 
 			$request = $test['fields']['request'];
 
@@ -322,7 +322,7 @@ class Test_Report extends WP_UnitTestCase {
 			}
 
 			if ( ! empty( $test['attr']['source_error'] ) ) {
-				$report->plugin->components['aws_s3'] = '';
+				$report->plugin->components['storage_s3'] = '';
 			}
 
 			$got = $report->report_response( $request );

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is responsible for the managing of JSON Web Tokens (JWT).
+ * This file is responsible for managing messages in SQS.
  *
  * @package WP_Tide_API
  */
@@ -14,7 +14,7 @@ use WP_Tide_API\Utility\User;
 /**
  * Class Rate_Limit
  */
-class AWS_SQS extends Base {
+class SQS extends Base {
 
 	/**
 	 * Add a new task to the SQS queue.
@@ -28,7 +28,7 @@ class AWS_SQS extends Base {
 		try {
 			$sqs_client = $this->create_sqs_client_instance();
 
-			// Get the queue URL from the queue name.
+			// @todo Add themes to the Lighthouse queue: Get the queue URL from the queue name.
 			$sqs_queue = defined( 'AWS_SQS_QUEUE_PHPCS' ) ? AWS_SQS_QUEUE_PHPCS : '';
 			$result    = $sqs_client->getQueueUrl( array(
 				'QueueName' => $sqs_queue,
@@ -76,9 +76,9 @@ class AWS_SQS extends Base {
 	 *
 	 * @return string The request client login name.
 	 */
-	private function get_request_client( $task ) {
-
+	public function get_request_client( $task ) {
 		$request_client = $task['request_client'];
+
 		if ( empty( $request_client ) && User::authenticated() instanceof \WP_User ) {
 			$request_client = User::authenticated()->user_login;
 		}

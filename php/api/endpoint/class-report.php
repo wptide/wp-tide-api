@@ -71,9 +71,6 @@ class Report extends Base {
 			return rest_ensure_response( $this->report_error( 'unauthenticated_call', __( 'Unauthenticated report request', 'tide-api' ), 301 ) );
 		}
 
-		// @todo get the cloud storage source from configuration. For now this is AWS S3 only.
-		$object_source = 'aws_s3';
-
 		$checksum = $request->get_param( 'checksum' );
 		$post_id  = $request->get_param( 'post_id' );
 		$standard = $request->get_param( 'standard' );
@@ -100,6 +97,7 @@ class Report extends Base {
 			return rest_ensure_response( $this->report_error( 'report_standard_not_found', __( 'Could not retrieve report for standard', 'tide-api' ), 404 ) );
 		}
 
+		$object_source = 'storage_' . $meta['full']['type'];
 		if ( empty( $this->plugin->components[ $object_source ] ) ) {
 			return rest_ensure_response( $this->report_error( 'report_source_error', __( 'Could not retrieve report from source', 'tide-api' ), 404 ) );
 		}

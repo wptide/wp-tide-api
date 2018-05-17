@@ -39,7 +39,7 @@ class User extends Base {
 			return;
 		}
 
-		$settings = Rate_Limit::get_rate_limit_values( $user->ID );
+		$settings = Rate_Limit::get_rate_limit_values( $user->ID ?? 0 );
 		$interval = $settings['interval'] / HOUR_IN_SECONDS; // Seconds to hours.
 
 		if ( isset( $user->ID ) ) {

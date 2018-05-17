@@ -205,7 +205,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
+		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
 	}
 
 	/**

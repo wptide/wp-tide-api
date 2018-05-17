@@ -21,7 +21,7 @@ php:
 
 env:
     global:
-        - WP_VERSION=4.8.2
+        - WP_VERSION=4.9.5
         - WP_MULTISITE=0
 
 install:

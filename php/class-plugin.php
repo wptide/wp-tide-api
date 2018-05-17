@@ -6,12 +6,15 @@
  */
 
 namespace WP_Tide_API;
+
 use WP_Tide_API\API\API_Bootstrap;
 use WP_Tide_API\API\Endpoint\Audit;
+use WP_Tide_API\API\Endpoint\Report;
 use WP_Tide_API\Authentication\JWT_Auth;
 use WP_Tide_API\Authentication\Keypair_Auth;
-use WP_Tide_API\Integration\AWS_S3;
-use WP_Tide_API\Integration\AWS_SQS;
+use WP_Tide_API\Integration\Local;
+use WP_Tide_API\Integration\S3;
+use WP_Tide_API\Integration\SQS;
 use WP_Tide_API\Restriction\Rate_Limit;
 use WP_Tide_API\User\User;
 
@@ -80,8 +83,9 @@ class Plugin extends Base {
 		/**
 		 * API
 		 */
-		$this->components['api_bootstrap']      = new API_Bootstrap( $this ); // Prepares the API.
-		$this->components['api_endpoint_audit'] = new Audit( $this ); // Prepares the Audit endpoints.
+		$this->components['api_bootstrap']       = new API_Bootstrap( $this ); // Prepares the API.
+		$this->components['api_endpoint_audit']  = new Audit( $this ); // Prepares the Audit endpoints.
+		$this->components['api_endpoint_report'] = new Report( $this ); // Prepares the Report endpoints.
 
 		/**
 		 * Authentication
@@ -96,8 +100,9 @@ class Plugin extends Base {
 		/**
 		 * Integrations
 		 */
-		$this->components['aws_sqs'] = new AWS_SQS( $this );
-		$this->components['aws_s3']  = new AWS_S3( $this );
+		$this->components['queue_sqs']     = new SQS( $this );
+		$this->components['storage_s3']    = new S3( $this );
+		$this->components['storage_local'] = new Local( $this );
 
 		/**
 		 * User setting

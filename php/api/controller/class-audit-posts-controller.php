@@ -349,17 +349,31 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 		if ( ! empty( $standards ) && is_array( $standards ) ) {
 			foreach ( $standards as $standard ) {
-				// Pretty path or query path?
-				if ( get_option( 'permalink_structure' ) ) {
-					$path = sprintf( '/%s/%s/%s/%s', $this->namespace, 'report', $post->ID, $standard );
-				} else {
-					$path = sprintf( '/%s/%s?post_id=%s&standard=%s', $this->namespace, 'report', $post->ID, $standard );
+
+				// If we don't have any data skip.
+				if ( empty( $data['reports'][ $standard ] ) ) {
+					continue;
 				}
 
-				$response->add_link( 'report', rest_url( $path ), [
-					'standard' => $standard,
-					'rel'      => 'download',
-				] );
+				foreach ( $data['reports'][ $standard ] as $type => $value ) {
+					// Not in here, skip.
+					if ( ! in_array( $type, array( 'raw', 'parsed' ), true ) ) {
+						continue;
+					}
+
+					// Pretty path or query path?
+					if ( get_option( 'permalink_structure' ) ) {
+						$path = sprintf( '/%s/%s/%s/%s/%s', $this->namespace, 'report', $post->ID, $type, $standard );
+					} else {
+						$path = sprintf( '/%s/%s?post_id=%s&type=%s&standard=%s', $this->namespace, 'report', $post->ID, $type, $standard );
+					}
+
+					$response->add_link( 'report', rest_url( $path ), [
+						'standard' => $standard,
+						'type'     => $type,
+						'rel'      => 'download',
+					] );
+				}
 			}
 		}
 

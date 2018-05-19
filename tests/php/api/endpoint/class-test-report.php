@@ -55,10 +55,10 @@ class Test_Report extends WP_UnitTestCase {
 			'post_type'  => 'audit',
 		) );
 		update_post_meta( $this->mock_project, '_audit_mock_standard', [
-			'full' => [
-				'type'        => 's3',
-				'bucket_name' => 'mock_bucket',
-				'key'         => 'mock_report.json',
+			'raw' => [
+				'type'     => 's3',
+				'path'     => 'mock_bucket',
+				'filename' => 'mock_report.json',
 			],
 		] );
 		update_post_meta( $this->mock_project, 'checksum', '39c7d71a68565ddd7b6a0fd68d94924d0db449a99541439b3ab8a477c5f1fc4e' );
@@ -69,10 +69,10 @@ class Test_Report extends WP_UnitTestCase {
 			'post_type'  => 'audit',
 		) );
 		update_post_meta( $this->mock_fail_project, '_audit_mock_standard', [
-			'full' => [
-				'type'        => 's3',
-				'bucket_name' => 'error',
-				'key'         => 'error',
+			'raw' => [
+				'type'     => 's3',
+				'path'     => 'error',
+				'filename' => 'error',
 			],
 		] );
 
@@ -186,6 +186,24 @@ class Test_Report extends WP_UnitTestCase {
 					'user_login' => 'user_with_caps',
 				],
 				'want'   => $report->report_error(
+					'report_type_not_found',
+					'Could not retrieve report for type',
+					500
+				),
+			],
+			[
+				'fields' => [
+					'request' => new \WP_REST_Request(
+						'GET',
+						static::REPORT_ROUTE,
+						null
+					),
+				],
+				'attr'   => [
+					'user_login' => 'user_with_caps',
+					'type'       => 'raw',
+				],
+				'want'   => $report->report_error(
 					'report_standard_not_found',
 					'Could not retrieve report for standard',
 					404
@@ -203,6 +221,7 @@ class Test_Report extends WP_UnitTestCase {
 					'user_login'   => 'user_with_caps',
 					'post_id'      => $this->mock_project,
 					'standard'     => 'mock_standard',
+					'type'         => 'raw',
 					'source_error' => true,
 				],
 				'want'   => $report->report_error(
@@ -223,6 +242,7 @@ class Test_Report extends WP_UnitTestCase {
 					'user_login'   => 'user_with_caps',
 					'post_id'      => $this->mock_project,
 					'standard'     => 'mock_standard',
+					'type'         => 'raw',
 					'unset_expire' => true,
 				],
 				'want'   => [
@@ -242,6 +262,7 @@ class Test_Report extends WP_UnitTestCase {
 					'user_login'   => 'user_with_caps',
 					'checksum'     => '39c7d71a68565ddd7b6a0fd68d94924d0db449a99541439b3ab8a477c5f1fc4e',
 					'standard'     => 'mock_standard',
+					'type'         => 'raw',
 					'unset_expire' => true,
 				],
 				'want'   => [
@@ -261,6 +282,7 @@ class Test_Report extends WP_UnitTestCase {
 					'user_login'   => 'user_with_caps',
 					'checksum'     => '333333333333333333330fd68d94924d0db449a99541439b3ab8a477c5f1fc4e',
 					'standard'     => 'mock_standard',
+					'type'         => 'raw',
 					'unset_expire' => true,
 				],
 				'want'   => $report->report_error(
@@ -281,6 +303,7 @@ class Test_Report extends WP_UnitTestCase {
 					'user_login' => 'user_with_caps',
 					'post_id'    => $this->mock_fail_project,
 					'standard'   => 'mock_standard',
+					'type'         => 'raw',
 				],
 				'want'   => $report->report_error(
 					'report_fetch_error',
@@ -293,7 +316,7 @@ class Test_Report extends WP_UnitTestCase {
 		foreach ( $tests as $test ) {
 
 			// Use Mock_Storage provider.
-			$report->plugin->components['aws_s3'] = new Mock_Storage();
+			$report->plugin->components['storage_s3'] = new Mock_Storage();
 
 			$request = $test['fields']['request'];
 
@@ -321,8 +344,12 @@ class Test_Report extends WP_UnitTestCase {
 				$request->set_param( 'standard', $test['attr']['standard'] );
 			}
 
+			if ( ! empty( $test['attr']['type'] ) ) {
+				$request->set_param( 'type', $test['attr']['type'] );
+			}
+
 			if ( ! empty( $test['attr']['source_error'] ) ) {
-				$report->plugin->components['aws_s3'] = '';
+				$report->plugin->components['storage_s3'] = '';
 			}
 
 			$got = $report->report_response( $request );
@@ -343,7 +370,7 @@ class Mock_Storage {
 
 	public function get_url( $meta ) {
 
-		if ( 'error' === $meta['key'] ) {
+		if ( 'error' === $meta['filename'] ) {
 			return new \WP_Error( 'mock_fail_error', 'resource failed', 500 );
 		}
 

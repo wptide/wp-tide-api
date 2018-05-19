@@ -31,6 +31,7 @@ class Report extends Base {
 
 	const POST_PATTERN     = '(?P<post_id>\d*)';
 	const CHECKSUM_PATTERN = '(?P<checksum>[a-fA-F\d]{64})';
+	const TYPE_PATTERN     = '(?P<type>(raw|parsed))';
 	const STANDARD_PATTERN = '(?P<standard>[\w-]+)';
 
 
@@ -46,12 +47,12 @@ class Report extends Base {
 			'callback' => array( $this, 'report_response' ),
 		) );
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::CHECKSUM_PATTERN . '/' . static::STANDARD_PATTERN, array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::CHECKSUM_PATTERN . '/' . static::TYPE_PATTERN . '/' . static::STANDARD_PATTERN, array(
 			'methods'  => 'GET',
 			'callback' => array( $this, 'report_response' ),
 		) );
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::POST_PATTERN . '/' . static::STANDARD_PATTERN, array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::POST_PATTERN . '/' . static::TYPE_PATTERN . '/' . static::STANDARD_PATTERN, array(
 			'methods'  => 'GET',
 			'callback' => array( $this, 'report_response' ),
 		) );
@@ -71,12 +72,15 @@ class Report extends Base {
 			return rest_ensure_response( $this->report_error( 'unauthenticated_call', __( 'Unauthenticated report request', 'tide-api' ), 301 ) );
 		}
 
-		// @todo get the cloud storage source from configuration. For now this is AWS S3 only.
-		$object_source = 'aws_s3';
-
 		$checksum = $request->get_param( 'checksum' );
 		$post_id  = $request->get_param( 'post_id' );
 		$standard = $request->get_param( 'standard' );
+		$type     = $request->get_param( 'type' );
+
+		// Could not get the meta for the given type.
+		if ( empty( $type ) || ! in_array( $type, array( 'raw', 'parsed' ), true ) ) {
+			return rest_ensure_response( $this->report_error( 'report_type_not_found', __( 'Could not retrieve report for type', 'tide-api' ), 500 ) );
+		}
 
 		// If we don't have a post_id, but a checksum, then hit the checksum endpoint.
 		if ( ! empty( $checksum ) ) {
@@ -100,6 +104,7 @@ class Report extends Base {
 			return rest_ensure_response( $this->report_error( 'report_standard_not_found', __( 'Could not retrieve report for standard', 'tide-api' ), 404 ) );
 		}
 
+		$object_source = 'storage_' . $meta[ $type ]['type'];
 		if ( empty( $this->plugin->components[ $object_source ] ) ) {
 			return rest_ensure_response( $this->report_error( 'report_source_error', __( 'Could not retrieve report from source', 'tide-api' ), 404 ) );
 		}
@@ -107,7 +112,7 @@ class Report extends Base {
 		// Get temporary signed url.
 		$meta = maybe_unserialize( $meta );
 
-		$url = $this->plugin->components[ $object_source ]->get_url( $meta['full'] );
+		$url = $this->plugin->components[ $object_source ]->get_url( $meta[ $type ] );
 
 		// Error fetching from storage provider.
 		if ( is_wp_error( $url ) ) {

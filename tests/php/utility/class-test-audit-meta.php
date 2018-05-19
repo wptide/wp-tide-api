@@ -78,7 +78,7 @@ class Test_Audit_Meta extends WP_UnitTestCase {
 	/**
 	 * Test Audit_Meta::get_filtered_standards.
 	 *
-	 * @covers ::get_filter_standards()
+	 * @covers ::get_filtered_standards()
 	 */
 	public function test_get_filtered_standards() {
 

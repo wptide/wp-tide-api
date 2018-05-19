@@ -1,18 +1,18 @@
 <?php
 /**
- * Test_AWS_SQS
+ * Test_SQS
  *
  * @package WP_Tide_API
  */
 
-use WP_Tide_API\Integration\AWS_SQS;
+use WP_Tide_API\Integration\SQS;
 
 /**
- * Class Test_AWS_SQS
+ * Class Test_SQS
  *
- * @coversDefaultClass WP_Tide_API\Integration\AWS_SQS
+ * @coversDefaultClass WP_Tide_API\Integration\SQS
  */
-class Test_AWS_SQS extends WP_UnitTestCase {
+class Test_SQS extends WP_UnitTestCase {
 
 	/**
 	 * Plugin instance.
@@ -24,9 +24,25 @@ class Test_AWS_SQS extends WP_UnitTestCase {
 	/**
 	 * AWS SQS.
 	 *
-	 * @var AWS_SQS
+	 * @var SQS
 	 */
-	public $aws_sqs;
+	public $queue_sqs;
+
+	/**
+	 * User ID.
+	 *
+	 * @var int
+	 */
+	protected static $user_id = 0;
+
+	/**
+	 * Setup before class.
+	 *
+	 * @inheritdoc
+	 */
+	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		self::$user_id = $factory->user->create( array( 'user_login' => 'foo' ) );
+	}
 
 	/**
 	 * Setup.
@@ -36,8 +52,8 @@ class Test_AWS_SQS extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->plugin  = WP_Tide_API\Plugin::instance();
-		$this->aws_sqs = $this->plugin->components['aws_sqs'];
+		$this->plugin    = WP_Tide_API\Plugin::instance();
+		$this->queue_sqs = $this->plugin->components['queue_sqs'];
 	}
 
 	/**
@@ -46,27 +62,55 @@ class Test_AWS_SQS extends WP_UnitTestCase {
 	 * @covers ::add_task()
 	 */
 	public function test_add_task() {
+		define( 'AWS_SQS_QUEUE_PHPCS', 'queue-name.fifo' );
 		$task = array();
 
-		$next_task = $this->aws_sqs->add_task( $task );
+		$next_task = $this->queue_sqs->add_task( $task );
 		$this->assertTrue( is_wp_error( $next_task ) );
 		$this->assertEquals( $next_task->get_error_code(), 'sqs_add_tasks_fail' );
 
-		$mock = $this->getMockBuilder( get_class( $this->aws_sqs ) )->getMock();
+		$mock = $this->getMockBuilder( get_class( $this->queue_sqs ) )->getMock();
 
 		$sqs_client = $this->_create_dummy_sqs_client_instance();
 
 		$mock->method( 'create_sqs_client_instance' )->willReturn( $sqs_client );
 
-		$aws_sqs = new ReflectionClass( get_class( $this->aws_sqs ) );
+		$queue_sqs = new ReflectionClass( get_class( $this->queue_sqs ) );
+		$add_task = $queue_sqs->getMethod( 'add_task' )->invoke( $mock, $task );
 
-		$this->assertEmpty( $aws_sqs->getMethod( 'add_task' )->invoke( $mock, $task ) );
+		$this->assertEmpty( $add_task );
 
 		/**
 		 * If $sqs_client->sendMessage was called correctly $sqs_client->queue_url should
 		 * change from 'test queue url' to 'QueueUrl'.
 		 */
 		$this->assertEquals( $sqs_client->queue_url, 'QueueUrl' );
+	}
+
+	/**
+	 * Test create_sqs_client_instance().
+	 *
+	 * @covers ::create_sqs_client_instance()
+	 */
+	public function test_create_sqs_client_instance() {
+		try{
+			$sqs_client_instance = $this->queue_sqs->create_sqs_client_instance();
+		} catch ( \Exception $e ) {
+			$this->assertEquals( $e->getMessage(), 'The sqs service does not have version: .' );
+		}
+	}
+
+	/**
+	 * Test get_request_client().
+	 *
+	 * @covers ::get_request_client()
+	 */
+	public function test_get_request_client() {
+		$user = wp_set_current_user( self::$user_id );
+		$request_client = $this->queue_sqs->get_request_client( [
+			'request_client' => '',
+		] );
+		$this->assertEquals( $user->user_login, $request_client );
 	}
 
 	/**

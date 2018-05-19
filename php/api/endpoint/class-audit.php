@@ -289,8 +289,8 @@ class Audit extends Base {
 		}
 
 		return array(
-			'name' => $project_info['author'],
-			'uri'  => $project_info['authoruri'],
+			'name' => isset( $project_info['author'] ) ? $project_info['author'] : '',
+			'uri'  => isset( $project_info['authoruri'] ) ? $project_info['authoruri'] : '',
 		);
 	}
 

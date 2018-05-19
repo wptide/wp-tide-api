@@ -345,10 +345,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$response->remove_link( $field );
 		}
 
-		$standards = Audit_Meta::get_filtered_standards( $post->ID );
-
-		if ( ! empty( $standards ) && is_array( $standards ) ) {
-			foreach ( $standards as $standard ) {
+		if ( ! empty( $data['standards'] ) && is_array( $data['standards'] ) ) {
+			foreach ( $data['standards'] as $standard ) {
 
 				// If we don't have any data skip.
 				if ( empty( $data['reports'][ $standard ] ) ) {
@@ -356,23 +354,32 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				}
 
 				foreach ( $data['reports'][ $standard ] as $type => $value ) {
+
 					// Not in here, skip.
 					if ( ! in_array( $type, array( 'raw', 'parsed' ), true ) ) {
 						continue;
 					}
 
-					// Pretty path or query path?
-					if ( get_option( 'permalink_structure' ) ) {
-						$path = sprintf( '/%s/%s/%s/%s/%s', $this->namespace, 'report', $post->ID, $type, $standard );
-					} else {
-						$path = sprintf( '/%s/%s?post_id=%s&type=%s&standard=%s', $this->namespace, 'report', $post->ID, $type, $standard );
+					if ( ! empty( $data['reports'][ $standard ][ $type ] ) ) {
+
+						// Pretty path or query path?
+						if ( get_option( 'permalink_structure' ) ) {
+							$path = sprintf( '/%s/%s/%s/%s/%s', $this->namespace, 'report', $post->ID, $type, $standard );
+						} else {
+							$path = sprintf( '/%s/%s?post_id=%s&type=%s&standard=%s', $this->namespace, 'report', $post->ID, $type, $standard );
+						}
+
+						// Add the report link.
+						$response->add_link( 'report', rest_url( $path ), [
+							'standard' => $standard,
+							'type'     => $type,
+							'rel'      => 'download',
+						] );
 					}
 
-					$response->add_link( 'report', rest_url( $path ), [
-						'standard' => $standard,
-						'type'     => $type,
-						'rel'      => 'download',
-					] );
+					// Remove raw & parsed from the response.
+					unset( $data['reports'][ $standard ][ $type ] );
+					$response->set_data( $data );
 				}
 			}
 		}

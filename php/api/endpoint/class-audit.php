@@ -259,14 +259,6 @@ class Audit extends Base {
 				continue;
 			}
 
-			if ( ! empty( $meta['raw'] ) ) {
-				unset( $meta['raw'] );
-			}
-
-			if ( ! empty( $meta['parsed'] ) ) {
-				unset( $meta['parsed'] );
-			}
-
 			$results[ $standard ] = $meta;
 		}
 

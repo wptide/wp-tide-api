@@ -48,7 +48,11 @@ class Local extends Base {
 
 			$file     = trailingslashit( $meta['path'] ) . $meta['filename'];
 			$filepath = trailingslashit( $uploads['basedir'] ) . $file;
-			if ( ! file_exists( $filepath ) ) {
+
+			// @todo Fix the local Docker environment so this is not needed.
+			$imagefilepath = str_replace( '/app', '/app/wordpress', $filepath );
+
+			if ( ! file_exists( $filepath ) && ! file_exists( $imagefilepath ) ) {
 				throw new \Exception( __( 'The file does not exist on the host.', 'tide-api' ) );
 			}
 

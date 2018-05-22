@@ -407,9 +407,9 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 			if ( ! is_wp_error( $post_id ) ) {
 				// An audit post does exist, short-circuit create_item() execution.
-				$request['id'] = $post_id;
+				$request->set_param( 'id', $post_id );
 
-				return parent::update_item( $request );
+				return $this->update_item( $request );
 			}
 			// If no audit post exists, just continue what we were doing in create_item().
 		}

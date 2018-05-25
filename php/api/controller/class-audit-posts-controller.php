@@ -418,6 +418,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$source_url     = $request->get_param( 'source_url' );
 		$source_type    = $request->get_param( 'source_type' );
 		$standards      = $request->get_param( 'standards' );
+		$project_type   = $request->get_param( 'project_type' );
 		$request_client = $request->get_param( 'request_client' );
 
 		if ( ! is_array( $standards ) ) {
@@ -431,6 +432,12 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 		// Remove any standards that don't belong.
 		$standards = Audit::filter_standards( $standards );
+
+		// Remove lighthouse if this is not a theme.
+		$lh_key = array_search( 'lighthouse', $standards );
+		if ( 'theme' !== $project_type && false !== $lh_key ) {
+			unset( $standards[ $lh_key ] );
+		}
 
 		// Resetting array keys.
 		$standards = array_values( $standards );
@@ -484,7 +491,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$response->set_data( $data );
 
 		// Filter the available standards and then create the audit request
-		// if this current request does not have any results.
+		// if this current request does not have any reports.
 		if ( empty( $checksum ) ) {
 			$this->create_audit_request( $request, $post_id, Audit::filter_standards( $standards ) );
 		}
@@ -680,6 +687,12 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$standards = (array) $standards;
 		}
 
+		// Remove lighthouse if this is not a theme.
+		$lh_key = array_search( 'lighthouse', $standards );
+		if ( 'theme' !== $request->get_param( 'project_type' ) && false !== $lh_key ) {
+			unset( $standards[ $lh_key ] );
+		}
+
 		// Merge existing and new `standards`.
 		$merged_standards = array_unique( array_merge( $original_standards, $standards ) );
 
@@ -704,6 +717,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 	/**
 	 * Update the meta for the audit.
+	 *
+	 * @todod Do we even need this, should it be removed?
 	 *
 	 * @param int              $post_id ID of an audit to update.
 	 * @param \WP_REST_Request $request The update Request.
@@ -877,7 +892,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 	/**
 	 * Only update Audit fields if client has permission to do so.
-	 * We don't want owners to wipe out their audit results.
+	 * We don't want owners to wipe out their audit reports.
 	 *
 	 * @param bool             $allowed    Is this action allowed to take place.
 	 * @param object           $object     The object to update a field of.

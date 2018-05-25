@@ -209,11 +209,11 @@ class Audit extends Base {
 		 * individual post_meta for standard.
 		 */
 		$allowed_standards = array_keys( self::allowed_standards() );
-		foreach ( (array) $field_value as $field => $results ) {
+		foreach ( (array) $field_value as $field => $reports ) {
 			if ( ! in_array( $field, $allowed_standards, true ) ) {
 				continue;
 			}
-			update_post_meta( $post->ID, sprintf( '_audit_%s', $field ), $results );
+			update_post_meta( $post->ID, sprintf( '_audit_%s', $field ), $reports );
 		}
 
 		return true;
@@ -246,20 +246,20 @@ class Audit extends Base {
 		// Filter standards for allowed standards (audit fields as fallback).
 		$standards = Audit_Meta::filter_standards( $standards );
 
-		$results = array();
+		$reports = array();
 
 		foreach ( $standards as $standard ) {
 			$meta = get_post_meta( $rest_post['id'], sprintf( '_audit_%s', $standard ), true );
 
-			// If we don't have any data for the standard then there's no point in adding an empty element to the results.
+			// If we don't have any data for the standard then there's no point in adding an empty element to the reports.
 			if ( empty( $meta ) ) {
 				continue;
 			}
 
-			$results[ $standard ] = $meta;
+			$reports[ $standard ] = $meta;
 		}
 
-		return $results;
+		return $reports;
 	}
 
 	/**

@@ -204,6 +204,10 @@ class Audit extends Base {
 	 */
 	public function rest_reports_update( $field_value, $post, $field_name, $request, $object_type ) {
 
+		if ( 'reports' !== $field_name ) {
+			return false;
+		}
+
 		/**
 		 * Check of an audit standards is allowed and then write the result to
 		 * individual post_meta for standard.
@@ -229,6 +233,10 @@ class Audit extends Base {
 	 * @return array Return the requested standards.
 	 */
 	public function rest_reports_get( $rest_post, $field_name, $request ) {
+
+		if ( 'reports' !== $field_name ) {
+			return false;
+		}
 
 		// If "standards" has been passed with the request then use those standards.
 		$standards = $request->get_param( 'standards' );

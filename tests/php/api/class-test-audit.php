@@ -116,12 +116,14 @@ class Test_Audit extends WP_UnitTestCase {
 		$audit_post = get_post( $audit_id );
 		$audit      = new Audit();
 
-		$results = array(
+		$reports = array(
 			'phpcs_wordpress' => 'test_value',
 		);
 
-		$audit->rest_reports_update( $results, $audit_post, 'results', null, null );
+		$audit->rest_reports_update( $reports, $audit_post, 'not_reports', null, null );
+		$this->assertEmpty( get_post_meta( $audit_id, '_audit_phpcs_wordpress', true ) );
 
+		$audit->rest_reports_update( $reports, $audit_post, 'reports', null, null );
 		$this->assertEquals( 'test_value', get_post_meta( $audit_id, '_audit_phpcs_wordpress', true ) );
 	}
 
@@ -149,11 +151,11 @@ class Test_Audit extends WP_UnitTestCase {
 		);
 
 		// Test request without `standards` param.
-		$results = $audit->rest_reports_get( $response, 'results', $request );
-		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
-		$this->assertTrue( isset( $results['phpcs_phpcompatibility'] ) );
-		$this->assertTrue( isset( $results['lighthouse'] ) );
-		$this->assertFalse( isset( $results['phpcs_invalid-standard'] ) );
+		$reports = $audit->rest_reports_get( $response, 'reports', $request );
+		$this->assertTrue( isset( $reports['phpcs_wordpress'] ) );
+		$this->assertTrue( isset( $reports['phpcs_phpcompatibility'] ) );
+		$this->assertTrue( isset( $reports['lighthouse'] ) );
+		$this->assertFalse( isset( $reports['phpcs_invalid-standard'] ) );
 
 		update_post_meta( $audit_id, 'standards', array(
 			'phpcs_wordpress',
@@ -162,18 +164,22 @@ class Test_Audit extends WP_UnitTestCase {
 		) );
 
 		// Test request without `standards` param but the "standards" meta is set.
-		$results = $audit->rest_reports_get( $response, 'results', $request );
-		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
-		$this->assertTrue( isset( $results['phpcs_phpcompatibility'] ) );
-		$this->assertTrue( isset( $results['lighthouse'] ) );
-		$this->assertFalse( isset( $results['phpcs_invalid-standard'] ) );
+		$reports = $audit->rest_reports_get( $response, 'reports', $request );
+		$this->assertTrue( isset( $reports['phpcs_wordpress'] ) );
+		$this->assertTrue( isset( $reports['phpcs_phpcompatibility'] ) );
+		$this->assertTrue( isset( $reports['lighthouse'] ) );
+		$this->assertFalse( isset( $reports['phpcs_invalid-standard'] ) );
 
 		// Test request with `standards` param.
 		$request->set_param( 'standards', 'phpcs_wordpress,phpcs_invalid-standard,lighthouse' );
-		$results = $audit->rest_reports_get( $response, 'results', $request );
-		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
-		$this->assertFalse( isset( $results['phpcs_phpcompatibility'] ) );
-		$this->assertTrue( isset( $results['lighthouse'] ) );
-		$this->assertFalse( isset( $results['phpcs_invalid-standard'] ) );
+		$reports = $audit->rest_reports_get( $response, 'reports', $request );
+		$this->assertTrue( isset( $reports['phpcs_wordpress'] ) );
+		$this->assertFalse( isset( $reports['phpcs_phpcompatibility'] ) );
+		$this->assertTrue( isset( $reports['lighthouse'] ) );
+		$this->assertFalse( isset( $reports['phpcs_invalid-standard'] ) );
+
+		// Test invalid `$field_name` returns false.
+		$reports = $audit->rest_reports_get( $response, 'not_reports', $request );
+		$this->assertFalse( $reports );
 	}
 }

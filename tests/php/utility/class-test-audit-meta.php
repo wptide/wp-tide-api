@@ -56,10 +56,14 @@ class Test_Audit_Meta extends WP_UnitTestCase {
 					'standards' => [
 						'unknown_standard',
 						'phpcs_wordpress',
+						'phpcs_wordpress-vip',
+						'lighthouse',
 					],
 				],
 				'want'   => [
 					'phpcs_wordpress',
+					'phpcs_wordpress-vip',
+					'lighthouse',
 				],
 			],
 
@@ -72,7 +76,6 @@ class Test_Audit_Meta extends WP_UnitTestCase {
 			// Use array_values() to reset indexes.
 			$this->assertEquals( array_values( $t['want'] ), array_values( $got ) );
 		}
-
 	}
 
 	/**
@@ -145,8 +148,5 @@ class Test_Audit_Meta extends WP_UnitTestCase {
 			// Use array_values() to reset indexes.
 			$this->assertEquals( array_values( $t['want'] ), array_values( $got ) );
 		}
-
 	}
-
-
 }

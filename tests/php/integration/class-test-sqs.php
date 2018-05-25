@@ -79,6 +79,10 @@ class Test_SQS extends WP_UnitTestCase {
 					'type'    => 'phpcs',
 					'options' => array(),
 				),
+				array(
+					'type'    => 'phpcs',
+					'options' => array(),
+				),
 			),
 		);
 

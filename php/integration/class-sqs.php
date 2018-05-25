@@ -33,49 +33,42 @@ class SQS extends Base {
 			}
 
 			$sqs_client = $this->create_sqs_client_instance();
-			$sqs_added  = array();
+			$sqs_queues = array();
 
 			foreach ( $task['audits'] as $audit ) {
-				$add_phpcs = (
-					'phpcs' === $audit['type']
-					&&
-					defined( 'AWS_SQS_QUEUE_PHPCS' )
-					&&
-					AWS_SQS_QUEUE_PHPCS
-					&&
-					! in_array( $audit['type'], $sqs_added, true )
-				);
+				$audit_type   = ! empty( $audit['type'] ) ? $audit['type'] : '';
+				$project_type = ! empty( $task['project_type'] ) ? $task['project_type'] : '';
 
-				// Set the PHPCS queue name.
-				if ( $add_phpcs ) {
-					$sqs_queue   = AWS_SQS_QUEUE_PHPCS;
-					$sqs_added[] = $audit['type'];
-				}
+				if ( empty( $sqs_queues[ $audit_type ] ) ) {
 
-				$add_lighthouse = (
-					'lighthouse' === $audit['type']
-					&&
-					'theme' === $task['project_type']
-					&&
-					defined( 'AWS_SQS_QUEUE_LH' )
-					&&
-					AWS_SQS_QUEUE_LH
-					&&
-					! in_array( $audit['type'], $sqs_added, true )
-				);
+					// Set the PHPCS queue name.
+					if ( 'phpcs' === $audit_type && defined( 'AWS_SQS_QUEUE_PHPCS' ) && AWS_SQS_QUEUE_PHPCS ) {
+						$sqs_queues[ $audit_type ] = AWS_SQS_QUEUE_PHPCS;
+					}
 
-				// Set the Lighthouse queue name.
-				if ( $add_lighthouse ) {
-					$sqs_queue   = AWS_SQS_QUEUE_LH;
-					$sqs_added[] = $audit['type'];
-				}
+					// Set the Lighthouse queue name.
+					if ( 'lighthouse' === $audit_type && 'theme' === $project_type && defined( 'AWS_SQS_QUEUE_LH' ) && AWS_SQS_QUEUE_LH ) {
+						$sqs_queues[ $audit_type ] = AWS_SQS_QUEUE_LH;
+					}
 
-				if ( empty( $sqs_queue ) ) {
+					/**
+					 * Filters the SQS queues.
+					 *
+					 * @param array  $sqs_queues   The SQS queues to send the messages to.
+					 * @param string $audit_type   The audit type. A value like `phpcs` or `lighthouse`.
+					 * @param string $project_type The project type. Value of `theme` or `plugin`.
+					 */
+					$sqs_queues = apply_filters( 'tide_api_sqs_queues', $sqs_queues, $audit_type, $project_type );
+
+					if ( empty( $sqs_queues[ $audit_type ] ) ) {
+						continue;
+					}
+				} else {
 					continue;
 				}
 
 				$result    = $sqs_client->getQueueUrl( array(
-					'QueueName' => $sqs_queue,
+					'QueueName' => $sqs_queues[ $audit_type ],
 				) );
 				$queue_url = $result->get( 'QueueUrl' );
 
@@ -85,7 +78,7 @@ class SQS extends Base {
 					'MessageBody' => wp_json_encode( $task ),
 				);
 
-				if ( preg_match( '/.fifo$/', $sqs_queue ) ) {
+				if ( preg_match( '/.fifo$/', $sqs_queues[ $audit_type ] ) ) {
 					$data['MessageGroupId'] = $this->get_request_client( $task );
 				}
 				$sqs_client->sendMessage( $data );

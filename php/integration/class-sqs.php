@@ -86,7 +86,7 @@ class SQS extends Base {
 		} catch ( \Exception $e ) {
 
 			return new \WP_Error( 'sqs_add_tasks_fail', __( 'Failed to add SQS tasks:', 'tide-api' ), $e );
-		} // End try().
+		}
 	}
 
 	/**

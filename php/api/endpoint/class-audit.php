@@ -109,19 +109,15 @@ class Audit extends Base {
 	 * @return array
 	 */
 	public static function allowed_standards() {
-		return array_merge(
-			apply_filters( 'tide_api_client_allowed_audits', array(
-				'phpcs_wordpress-core'  => array(),
-				'phpcs_wordpress-docs'  => array(),
-				'phpcs_wordpress-extra' => array(),
-				'phpcs_wordpress-vip'   => array(),
-				'lighthouse'            => array(),
-			) ),
-			array(
-				'phpcs_wordpress'        => array(), // Always include the WordPress standard.
-				'phpcs_phpcompatibility' => array(), // Always include the PHP Compatibility standard.
-			)
-		);
+		return apply_filters( 'tide_api_client_allowed_audits', array(
+			'lighthouse'             => array(),
+			'phpcs_phpcompatibility' => array(),
+			'phpcs_wordpress'        => array(),
+			'phpcs_wordpress-core'   => array(),
+			'phpcs_wordpress-docs'   => array(),
+			'phpcs_wordpress-extra'  => array(),
+			'phpcs_wordpress-vip'    => array(),
+		) );
 	}
 
 	/**
@@ -144,15 +140,16 @@ class Audit extends Base {
 	 *
 	 * Note: This is used when creating an audit task and specifies the default audits to execute.
 	 * Note: An array of standards can be provided using the `standards` field in an API request which
-	 *       to add additional audits to execute.
+	 * adds additional audits to execute.
 	 *
 	 * @return array
 	 */
 	public static function executable_audit_fields() {
 
-		return array_merge( apply_filters( 'tide_api_executable_audits', array() ), array(
-			'phpcs_wordpress'        => array(), // Always include the WordPress standard.
-			'phpcs_phpcompatibility' => array(), // Always include the PHP Compatibility standard.
+		return apply_filters( 'tide_api_executable_audits', array(
+			'lighthouse'             => array(),
+			'phpcs_phpcompatibility' => array(),
+			'phpcs_wordpress'        => array(),
 		) );
 	}
 

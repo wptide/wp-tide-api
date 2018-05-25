@@ -414,12 +414,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			// If no audit post exists, just continue what we were doing in create_item().
 		}
 
-		$response      = false;
-		$is_fill_error = $this->fill_data_from_wp_org_api( $request );
-		if ( $is_fill_error instanceof \WP_Error ) {
-			$response = $is_fill_error;
-		}
-
+		$response       = false;
 		$source_url     = $request->get_param( 'source_url' );
 		$source_type    = $request->get_param( 'source_type' );
 		$standards      = $request->get_param( 'standards' );
@@ -428,6 +423,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		if ( ! is_array( $standards ) ) {
 			$standards = explode( ',', $standards );
 			$standards = array_filter( $standards );
+		}
+
+		if ( empty( $standards ) ) {
+			$standards = array_keys( Audit::executable_audit_fields() );
 		}
 
 		// Remove any standards that don't belong.
@@ -487,8 +486,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		// Filter the available standards and then create the audit request
 		// if this current request does not have any results.
 		if ( empty( $checksum ) ) {
-			$this->filter_available_standards( $standards );
-			$this->create_audit_request( $request, $post_id, $standards );
+			$this->create_audit_request( $request, $post_id, Audit::filter_standards( $standards ) );
 		}
 
 		return rest_ensure_response( $response );
@@ -496,13 +494,6 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 	/**
 	 * Send an audit task to the job queue.
-	 *
-	 * NOTE:
-	 * Standards are passed here just to populate the audit task arguments.
-	 * Audit::executable_audit_fields() will pick up the standards via a filter from $request->get_param('standards').
-	 * This filter is usually run before calling create_audit_request.
-	 *
-	 * @see ::filter_available_standards( $standards )
 	 *
 	 * @param \WP_REST_Request $request   Full details about the request.
 	 * @param mixed            $post      The post or post->ID of an audit that needs to be audited.
@@ -531,7 +522,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$source_url   = $request->get_param( 'source_url' ) ? $request->get_param( 'source_url' ) : '';
 		$source_type  = $request->get_param( 'source_type' ) ? $request->get_param( 'source_type' ) : '';
 		$project_type = $request->get_param( 'project_type' ) ? $request->get_param( 'project_type' ) : '';
-		$force        = $request->get_param( 'force' ) ? $request->get_param( 'force' ) : false;
+		$force        = $request->get_param( 'force' ) ? filter_var( $request->get_param( 'force' ), FILTER_VALIDATE_BOOLEAN ) : false;
 		$visibility   = $request->get_param( 'visibility' ) ? $request->get_param( 'visibility' ) : 'private';
 		$slug         = $request->get_param( 'slug' ) ? $request->get_param( 'slug' ) : '';
 
@@ -562,22 +553,17 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			'source_url'            => esc_url_raw( $source_url ),
 			'source_type'           => sanitize_text_field( $source_type ),
 			'request_client'        => sanitize_text_field( $request_client ),
-			'force'                 => (bool) $force,
+			'force'                 => $force,
 			'visibility'            => sanitize_text_field( $visibility ),
 			'standards'             => $standards,
 			'audits'                => array(),
 		);
 
-		if ( true === $force ) {
-			$task_args['force'] = true;
-		}
-
 		if ( ! empty( $slug ) ) {
 			$task_args['slug'] = sanitize_text_field( $slug );
 		}
 
-		$audits = Audit::executable_audit_fields();
-		foreach ( array_keys( $audits ) as $audit ) {
+		foreach ( $standards as $audit ) {
 			// Make sure the edit key is exactly what we want. So replace legacy audit_,
 			// but also replace _audit_ to prevent a possible __audit_ prefix.
 			$audit = '_audit_' . str_replace( array( 'audit_', '_audit_' ), '', strtolower( $audit ) );
@@ -592,18 +578,32 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				continue;
 			}
 
-			$audit_keys = explode( '_', $audit );
+			$audit_keys   = explode( '_', $audit );
+			$standard_key = 3;
 
-			if ( 3 === count( $audit_keys ) ) {
+			if ( count( $audit_keys ) === $standard_key ) {
 				list( $x, $y, $type ) = $audit_keys;
-				unset( $standard );
+
+				$standard = '';
 			} else {
+
+				// Missing type and standard.
+				if ( $standard_key > count( $audit_keys ) ) {
+					continue;
+				}
+
+				// Support standards that use underscores.
+				for ( $i = 0; $i < count( $audit_keys ); $i++ ) {
+					if ( $standard_key < $i ) {
+						$audit_keys[ $standard_key ] .= '_' . $audit_keys[ $i ];
+					}
+				}
 				list( $x, $y, $type, $standard ) = $audit_keys;
 			}
 
 			$options = array();
 
-			if ( isset( $standard ) ) {
+			if ( ! empty( $standard ) && 'phpcs' === $type ) {
 				$options = array(
 					'standard' => $standard,
 					'report'   => 'json',
@@ -626,7 +626,21 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				'options' => $options,
 			);
 
-			$task_args['audits'][] = $args;
+			/**
+			 * Filters the task arguments before they are sent to the queue provider.
+			 *
+			 * The dynamic portion of the hook name, `$type`, refers to the audit type.
+			 * Unless a custom audit type has been implemented this will be one of `phpcs`
+			 * or `lighthouse`. The lighthouse type will have an empty value for `$standard`.
+			 *
+			 * @param array  $args     The task arguments for the message queue.
+			 * @param string $standard The audit standard.
+			 */
+			$args = apply_filters( "tide_api_{$type}_task_args", $args, $standard );
+
+			if ( ! empty( $args ) ) {
+				$task_args['audits'][] = $args;
+			}
 		}
 
 		// It is possible that all required audits have already been run, so don't do anything.
@@ -682,8 +696,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$new_standards = array_diff( $standards, $original_standards );
 		$new_standards = array_filter( $new_standards );
 		if ( ! empty( $new_standards ) ) {
-			$this->filter_available_standards( $new_standards );
-			$this->create_audit_request( $request, $post_id, $new_standards );
+			$this->create_audit_request( $request, $post_id, Audit::filter_standards( $new_standards ) );
 		}
 
 		return rest_ensure_response( $response );
@@ -875,9 +888,9 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	 */
 	public function filter_audit_fields( $allowed, $object, $field_name, $request ) {
 
-		if ( 'results' === $field_name ) {
-			$results   = $request->get_param( 'results' );
-			$standards = is_array( $results ) ? array_keys( $results ) : array();
+		if ( 'reports' === $field_name ) {
+			$reports   = $request->get_param( 'reports' );
+			$standards = is_array( $reports ) ? array_keys( $reports ) : array();
 			$standards = Audit::filter_standards( $standards );
 
 			return ! empty( $standards ) && current_user_can( 'edit_others_posts' );
@@ -1107,155 +1120,5 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		}
 
 		return parent::delete_item_permissions_check( $request );
-	}
-
-	/**
-	 * Only perform audits on the given standards.
-	 *
-	 * @param array $standards Provided standards.
-	 */
-	public function filter_available_standards( $standards = array() ) {
-		// Filter the available standards to only include the requested standards (if given).
-		if ( ! empty( $standards ) ) {
-			$standards = is_array( $standards ) ? $standards : explode( ',', $standards );
-			$standards = array_filter( $standards ); // Get rid of empty values.
-			add_filter( 'tide_api_executable_audits', function ( $audits ) use ( $standards ) {
-				$audits = array(); // Clear original audit list.
-
-				foreach ( $standards as $standard ) {
-					$standard            = str_replace( array(
-						'audit_',
-						'_audit_',
-					), '', strtolower( $standard ) ); // Get rid of legacy "audit_" and "_audit_" just in case.
-					$audits[ $standard ] = array();
-				}
-
-				return $audits;
-			} );
-		}
-	}
-
-	/**
-	 * Fills data from wp.org plugin/theme api.
-	 *
-	 * @param \WP_REST_Request $request rest api request.
-	 *
-	 * @return \WP_Error|bool
-	 */
-	public function fill_data_from_wp_org_api( \WP_REST_Request $request ) {
-		$slug = $request->get_param( 'slug' );
-		$type = $request->get_param( 'type' );
-		if ( empty( $slug ) || empty( $type ) ) {
-			return false;
-		}
-		$params_mapping = array(
-			'name'          => 'title',
-			'download_link' => 'source_url',
-			'sections'      => array(
-				'description' => 'content',
-			),
-		);
-		$http_args      = array(
-			'body' => array(
-				'request' => serialize( (object) array( // @codingStandardsIgnoreLine
-					'slug'   => $slug,
-					'fields' => array(
-						'versions' => true,
-						// For theme this is default to false.
-					),
-				) ),
-			),
-		);
-		if ( 'plugin' === $type ) {
-			$url                         = 'http://api.wordpress.org/plugins/info/1.0/';
-			$http_args['body']['action'] = 'plugin_information';
-		} elseif ( 'theme' === $type ) {
-			$url                         = 'https://api.wordpress.org/themes/info/1.0/';
-			$http_args['body']['action'] = 'theme_information';
-		} else {
-			return new \WP_Error( 'invalid_type', __( "Type should be either 'plugin' or 'theme'", 'tide-api' ), array(
-				'status' => 400,
-			) );
-		}
-		// Send request to get information from WP.org.
-		$res = $this->get_data_from_wp_api( $url, $http_args );
-		if ( $res instanceof \WP_Error ) {
-			return $res;
-		}
-
-		// Check if version request.
-		if ( ! empty( $request->get_param( 'version' ) ) ) {
-			$version = $request->get_param( 'version' );
-			if ( empty( $request->get_param( 'source_url' ) ) ) {
-				if ( isset( $res->versions[ $version ] ) ) {
-					$download_url           = wp_slash( $res->versions[ $version ] );
-					$_POST['source_url']    = $download_url;
-					$_REQUEST['source_url'] = $download_url; // WPCS: input var okay. // WPCS: CSRF ok.
-					unset( $params_mapping['download_link'] ); // As source_url is already set we don't need this mapping.
-				} else {
-					return new \WP_Error( 'invalid_version', __( 'Specified version is not found', 'tide-api' ), array(
-						'status' => 400,
-					) );
-				}
-			}
-		}
-
-		// WP.org always gives zip file.
-		if ( empty( $request->get_param( 'source_type' ) ) ) {
-			$_POST['source_type']    = 'zip';
-			$_REQUEST['source_type'] = 'zip';
-		}
-
-		// Get data according to TIDE request.
-		foreach ( $params_mapping as $org_api_key => $request_key ) {
-			if ( is_array( $request_key ) ) {
-				foreach ( $request_key as $api_key_temp => $request_key_temp ) {
-					if ( empty( $request->get_param( $request_key_temp ) ) && ! empty( $res->{$org_api_key[ $api_key_temp ]} ) ) {
-						$_POST[ $request_key_temp ]    = $res->{$org_api_key[ $api_key_temp ]};
-						$_REQUEST[ $request_key_temp ] = $res->{$org_api_key[ $api_key_temp ]};
-					}
-				}
-			} elseif ( empty( $request->get_param( $request_key ) ) && ! empty( $res->{$org_api_key} ) ) {
-				$_POST[ $request_key ]    = $res->{$org_api_key};
-				$_REQUEST[ $request_key ] = $res->{$org_api_key};
-			}
-		}
-		$request->set_body_params( wp_unslash( $_POST ) ); // WPCS: input var okay. // WPCS: CSRF ok.
-
-		return true;
-	}
-
-	/**
-	 * Get data from wp_api and set it according to param mappings.
-	 *
-	 * @param string $url       wp.org api url to hit.
-	 * @param array  $http_args Http arguments.
-	 *
-	 * @return bool|\WP_Error
-	 * @internal param \WP_REST_Request $request Rest api request.
-	 * @internal param array $params_mapping mapping of params.
-	 */
-	public function get_data_from_wp_api( string $url, array $http_args ) {
-		if ( wp_http_supports( array( 'ssl' ) ) ) {
-			$url = set_url_scheme( $url, 'https' );
-		}
-		$http_args = array_merge( array(
-			'timeout' => 15,
-		), $http_args );
-
-		$http_request = wp_remote_post( $url, $http_args ); // @codingStandardsIgnoreLine
-		if ( $http_request instanceof \WP_Error ) {
-			return new \WP_Error( 'wp_api_issue', __( 'WordPress API is having issue while pulling data from slug, try with full request.', 'tide-api' ), array(
-				'status' => 400,
-			) );
-		}
-		$res = maybe_unserialize( wp_remote_retrieve_body( $http_request ) );
-		if ( ! is_object( $res ) && ! is_array( $res ) ) {
-			return new \WP_Error( 'invalid_slug', __( 'Slug you specified is invalid.', 'tide-api' ), array(
-				'status' => 400,
-			) );
-		}
-
-		return $res;
 	}
 }

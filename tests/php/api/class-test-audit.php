@@ -152,7 +152,7 @@ class Test_Audit extends WP_UnitTestCase {
 		$results = $audit->rest_reports_get( $response, 'results', $request );
 		$this->assertTrue( isset( $results['phpcs_wordpress'] ) );
 		$this->assertTrue( isset( $results['phpcs_phpcompatibility'] ) );
-		$this->assertFalse( isset( $results['lighthouse'] ) );
+		$this->assertTrue( isset( $results['lighthouse'] ) );
 		$this->assertFalse( isset( $results['phpcs_invalid-standard'] ) );
 
 		update_post_meta( $audit_id, 'standards', array(

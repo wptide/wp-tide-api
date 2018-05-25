@@ -61,29 +61,108 @@ class Test_SQS extends WP_UnitTestCase {
 	 *
 	 * @covers ::add_task()
 	 */
-	public function test_add_task() {
+	public function test_add_task_phpcs() {
 		define( 'AWS_SQS_QUEUE_PHPCS', 'queue-name.fifo' );
-		$task = array();
 
-		$next_task = $this->queue_sqs->add_task( $task );
-		$this->assertTrue( is_wp_error( $next_task ) );
-		$this->assertEquals( $next_task->get_error_code(), 'sqs_add_tasks_fail' );
+		// Fail for empty audits array.
+		$add_task = $this->queue_sqs->add_task( array() );
 
-		$mock = $this->getMockBuilder( get_class( $this->queue_sqs ) )->getMock();
+		$this->assertTrue( is_wp_error( $add_task ) );
+		$this->assertEquals( $add_task->get_error_code(), 'sqs_add_tasks_fail' );
+		$this->assertEquals( $add_task->get_error_data()->getMessage(), 'The audits array is empty.' );
 
+		// Valid task.
+		$task = array(
+			'project_type' => 'plugin',
+			'audits'       => array(
+				array(
+					'type'    => 'phpcs',
+					'options' => array(),
+				),
+			),
+		);
+
+		// Without connecting to SQS.
+		$add_task = $this->queue_sqs->add_task( $task );
+
+		$this->assertTrue( is_wp_error( $add_task ) );
+		$this->assertEquals( $add_task->get_error_code(), 'sqs_add_tasks_fail' );
+		$this->assertEquals( $add_task->get_error_data()->getMessage(), 'The sqs service does not have version: .' );
+
+		$mock       = $this->getMockBuilder( get_class( $this->queue_sqs ) )->getMock();
 		$sqs_client = $this->_create_dummy_sqs_client_instance();
+		$queue_sqs  = new ReflectionClass( get_class( $this->queue_sqs ) );
 
 		$mock->method( 'create_sqs_client_instance' )->willReturn( $sqs_client );
 
-		$queue_sqs = new ReflectionClass( get_class( $this->queue_sqs ) );
+		$add_task = $queue_sqs->getMethod( 'add_task' )->invoke( $mock, array(
+			'project_type' => 'plugin',
+			'audits'       => array(
+				array(
+					'type'    => 'bad-type',
+					'options' => array(),
+ 				),
+			),
+		) );
+
+		// Nothing gets added when the audit type is not supported.
+		$this->assertFalse( is_wp_error( $add_task ) );
+		$this->assertEmpty( $add_task );
+		$this->assertEquals( $sqs_client->queue_url, 'test queue url' );
+
 		$add_task = $queue_sqs->getMethod( 'add_task' )->invoke( $mock, $task );
 
+		$this->assertFalse( is_wp_error( $add_task ) );
 		$this->assertEmpty( $add_task );
 
 		/**
 		 * If $sqs_client->sendMessage was called correctly $sqs_client->queue_url should
 		 * change from 'test queue url' to 'QueueUrl'.
 		 */
+		$this->assertEquals( $sqs_client->queue_url, 'QueueUrl' );
+	}
+
+	/**
+	 * Test add_task().
+	 *
+	 * @covers ::add_task()
+	 */
+	public function test_add_task_lighthouse() {
+		define( 'AWS_SQS_QUEUE_LH', 'queue-name.fifo' );
+
+		$mock       = $this->getMockBuilder( get_class( $this->queue_sqs ) )->getMock();
+		$sqs_client = $this->_create_dummy_sqs_client_instance();
+		$queue_sqs  = new ReflectionClass( get_class( $this->queue_sqs ) );
+
+		$mock->method( 'create_sqs_client_instance' )->willReturn( $sqs_client );
+
+		$add_task = $queue_sqs->getMethod( 'add_task' )->invoke( $mock, array(
+			'project_type' => 'plugin',
+			'audits'       => array(
+				array(
+					'type'    => 'lighthouse',
+					'options' => array(),
+ 				),
+			),
+		) );
+
+		// Nothing gets added when the audit type is lighthouse and the project_type is a plugin.
+		$this->assertFalse( is_wp_error( $add_task ) );
+		$this->assertEmpty( $add_task );
+		$this->assertEquals( $sqs_client->queue_url, 'test queue url' );
+
+		$add_task = $queue_sqs->getMethod( 'add_task' )->invoke( $mock, array(
+			'project_type' => 'theme',
+			'audits'       => array(
+				array(
+					'type'    => 'lighthouse',
+					'options' => array(),
+ 				),
+			),
+		) );
+
+		$this->assertFalse( is_wp_error( $add_task ) );
+		$this->assertEmpty( $add_task );
 		$this->assertEquals( $sqs_client->queue_url, 'QueueUrl' );
 	}
 

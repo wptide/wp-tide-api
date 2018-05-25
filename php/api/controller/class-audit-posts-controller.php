@@ -526,13 +526,14 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$request_client = $request->get_param( 'request_client' );
 		}
 
-		$title       = $request->get_param( 'title' ) ? $request->get_param( 'title' ) : '';
-		$content     = $request->get_param( 'content' ) ? $request->get_param( 'content' ) : '';
-		$source_url  = $request->get_param( 'source_url' ) ? $request->get_param( 'source_url' ) : '';
-		$source_type = $request->get_param( 'source_type' ) ? $request->get_param( 'source_type' ) : '';
-		$force       = $request->get_param( 'force' ) ? $request->get_param( 'force' ) : false;
-		$visibility  = $request->get_param( 'visibility' ) ? $request->get_param( 'visibility' ) : 'private';
-		$slug        = $request->get_param( 'slug' ) ? $request->get_param( 'slug' ) : '';
+		$title        = $request->get_param( 'title' ) ? $request->get_param( 'title' ) : '';
+		$content      = $request->get_param( 'content' ) ? $request->get_param( 'content' ) : '';
+		$source_url   = $request->get_param( 'source_url' ) ? $request->get_param( 'source_url' ) : '';
+		$source_type  = $request->get_param( 'source_type' ) ? $request->get_param( 'source_type' ) : '';
+		$project_type = $request->get_param( 'project_type' ) ? $request->get_param( 'project_type' ) : '';
+		$force        = $request->get_param( 'force' ) ? $request->get_param( 'force' ) : false;
+		$visibility   = $request->get_param( 'visibility' ) ? $request->get_param( 'visibility' ) : 'private';
+		$slug         = $request->get_param( 'slug' ) ? $request->get_param( 'slug' ) : '';
 
 		// Cant go much further without these.
 		if ( empty( $source_type ) || empty( $source_url ) ) {
@@ -557,6 +558,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			'response_api_endpoint' => esc_url_raw( $response_api_endpoint ),
 			'title'                 => sanitize_text_field( $title ),
 			'content'               => wp_kses_post( $content ),
+			'project_type'          => sanitize_text_field( $project_type ),
 			'source_url'            => esc_url_raw( $source_url ),
 			'source_type'           => sanitize_text_field( $source_type ),
 			'request_client'        => sanitize_text_field( $request_client ),

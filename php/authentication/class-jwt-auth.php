@@ -41,17 +41,31 @@ class JWT_Auth extends Base {
 	private $base = 'auth';
 
 	/**
+	 * Secure auth key.
+	 *
+	 * @var string
+	 */
+	private $secure_auth_key = '';
+
+	/**
 	 * JWT_Auth constructor.
 	 *
 	 * Setup constructor and retrieve plugin API namespace and version from plugin info.
 	 * This is defined in the Plugin header as `API Namespace` and `API Version`.
 	 *
 	 * @param Plugin $plugin The TIDE API plugin.
+	 * @param string $secure_auth_key The secure auth key.
 	 */
-	public function __construct( Plugin $plugin ) {
+	public function __construct( Plugin $plugin, $secure_auth_key = '' ) {
 		parent::__construct( $plugin );
 
-		$this->namespace = sprintf( '%s/%s', $plugin->info['api_namespace'], $plugin->info['api_version'] );
+		$this->namespace       = sprintf( '%s/%s', $plugin->info['api_namespace'], $plugin->info['api_version'] );
+		$this->secure_auth_key = $secure_auth_key;
+
+		// Use SECURE_AUTH_KEY defined in wp-config.php as secret.
+		if ( '' === $this->secure_auth_key && defined( 'SECURE_AUTH_KEY' ) ) {
+			$this->secure_auth_key = SECURE_AUTH_KEY;
+		}
 	}
 
 	/**
@@ -254,9 +268,8 @@ class JWT_Auth extends Base {
 	 */
 	public function get_secret() {
 
-		// Use SECURE_AUTH_KEY defined in wp-config.php as secret.
-		if ( defined( 'SECURE_AUTH_KEY' ) ) {
-			$secret = SECURE_AUTH_KEY;
+		if ( $this->secure_auth_key ) {
+			$secret = $this->secure_auth_key;
 		} else {
 			$secret = new WP_Error(
 				'rest_auth_key',

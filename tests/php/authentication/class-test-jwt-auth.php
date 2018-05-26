@@ -6,6 +6,7 @@
  */
 
 use WP_Tide_API\Authentication\JWT_Auth;
+use \Firebase\JWT\JWT;
 
 /**
  * Class Test_JWT_Auth
@@ -70,7 +71,7 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 		do_action( 'rest_api_init' );
 
 		$this->plugin   = WP_Tide_API\Plugin::instance();
-		$this->jwt_auth = $this->plugin->components['jwt_auth'];
+		$this->jwt_auth = new JWT_Auth( $this->plugin, self::$SECURE_AUTH_KEY );
 	}
 
 	/**
@@ -115,15 +116,12 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 		remove_filter( 'tide_api_authenticate_client', array( $this->plugin->components['keypair_auth'], 'authenticate_key_pair' ) );
 
 		/**
-		 * Test if error is thrown when SECURE_AUTH_KEY is not defined.
+		 * Test if error is thrown when `$SECURE_AUTH_KEY` is false, which mimics no defined value.
 		 */
-		if ( ! defined( 'SECURE_AUTH_KEY' ) ) {
-			$token = $this->jwt_auth->generate_token( $rest_request );
-            $this->assertTrue( is_wp_error( $token ) );
-            $this->assertEquals( 'rest_auth_key', $token->get_error_code() );
-			define( 'SECURE_AUTH_KEY', self::$SECURE_AUTH_KEY );
-		}
-		self::$SECURE_AUTH_KEY = SECURE_AUTH_KEY;
+		$jwt_auth = new JWT_Auth( $this->plugin, false );
+		$token = $jwt_auth->generate_token( $rest_request );
+		$this->assertTrue( is_wp_error( $token ) );
+		$this->assertEquals( 'rest_auth_key', $token->get_error_code() );
 
 		$user_id = $this->factory->user->create( $user_data );
 
@@ -172,6 +170,21 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 	 * @covers ::validate_token()
 	 */
 	public function test_validate_token() {
+
+		$jwt_auth = new ReflectionClass( get_class( $this->jwt_auth ) );
+
+		$mock = $this->getMockBuilder( get_class( $this->jwt_auth ) )->setConstructorArgs( array( $this->plugin ) )->getMock();
+		$mock->method( 'get_secret' )->willReturn( new WP_Error(
+			'rest_auth_key',
+			__( 'Secret key was not defined.', 'tide-api' ),
+			array( 'status' => 403 )
+		) );
+
+		$validate_token = $jwt_auth->getMethod( 'validate_token' )->invoke( $mock, false );
+
+		$this->assertTrue( is_wp_error( $validate_token ) );
+		$this->assertEquals( $validate_token->get_error_code(), 'rest_auth_key' );
+
 		$this->assertTrue( is_wp_error( $this->jwt_auth->validate_token() ) );
 		$this->assertEquals( $this->jwt_auth->validate_token()->get_error_code(), 'rest_auth_no_header' );
 
@@ -181,6 +194,30 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 
 		$this->assertTrue( is_wp_error( $this->jwt_auth->validate_token() ) );
 		$this->assertEquals( $this->jwt_auth->validate_token()->get_error_code(), 'rest_auth_error' );
+
+		$mock = $this->getMockBuilder( get_class( $this->jwt_auth ) )->setConstructorArgs( array( $this->plugin ) )->getMock();
+		$mock->method( 'get_secret' )->willReturn( false );
+		$mock->method( 'get_auth_header' )->willReturn( false );
+		$mock->method( 'get_token' )->willReturn( new WP_Error(
+			'rest_auth_malformed_token',
+			__( 'Authentication token is malformed.', 'tide-api' ),
+			array( 'status' => 403 )
+		) );
+
+		$validate_token = $jwt_auth->getMethod( 'validate_token' )->invoke( $mock, false );
+
+		$this->assertTrue( is_wp_error( $validate_token ) );
+		$this->assertEquals( $validate_token->get_error_code(), 'rest_auth_malformed_token' );
+
+		$mock = $this->getMockBuilder( get_class( $this->jwt_auth ) )->setConstructorArgs( array( $this->plugin ) )->getMock();
+		$mock->method( 'get_secret' )->willReturn( '98765' );
+		$mock->method( 'get_auth_header' )->willReturn( 'Bearer 12345' );
+
+		$validate_token = $jwt_auth->getMethod( 'validate_token' )->invoke( $mock, false );
+
+		$this->assertTrue( is_wp_error( $validate_token ) );
+		$this->assertEquals( $validate_token->get_error_code(), 'rest_auth_error' );
+		$this->assertEquals( $validate_token->get_error_message(), 'Invalid bearer token.' );
 
 		// @todo Test more of validate_token().
 	}
@@ -206,7 +243,44 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 	 * @covers ::get_secret()
 	 */
 	public function test_get_secret() {
-		$this->assertEquals( self::$SECURE_AUTH_KEY, $this->jwt_auth->get_secret() );
+		$jwt_auth = new JWT_Auth( $this->plugin, false );
+		$this->assertTrue( is_wp_error( $jwt_auth->get_secret() ) );
+		$this->assertEquals( $jwt_auth->get_secret()->get_error_code(), 'rest_auth_key' );
+
+		$jwt_auth = new JWT_Auth( $this->plugin, self::$SECURE_AUTH_KEY );
+		$this->assertEquals( self::$SECURE_AUTH_KEY, $jwt_auth->get_secret() );
+	}
+
+	/**
+	 * Test get_user_id().
+	 *
+	 * @covers ::get_user_id()
+	 */
+	public function test_get_user_id() {
+		$object = json_decode( json_encode( array(
+			'data' => array(
+				'client' => array(
+					'id' => 10,
+				),
+			),
+		) ) );
+		$jwt_auth = new ReflectionClass( get_class( $this->jwt_auth ) );
+
+		$mock = $this->getMockBuilder( get_class( $this->jwt_auth ) )->setConstructorArgs( array( $this->plugin ) )->getMock();
+		$mock->method( 'validate_token' )->willReturn( new WP_Error(
+			'rest_auth_error',
+			__( 'Invalid bearer token.', 'tide-api' ),
+			array( 'status' => 403 )
+		) );
+
+		$get_user_id = $jwt_auth->getMethod( 'get_user_id' )->invoke( $mock );
+		$this->assertFalse( $get_user_id );
+
+		$mock = $this->getMockBuilder( get_class( $this->jwt_auth ) )->setConstructorArgs( array( $this->plugin ) )->getMock();
+		$mock->method( 'validate_token' )->willReturn( $object );
+
+		$get_user_id = $jwt_auth->getMethod( 'get_user_id' )->invoke( $mock );
+		$this->assertEquals( $get_user_id, 10 );
 	}
 
 	/**

@@ -12,6 +12,7 @@ use WP_Tide_API\API\Endpoint\Audit;
 use WP_Tide_API\API\Endpoint\Report;
 use WP_Tide_API\Authentication\JWT_Auth;
 use WP_Tide_API\Authentication\Keypair_Auth;
+use WP_Tide_API\Authentication\User_Refresh_Token;
 use WP_Tide_API\Integration\GCS;
 use WP_Tide_API\Integration\Local;
 use WP_Tide_API\Integration\S3;
@@ -91,12 +92,9 @@ class Plugin extends Base {
 		/**
 		 * Authentication
 		 */
-		$this->components['jwt_auth']     = new JWT_Auth( $this ); // Enables JWT Authentication tokens.
-		$this->components['keypair_auth'] = new Keypair_Auth( $this ); // Enabled Key-Pair authentication.
-
-		// @codingStandardsIgnoreStart
-		//$this->components['user_refresh_token'] = new User_Refresh_Token( $this ); // Enabled user-based refresh tokens.
-		// @codingStandardsIgnoreEnd
+		$this->components['jwt_auth']           = new JWT_Auth( $this ); // Enables JWT Authentication tokens.
+		$this->components['keypair_auth']       = new Keypair_Auth( $this ); // Enabled Key-Pair authentication.
+		$this->components['user_refresh_token'] = new User_Refresh_Token( $this ); // Enabled user-based refresh tokens.
 
 		/**
 		 * Integrations

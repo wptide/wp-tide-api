@@ -9,6 +9,7 @@ namespace WP_Tide_API\Authentication;
 
 use Firebase\JWT\JWT;
 use WP_Tide_API\Base;
+use WP_Tide_API\Plugin;
 
 /**
  * Class User_Refresh_Token
@@ -24,6 +25,30 @@ class User_Refresh_Token extends Base {
 	 * @var bool
 	 */
 	private static $refresh_authentication = false;
+
+	/**
+	 * Secure auth key.
+	 *
+	 * @var string
+	 */
+	private $secure_auth_key = '';
+
+	/**
+	 * User_Refresh_Token constructor.
+	 *
+	 * @param Plugin $plugin The TIDE API plugin.
+	 * @param string $secure_auth_key The secure auth key.
+	 */
+	public function __construct( Plugin $plugin, $secure_auth_key = '' ) {
+		parent::__construct( $plugin );
+
+		$this->secure_auth_key = $secure_auth_key;
+
+		// Use SECURE_AUTH_KEY defined in wp-config.php as secret.
+		if ( '' === $this->secure_auth_key && defined( 'SECURE_AUTH_KEY' ) ) {
+			$this->secure_auth_key = SECURE_AUTH_KEY;
+		}
+	}
 
 	/**
 	 * Add a refresh token to the JWT token.
@@ -171,9 +196,8 @@ class User_Refresh_Token extends Base {
 	 */
 	public function get_secret() {
 
-		// Use SECURE_AUTH_KEY defined in wp-config.php as secret.
-		if ( defined( 'SECURE_AUTH_KEY' ) ) {
-			$secret = SECURE_AUTH_KEY;
+		if ( $this->secure_auth_key ) {
+			$secret = $this->secure_auth_key;
 		} else {
 			$secret = new \WP_Error(
 				'rest_auth_key',

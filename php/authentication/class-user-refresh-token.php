@@ -120,7 +120,7 @@ class User_Refresh_Token extends Base {
 			$user_refresh_token        = get_user_meta( $client->ID, 'tide_api_refresh_token', true );
 			$user_refresh_token_decode = empty( $user_refresh_token ) ? false : JWT::decode( $user_refresh_token, $secret, array( 'HS256' ) );
 
-			if ( time() > $user_refresh_token_decode->exp ) {
+			if ( ! isset( $user_refresh_token_decode->exp ) || time() > $user_refresh_token_decode->exp ) {
 				update_user_meta( $client->ID, 'tide_api_refresh_token', $refresh_token );
 			} else {
 				$refresh_token = $user_refresh_token;

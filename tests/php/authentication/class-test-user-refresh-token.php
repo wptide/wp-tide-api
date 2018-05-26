@@ -99,7 +99,7 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 	 */
 	public function test_append_refresh_token() {
 		$rest_request = new WP_REST_Request( 'POST', $this->namespace );
-		$secret       = $this->_set_secret();
+		$secret       = $this->user_refresh_token->get_secret();
 		$user_id      = $this->factory()->user->create( array(
 			'role' => 'administrator',
 		) );
@@ -172,7 +172,7 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 		$rest_request = new WP_REST_Request( 'POST', $this->namespace );
 		$this->assertFalse( $this->user_refresh_token->authenticate_with_refresh_token( false, $rest_request ) );
 
-		$secret  = $this->_set_secret();
+		$secret  = $this->user_refresh_token->get_secret();
 		$user_id = $this->factory()->user->create( array(
 			'role' => 'administrator',
 		) );
@@ -231,22 +231,5 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 
 		$user_refresh_token = new User_Refresh_Token( $this->plugin, self::$SECURE_AUTH_KEY );
 		$this->assertEquals( $user_refresh_token->get_secret(), self::$SECURE_AUTH_KEY );
-	}
-
-	/**
-	 * Set secret.
-	 *
-	 * @return string $secret
-	 */
-	public function _set_secret() {
-		$secret = '54fda65we2aeb65abaq354150966b198e3444198';
-
-		if ( defined( 'SECURE_AUTH_KEY' ) ) {
-			$secret = SECURE_AUTH_KEY;
-		} else {
-			define( 'SECURE_AUTH_KEY', $secret );
-		}
-
-		return $secret;
 	}
 }

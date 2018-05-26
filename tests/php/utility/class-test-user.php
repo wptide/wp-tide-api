@@ -7,6 +7,7 @@
 
 use WP_Tide_API\Plugin;
 use WP_Tide_API\Utility\User;
+use WP_Tide_API\Authentication\JWT_Auth;
 
 /**
  * Class Test_User
@@ -20,8 +21,30 @@ class Test_User extends WP_UnitTestCase {
 
 	protected $api_user;
 
-	const SECURE_AUTH_KEY = '54fda65we2aeb65abaq354150966b198e3444198';
+	/**
+	 * Plugin instance.
+	 *
+	 * @var WP_Tide_API\Plugin
+	 */
+	public $plugin;
 
+	/**
+	 * JWT Auth.
+	 *
+	 * @var JWT_Auth
+	 */
+	public $jwt_auth;
+
+	/**
+	 * Random auth key.
+	 */
+	static $SECURE_AUTH_KEY = '54fda65we2aeb65abaq354150966b198e3444198';
+
+	/**
+	 * Setup.
+	 *
+	 * @inheritdoc
+	 */
 	public function setUp() {
 		parent::setUp();
 
@@ -39,6 +62,9 @@ class Test_User extends WP_UnitTestCase {
 		$user->add_cap( 'api_client' );
 		update_user_meta( $this->api_user, 'tide_api_user_key', 'api_key' );
 		update_user_meta( $this->api_user, 'tide_api_user_secret', 'api_secret' );
+
+		$this->plugin   = WP_Tide_API\Plugin::instance();
+		$this->jwt_auth = new JWT_Auth( $this->plugin, self::$SECURE_AUTH_KEY );
 	}
 
 	/**
@@ -47,8 +73,6 @@ class Test_User extends WP_UnitTestCase {
 	 * @covers ::authenticated()
 	 */
 	public function test_authenticated() {
-
-
 		$tests = [
 			[
 				'args' => [],
@@ -92,11 +116,7 @@ class Test_User extends WP_UnitTestCase {
 				$req->set_param( 'api_key', $t['args']['request_fields']['api_key'] );
 				$req->set_param( 'api_secret', $t['args']['request_fields']['api_secret'] );
 
-				if ( ! defined( 'SECURE_AUTH_KEY' ) ) {
-					define( 'SECURE_AUTH_KEY', self::SECURE_AUTH_KEY );
-				}
-
-				$token = Plugin::instance()->components['jwt_auth']->generate_token( $req );
+				$token = $this->jwt_auth->generate_token( $req );
 				$_SERVER['HTTP_AUTHORIZATION'] = sprintf( 'Bearer %s', $token['access_token'] );
 			}
 
@@ -105,7 +125,6 @@ class Test_User extends WP_UnitTestCase {
 			// Use array_values() to reset indexes.
 			$this->assertEquals( (bool) $t['want'], (bool) $got );
 		}
-
 	}
 
 	/**
@@ -114,8 +133,6 @@ class Test_User extends WP_UnitTestCase {
 	 * @covers ::has_cap()
 	 */
 	public function test_has_cap() {
-
-
 		$tests = [
 			[
 				'fields' => [
@@ -165,7 +182,5 @@ class Test_User extends WP_UnitTestCase {
 			// Use array_values() to reset indexes.
 			$this->assertEquals( (bool) $t['want'], (bool) $got );
 		}
-
 	}
-
 }

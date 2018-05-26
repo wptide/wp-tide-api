@@ -153,14 +153,19 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 
 		// Test with static property set to true.
 		$reflector              = new ReflectionClass( get_class( $this->user_refresh_token ) );
+		$mock                   = $this->getMockBuilder( get_class( $this->user_refresh_token ) )->setConstructorArgs( array( $this->plugin, false ) )->getMock();
 		$refresh_authentication = $reflector->getProperty( 'refresh_authentication' );
+
 		$refresh_authentication->setAccessible( true );
-
-		$this->assertEquals( $refresh_authentication->getValue( $this->user_refresh_token ), false );
-
+		$this->assertEquals( $refresh_authentication->getValue( $mock ), false );
 		$refresh_authentication->setValue( true );
-		$result = $reflector->getMethod( 'append_refresh_token' )->invoke( $this->user_refresh_token, array(), $rest_request, false, false );
-		$this->assertEquals( $result, array() );
+
+		$result = $reflector->getMethod( 'append_refresh_token' )->invoke( $mock, array( 'response' ), $rest_request, false, false );
+		$this->assertEquals( $result, array( 'response' ) );
+
+		$result = $reflector->getMethod( 'append_refresh_token' )->invoke( $mock, array( 'response' ), $rest_request, false, false );
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( $result->get_error_code(), 'rest_auth_key' );
 	}
 
 	/**
@@ -225,6 +230,13 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 	 * @covers ::get_secret()
 	 */
 	public function test_get_secret() {
+		if ( ! defined( 'SECURE_AUTH_KEY' ) ) {
+			define( 'SECURE_AUTH_KEY', self::$SECURE_AUTH_KEY );
+		}
+		self::$SECURE_AUTH_KEY = SECURE_AUTH_KEY;
+		$user_refresh_token = new User_Refresh_Token( $this->plugin );
+		$this->assertEquals( self::$SECURE_AUTH_KEY, $user_refresh_token->get_secret() );
+
 		$user_refresh_token = new User_Refresh_Token( $this->plugin, false );
 		$this->assertTrue( is_wp_error( $user_refresh_token->get_secret() ) );
 		$this->assertEquals( $user_refresh_token->get_secret()->get_error_code(), 'rest_auth_key' );

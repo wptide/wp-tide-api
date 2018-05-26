@@ -243,6 +243,13 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 	 * @covers ::get_secret()
 	 */
 	public function test_get_secret() {
+		if ( ! defined( 'SECURE_AUTH_KEY' ) ) {
+			define( 'SECURE_AUTH_KEY', self::$SECURE_AUTH_KEY );
+		}
+		self::$SECURE_AUTH_KEY = SECURE_AUTH_KEY;
+		$jwt_auth = new JWT_Auth( $this->plugin );
+		$this->assertEquals( self::$SECURE_AUTH_KEY, $jwt_auth->get_secret() );
+
 		$jwt_auth = new JWT_Auth( $this->plugin, false );
 		$this->assertTrue( is_wp_error( $jwt_auth->get_secret() ) );
 		$this->assertEquals( $jwt_auth->get_secret()->get_error_code(), 'rest_auth_key' );

@@ -48,6 +48,8 @@ class Test_Rate_Limit extends WP_UnitTestCase {
 	 */
 	function tearDown() {
 		unset( $_SERVER['HTTP_CLIENT_IP'] );
+		unset( $_SERVER['HTTP_X_FORWARDED_FOR'] );
+		unset( $_SERVER['REMOTE_ADDR'] );
 		parent::tearDown();
 	}
 
@@ -155,8 +157,28 @@ class Test_Rate_Limit extends WP_UnitTestCase {
 	 *
 	 * @covers ::identify_client()
 	 */
-	public function test_identify_client_logged_out() {
+	public function test_identify_client_logged_out_by_http_client_ip() {
 		$_SERVER['HTTP_CLIENT_IP'] = '127.0.0.1';
+		$this->assertSame( 'logged_out_127.0.0.1', $this->rate_limit->identify_client() );
+	}
+
+	/**
+	 * Test identify_client().
+	 *
+	 * @covers ::identify_client()
+	 */
+	public function test_identify_client_logged_out_by_http_x_forwarded_for() {
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1';
+		$this->assertSame( 'logged_out_127.0.0.1', $this->rate_limit->identify_client() );
+	}
+
+	/**
+	 * Test identify_client().
+	 *
+	 * @covers ::identify_client()
+	 */
+	public function test_identify_client_logged_out_by_remote_addr() {
+		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 		$this->assertSame( 'logged_out_127.0.0.1', $this->rate_limit->identify_client() );
 	}
 

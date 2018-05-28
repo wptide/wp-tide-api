@@ -49,10 +49,10 @@ class User extends Base {
 		<h3><?php esc_html_e( 'Tide Api Limits', 'tide-api' ); ?></h3>
 		<table class="form-table bod-custom-field">
 			<tr>
-				<th><label for="bod-profile-id"><?php esc_html_e( 'Rate Limit', 'tide-api' ); ?></label>
+				<th><label for="tide-rate-limit"><?php esc_html_e( 'Rate Limit', 'tide-api' ); ?></label>
 				</th>
 				<td>
-					<input id="bod-profile-id" type="text" name="<?php echo esc_attr( static::LIMIT_USER_META_KEY ); ?>" value="<?php echo esc_attr( $settings['rate_limit'] ); ?>" class="regular-text"/>
+					<input id="tide-rate-limit" type="text" name="<?php echo esc_attr( static::LIMIT_USER_META_KEY ); ?>" value="<?php echo esc_attr( $settings['rate_limit'] ); ?>" class="regular-text"/>
 					<p class="description">
 						<?php
 						$used = $current_usage['used'] ?? 0;
@@ -62,10 +62,10 @@ class User extends Base {
 				</td>
 			</tr>
 			<tr>
-				<th><label for="bod-profile-id"><?php esc_html_e( 'Interval', 'tide-api' ); ?></label>
+				<th><label for="tide-interval"><?php esc_html_e( 'Interval', 'tide-api' ); ?></label>
 				</th>
 				<td>
-					<input id="bod-profile-id" type="text" name="<?php echo esc_attr( static::INTERVAL_USER_META_KEY ); ?>" value="<?php echo esc_attr( $interval ); ?>" class="regular-text"/>
+					<input id="tide-interval" type="text" name="<?php echo esc_attr( static::INTERVAL_USER_META_KEY ); ?>" value="<?php echo esc_attr( $interval ); ?>" class="regular-text"/>
 					<p class="description">
 						<?php
 						printf( '%s %s', esc_html__( ' Renews api rate limit, In Hours. Default:', 'tide-api' ), esc_html( ( Rate_Limit::DEFAULT_INTERVAL / HOUR_IN_SECONDS ) ) );

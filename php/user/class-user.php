@@ -47,7 +47,7 @@ class User extends Base {
 		}
 		?>
 		<h3><?php esc_html_e( 'Tide Api Limits', 'tide-api' ); ?></h3>
-		<table class="form-table bod-custom-field">
+		<table class="form-table">
 			<tr>
 				<th><label for="tide-rate-limit"><?php esc_html_e( 'Rate Limit', 'tide-api' ); ?></label>
 				</th>

@@ -87,10 +87,6 @@ class Keypair_Auth extends Base {
 		}
 		// @codingStandardsIgnoreEnd
 
-		/**
-		 * Output the user profile fields.
-		 */
-		ob_start();
 		?>
 		<h2><?php esc_html_e( 'Tide API Credentials', 'tide-api' ); ?></h2>
 		<table class="form-table">
@@ -129,8 +125,6 @@ class Keypair_Auth extends Base {
 			</tbody>
 		</table>
 		<?php
-
-		Utility::output( ob_get_clean(), true );
 	}
 
 	/**
@@ -162,7 +156,7 @@ class Keypair_Auth extends Base {
 			'meta_value' => $key, // WPCS: slow query ok.
 		) );
 
-		$user = is_array( $user ) ? array_shift( $user ) : false;
+		$user = is_array( $user ) && ! empty( $user ) ? array_shift( $user ) : false;
 		if ( false === $user ) {
 			return $client;
 		}

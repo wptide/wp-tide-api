@@ -41,7 +41,6 @@ class Test_Base extends WP_UnitTestCase {
 		$this->assertEquals( 10, has_action( 'the_content', array( $this->base, 'the_content_filter' ) ) );
 	}
 
-
 	/**
 	 * Test remove_object_hooks().
 	 *

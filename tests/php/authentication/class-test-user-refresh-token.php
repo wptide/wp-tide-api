@@ -147,25 +147,44 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 		update_user_meta( $user_id, 'tide_api_refresh_token', $token );
 		// @codingStandardsIgnoreEnd
 
-		$this->expectException( '\Firebase\JWT\ExpiredException' );
-		$this->expectExceptionMessage( 'Expired token' );
-		$this->user_refresh_token->append_refresh_token( array(), $rest_request, $client, false );
+		$response = $this->user_refresh_token->append_refresh_token( array(), $rest_request, $client, false );
 
-		// Test with static property set to true.
-		$reflector              = new ReflectionClass( get_class( $this->user_refresh_token ) );
-		$mock                   = $this->getMockBuilder( get_class( $this->user_refresh_token ) )->setConstructorArgs( array( $this->plugin, false ) )->getMock();
-		$refresh_authentication = $reflector->getProperty( 'refresh_authentication' );
+		$this->assertNotEmpty( $response );
+		$this->assertArrayHasKey( 'refresh_token', $response );
+		$this->assertNotEquals( $response['refresh_token'], $token );
+	}
 
-		$refresh_authentication->setAccessible( true );
-		$this->assertEquals( $refresh_authentication->getValue( $mock ), false );
-		$refresh_authentication->setValue( true );
 
-		$result = $reflector->getMethod( 'append_refresh_token' )->invoke( $mock, array( 'response' ), $rest_request, false, false );
-		$this->assertEquals( $result, array( 'response' ) );
+	/**
+	 * Test append_refresh_token().
+	 *
+	 * @covers ::append_refresh_token()
+	 */
+	public function test_append_refresh_token_is_wp_error() {
+		$refresh_token = new User_Refresh_Token( $this->plugin, false );
+		$result        = $refresh_token->append_refresh_token( array( 'response' ), false, false, false );
 
-		$result = $reflector->getMethod( 'append_refresh_token' )->invoke( $mock, array( 'response' ), $rest_request, false, false );
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertEquals( $result->get_error_code(), 'rest_auth_key' );
+	}
+
+	/**
+	 * Test append_refresh_token().
+	 *
+	 * @covers ::append_refresh_token()
+	 */
+	public function test_append_refresh_token_refresh_authentication() {
+		$reflector    = new ReflectionClass( get_class( $this->user_refresh_token ) );
+		$refresh_auth = $reflector->getProperty( 'refresh_authentication' );
+
+		// Test with static property set to true.
+		$refresh_auth->setAccessible( true );
+		$refresh_auth->setValue( true );
+
+		$this->assertEquals( $refresh_auth->getValue( $this->user_refresh_token ), true );
+
+		$result = $reflector->getMethod( 'append_refresh_token' )->invoke( $this->user_refresh_token, array( 'response' ), false, false, false );
+		$this->assertEquals( $result, array( 'response' ) );
 	}
 
 	/**

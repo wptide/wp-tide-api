@@ -72,11 +72,11 @@ class User_Refresh_Token extends Base {
 		}
 
 		/**
-		 * If we don't have a secret, just return the original response (which should be an error).
+		 * Get secret to decode the JWT tokens with.
 		 */
 		$secret = $this->get_secret();
 		if ( is_wp_error( $secret ) ) {
-			return $response;
+			return $secret;
 		}
 
 		/**
@@ -117,13 +117,20 @@ class User_Refresh_Token extends Base {
 		 */
 		if ( 'wp_user' === $type ) {
 
-			$user_refresh_token        = get_user_meta( $client->ID, 'tide_api_refresh_token', true );
-			$user_refresh_token_decode = empty( $user_refresh_token ) ? false : JWT::decode( $user_refresh_token, $secret, array( 'HS256' ) );
+			try {
+				$user_refresh_token = get_user_meta( $client->ID, 'tide_api_refresh_token', true );
 
-			if ( ! isset( $user_refresh_token_decode->exp ) || time() > $user_refresh_token_decode->exp ) {
-				update_user_meta( $client->ID, 'tide_api_refresh_token', $refresh_token );
-			} else {
-				$refresh_token = $user_refresh_token;
+				$user_refresh_token_decode = empty( $user_refresh_token ) ? false : JWT::decode( $user_refresh_token, $secret, array( 'HS256' ) );
+			} catch ( \Exception $e ) {
+
+				// We don't want to throw a `\Firebase\JWT\ExpiredException` instead we want to refresh the token.
+				unset( $user_refresh_token );
+			} finally {
+				if ( ! isset( $user_refresh_token_decode->exp ) || time() > $user_refresh_token_decode->exp ) {
+					update_user_meta( $client->ID, 'tide_api_refresh_token', $refresh_token );
+				} else {
+					$refresh_token = $user_refresh_token;
+				}
 			}
 		}
 

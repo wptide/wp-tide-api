@@ -114,6 +114,7 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 		 * Remove filter so the method can be tested in isolation.
 		 */
 		remove_filter( 'tide_api_authenticate_client', array( $this->plugin->components['keypair_auth'], 'authenticate_key_pair' ) );
+		remove_filter( 'tide_api_jwt_token_response', array( $this->plugin->components['user_refresh_token'], 'append_refresh_token' ) );
 
 		/**
 		 * Test if error is thrown when `$SECURE_AUTH_KEY` is false, which mimics no defined value.
@@ -162,6 +163,7 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 		$this->assertEquals( $user_data['user_login'], $client->data->user_login );
 
 		add_filter( 'tide_api_authenticate_client', array( $this->plugin->components['keypair_auth'], 'authenticate_key_pair' ) );
+		add_filter( 'tide_api_jwt_token_response', array( $this->plugin->components['user_refresh_token'], 'append_refresh_token' ) );
 	}
 
 	/**
@@ -369,10 +371,27 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 	 * @covers ::authentication_errors()
 	 */
 	public function test_authentication_errors() {
+		$namespace  = sprintf( '%s/%s', $this->plugin->info['api_namespace'], $this->plugin->info['api_version'] );
+		$auth_uri   = sprintf( '/%s/%s/%s', rest_get_url_prefix(), $namespace, 'auth' );
+		$report_uri = sprintf( '/%s/%s/%s', rest_get_url_prefix(), $namespace, 'report' );
+
+		$this->assertEquals( null, $this->jwt_auth->authentication_errors( null ) );
+		$this->assertEquals( 0, did_action( 'tide_api_jwt_token_error_response' ) );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$_SERVER['REQUEST_URI']    = $auth_uri;
+
 		$this->assertEquals( null, $this->jwt_auth->authentication_errors( null ) );
 
-		$class_name = 'WP_Tide_API\Authentication\JWT_Auth';
-		$jwt_auth_mock = $this->getMockBuilder( $class_name )
+		$_SERVER['REQUEST_URI'] = $report_uri;
+		$result                 = $this->jwt_auth->authentication_errors( null );
+
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 2, did_action( 'tide_api_jwt_token_error_' . $result->get_error_code() ) );
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		$jwt_auth_mock = $this->getMockBuilder( get_class( $this->jwt_auth ) )
 					 ->disableOriginalConstructor()
 					 ->getMock();
 
@@ -381,7 +400,7 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 		$jwt_auth_mock->method( 'validate_token' )
 			 ->willReturn( $token );
 
-		$reflected_class = new ReflectionClass( $class_name );
+		$reflected_class = new ReflectionClass( get_class( $this->jwt_auth ) );
 
 		// Test Success.
 		$this->assertEquals( true, $reflected_class->getMethod( 'authentication_errors' )->invoke( $jwt_auth_mock, null ) );

@@ -23,6 +23,7 @@ env:
     global:
         - WP_VERSION=4.9.5
         - WP_MULTISITE=0
+        - PHPUNIT_VERSION=6
 
 install:
   - sudo apt-get install -y libxml2-utils

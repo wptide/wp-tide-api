@@ -37,27 +37,3 @@ define( 'WP_TESTS_TITLE', 'Test Blog' );
 define( 'WP_PHP_BINARY', 'php' );
 
 define( 'WPLANG', '' );
-
-// Redis settings.
-if ( ! empty( getenv( 'API_REDIS_HOST' ) ) ) {
-	global $redis_server, $redis_page_cache_config;
-
-    $redis_server = array(
-        'host'     => getenv( 'API_REDIS_HOST' ),
-        'port'     => (int) getenv( 'API_REDIS_PORT' ),
-        'auth'     => getenv( 'API_REDIS_AUTH' ),
-        'database' => (int) getenv( 'API_REDIS_DATABASE' ),
-    );
-
-    $redis_page_cache_config = array(
-        'redis_host'          => getenv( 'API_REDIS_HOST' ),
-        'redis_port'          => (int) getenv( 'API_REDIS_PORT' ),
-        'redis_auth'          => getenv( 'API_REDIS_AUTH' ),
-        'redis_db'            => (int) getenv( 'API_REDIS_DATABASE' ),
-        'ttl'                 => getenv( 'API_CACHE_TTL' ),
-        'ignore_cookies'      => array( 'wordpress_test_cookie', '__utmt', '__utma', '__utmb', '__utmc', '__utmz', '__gads', '__qca', '_ga' ),
-        'ignore_request_keys' => array( 'utm_source', 'utm_medium', 'utm_term', 'utm_content', 'utm_campaign' ),
-        'debug'               => getenv( 'API_CACHE_DEBUG' ),
-        'gzip'                => true,
-    );
-}

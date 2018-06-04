@@ -36,6 +36,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 	const PROJECT_SLUG_PATTERN = '(?P<project_slug>[\w-]+)';
 
+	const PROJECT_VERSION_PATTERN = '(?P<version>[\w.-]+)';
+
 	/**
 	 * Allowed source URL extensions.
 	 *
@@ -94,7 +96,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			),
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_item_altid' ),
+				'callback'            => array(
+					$this,
+					'get_item_altid',
+				),
 				'permission_callback' => array(
 					$this,
 					'get_item_permissions_check_altid',
@@ -103,7 +108,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			),
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => array( $this, 'update_item_altid' ),
+				'callback'            => array(
+					$this,
+					'update_item_altid',
+				),
 				'permission_callback' => array(
 					$this,
 					'update_item_permissions_check_altid',
@@ -112,7 +120,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			),
 			array(
 				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => array( $this, 'delete_item_altid' ),
+				'callback'            => array(
+					$this,
+					'delete_item_altid',
+				),
 				'permission_callback' => array(
 					$this,
 					'delete_item_permissions_check_altid',
@@ -125,7 +136,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 					),
 				),
 			),
-			'schema' => array( $this, 'get_public_item_schema' ),
+			'schema' => array(
+				$this,
+				'get_public_item_schema',
+			),
 		) );
 
 		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN, array(
@@ -136,11 +150,21 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				),
 			),
 			array(
-				'methods'  => \WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_audits' ),
-				'args'     => $get_item_args,
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array(
+					$this,
+					'get_items',
+				),
+				'permission_callback' => array(
+					$this,
+					'get_items_permissions_check',
+				),
+				'args'                => $get_item_args,
 			),
-			'schema' => array( $this, 'get_public_item_schema' ),
+			'schema' => array(
+				$this,
+				'get_public_item_schema',
+			),
 		) );
 
 		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN, array(
@@ -155,11 +179,21 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				),
 			),
 			array(
-				'methods'  => \WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_audits' ),
-				'args'     => $get_item_args,
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array(
+					$this,
+					'get_items',
+				),
+				'permission_callback' => array(
+					$this,
+					'get_items_permissions_check',
+				),
+				'args'                => $get_item_args,
 			),
-			'schema' => array( $this, 'get_public_item_schema' ),
+			'schema' => array(
+				$this,
+				'get_public_item_schema',
+			),
 		) );
 
 		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN . '/' . static::PROJECT_SLUG_PATTERN, array(
@@ -178,13 +212,59 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				),
 			),
 			array(
-				'methods'  => \WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_audits' ),
-				'args'     => $get_item_args,
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array(
+					$this,
+					'get_item_altid',
+				),
+				'permission_callback' => array(
+					$this,
+					'get_item_permissions_check_altid',
+				),
+				'args'                => $get_item_args,
 			),
-			'schema' => array( $this, 'get_public_item_schema' ),
+			'schema' => array(
+				$this,
+				'get_public_item_schema',
+			),
 		) );
 
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN . '/' . static::PROJECT_SLUG_PATTERN . '/' . static::PROJECT_VERSION_PATTERN, array(
+			'args'   => array(
+				'project_client' => array(
+					'description' => __( 'User login name representing a project client.' ),
+					'type'        => 'string',
+				),
+				'project_type'   => array(
+					'description' => __( 'The project type: theme or plugin.' ),
+					'type'        => 'string',
+				),
+				'project_slug'   => array(
+					'description' => __( 'The taxonomy term representing the project.' ),
+					'type'        => 'string',
+				),
+				'version'        => array(
+					'description' => __( 'The version representing the project.' ),
+					'type'        => 'string',
+				),
+			),
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array(
+					$this,
+					'get_item_altid',
+				),
+				'permission_callback' => array(
+					$this,
+					'get_item_permissions_check_altid',
+				),
+				'args'                => $get_item_args,
+			),
+			'schema' => array(
+				$this,
+				'get_public_item_schema',
+			),
+		) );
 	}
 
 	/**
@@ -194,7 +274,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	 *
 	 * @return mixed
 	 */
-	public function get_audits( $request ) {
+	public function get_items( $request ) {
 
 		$is_single = false;
 		$args      = array(
@@ -207,7 +287,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		if ( null !== $request->get_param( 'project_client' ) ) {
 			$user = get_user_by( 'login', $request->get_param( 'project_client' ) );
 			if ( false === $user ) {
-				return new \WP_Error( 'tide_audit_invalid_project', __( 'Invalid project.' ), array(
+				return new \WP_Error( 'tide_audit_invalid_project_client', __( 'Invalid project client.' ), array(
 					'status' => 404,
 				) );
 			}
@@ -255,7 +335,6 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 					'compare' => '=',
 				),
 			);
-			$is_single          = true;
 		}
 		$args       = apply_filters( "rest_{$this->post_type}_query", $args, $request );
 		$query_args = $this->prepare_items_query( $args, $request );
@@ -265,7 +344,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$posts        = array();
 
 		foreach ( $query_result as $post ) {
-			if ( ! $this->check_read_permission( $post ) ) {
+			if ( ! isset( $post->ID ) || ! $this->check_read_permission( $post ) ) {
 				continue;
 			}
 
@@ -925,26 +1004,13 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	public function handle_custom_args( $args, $request ) {
 
 		$tax_query = false;
-		if ( isset( $_GET['tags'] ) ) { // WPCS: input var okay. CSRF ok.
-			$tags      = explode( ',', sanitize_text_field( wp_unslash( $_GET['tags'] ) ) ); // WPCS: input var okay. CSRF ok.
-			$tax_query = array(
-				array(
-					'taxonomy' => 'audit_tag',
-					'field'    => 'name',
-					'terms'    => $tags,
-				),
-			);
-		}
-		$args = $this->add_tax_query( $args, $tax_query );
-
-		$tax_query = false;
 		if ( isset( $_GET['project'] ) ) { // WPCS: input var okay. CSRF ok.
-			$tags      = explode( ',', sanitize_text_field( wp_unslash( $_GET['project'] ) ) ); // WPCS: input var okay. CSRF ok.
+			$project   = explode( ',', sanitize_text_field( wp_unslash( $_GET['project'] ) ) ); // WPCS: input var okay. CSRF ok.
 			$tax_query = array(
 				array(
 					'taxonomy' => 'audit_project',
 					'field'    => 'name',
-					'terms'    => $tags,
+					'terms'    => $project,
 				),
 			);
 		}
@@ -961,7 +1027,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	 *
 	 * @return mixed
 	 */
-	private function add_tax_query( $args, $tax_query ) {
+	public function add_tax_query( $args, $tax_query ) {
 
 		if ( ! empty( $tax_query ) ) {
 			if ( isset( $args['tax_query'] ) && ! empty( $args['tax_query'] ) ) { // WPCS: slow query ok.
@@ -1005,31 +1071,72 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	 *
 	 * @param \WP_REST_Request $request The request.
 	 *
-	 * @return mixed|\WP_REST_Response
+	 * @return \WP_Error|\WP_Post
 	 */
-	private function get_altid_post( $request ) {
-
-		$error_data = array(
-			'status' => 404,
-		);
-		$error      = new \WP_Error( 'rest_post_invalid_altid_lookup', __( 'Invalid post lookup.', 'tide-api' ), $error_data );
-
-		$meta_key = ! empty( $request['checksum'] ) ? 'checksum' : false;
-
-		if ( false === $meta_key ) {
-			return new \WP_Error( 'invalid_key', 'Invalid key for lookup.' );
-		}
+	public function get_altid_post( $request ) {
 
 		$args = array(
-			'meta_key'   => $meta_key, // WPCS: slow query ok.
-			'meta_value' => $request[ $meta_key ], // WPCS: slow query ok.
-			'post_type'  => 'audit',
+			'post_type' => 'audit',
 		);
+
+		if ( null === $request->get_param( 'checksum' ) && null === $request->get_param( 'project_slug' ) ) {
+			return new \WP_Error( 'invalid_key', 'Invalid key for lookup.', array(
+				'status' => 400,
+			) );
+		}
+
+		if ( null !== $request->get_param( 'checksum' ) ) {
+			$args['meta_key']   = 'checksum'; // WPCS: slow query ok.
+			$args['meta_value'] = $request->get_param( 'checksum' ); // WPCS: slow query ok.
+		}
+
+		if ( null !== $request->get_param( 'project_client' ) ) {
+			$user = get_user_by( 'login', $request->get_param( 'project_client' ) );
+			if ( false === $user ) {
+				return new \WP_Error( 'tide_audit_invalid_project_client', __( 'Invalid project client.' ), array(
+					'status' => 404,
+				) );
+			}
+			$args['author'] = $user->ID;
+		}
+
+		if ( null !== $request->get_param( 'project_type' ) ) {
+			$args['meta_query'] = array(
+				array(
+					'key'     => 'project_type',
+					'value'   => $request->get_param( 'project_type' ),
+					'compare' => '=',
+				),
+			);
+		}
+
+		if ( null !== $request->get_param( 'project_slug' ) ) {
+			$args['tax_query'] = array(
+				array(
+					'taxonomy' => 'audit_project',
+					'field'    => 'slug', // search by taxonomy slug.
+					'terms'    => $request->get_param( 'project_slug' ),
+				),
+			);
+		}
+
+		if ( null !== $request->get_param( 'version' ) ) {
+			$args['meta_query'] = array(
+				array(
+					'key'     => 'version',
+					'value'   => $request->get_param( 'version' ),
+					'compare' => '=',
+				),
+			);
+			$is_single          = true;
+		}
 
 		$post = new \WP_Query( $args );
 
 		if ( is_wp_error( $post ) || empty( $post ) || 0 === $post->post_count ) {
-			return $error;
+			return new \WP_Error( 'rest_post_invalid_altid_lookup', __( 'Invalid post lookup.', 'tide-api' ), array(
+				'status' => 404,
+			) );
 		}
 
 		return array_shift( $post->posts );
@@ -1042,7 +1149,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	 *
 	 * @return int|mixed|\WP_Post|\WP_REST_Response
 	 */
-	private function get_altid_post_id( $request ) {
+	public function get_altid_post_id( $request ) {
 		$post = $this->get_altid_post( $request );
 
 		if ( is_wp_error( $post ) ) {

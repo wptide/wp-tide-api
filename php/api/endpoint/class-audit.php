@@ -84,9 +84,7 @@ class Audit extends Base {
 					// This is the plugin/theme author. Not the user attributed to the audit.
 					'project_author'   => array(
 						// This should not be possible.
-						'update_callback' => function () {
-							return;
-						},
+						'update_callback' => '__return_false',
 						'get_callback'    => array( $this, 'rest_field_project_author_get_callback' ),
 					),
 					// Updates taxonomy terms without IDs.
@@ -235,7 +233,7 @@ class Audit extends Base {
 	public function rest_reports_get( $rest_post, $field_name, $request ) {
 
 		if ( 'reports' !== $field_name ) {
-			return false;
+			return $request;
 		}
 
 		// If "standards" has been passed with the request then use those standards.
@@ -281,14 +279,21 @@ class Audit extends Base {
 	 */
 	public function rest_field_project_author_get_callback( $rest_post, $field_name, $request ) {
 
-		$code_info    = get_post_meta( $rest_post['id'], 'code_info', true );
+		if ( 'project_author' !== $field_name ) {
+			return $request;
+		}
+
 		$project_info = array();
+		$code_info    = get_post_meta( $rest_post['id'], 'code_info', true );
 
 		if ( empty( $code_info['details'] ) ) {
 			return $project_info;
 		}
 
 		foreach ( $code_info['details'] as $item ) {
+			if ( ! isset( $item['key'] ) || ! isset( $item['value'] ) ) {
+				continue;
+			}
 			$key                  = strtolower( $item['key'] );
 			$project_info[ $key ] = $item['value'];
 		}
@@ -312,6 +317,10 @@ class Audit extends Base {
 	 */
 	public function rest_field_project_update_callback( $field_value, $object, $field_name, $request, $object_type ) {
 
+		if ( 'project' !== $field_name ) {
+			return false;
+		}
+
 		$field_value = (array) $field_value;
 
 		// Sanitize values.
@@ -329,8 +338,10 @@ class Audit extends Base {
 		}
 
 		if ( ! empty( $terms ) ) {
-			$current = wp_get_object_terms( $object->ID, 'audit_project' );
-			wp_remove_object_terms( $object->ID, $current, 'audit_project' );
+			$current = wp_get_object_terms( $object->ID, 'audit_project', array( 'fields' => 'ids' ) );
+			if ( ! is_wp_error( $current ) ) {
+				wp_remove_object_terms( $object->ID, $current, 'audit_project' );
+			}
 			wp_set_object_terms( $object->ID, $terms, 'audit_project' );
 		}
 

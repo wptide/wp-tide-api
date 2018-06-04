@@ -104,6 +104,19 @@ class Test_Audit extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test Audit::remove_response_fields.
+	 *
+	 * @covers ::remove_response_fields()
+	 */
+	public function test_remove_response_fields() {
+		$removed_fields = apply_filters( 'tide_api_response_removed_fields', array(
+			'id',
+		) );
+
+		$this->assertContains( 'audit_meta', $removed_fields );
+	}
+
+	/**
 	 * Test Audit::rest_reports_update.
 	 *
 	 * @covers ::rest_reports_update()
@@ -117,14 +130,17 @@ class Test_Audit extends WP_UnitTestCase {
 		$audit      = new Audit();
 
 		$reports = array(
-			'phpcs_wordpress' => 'test_value',
+			'phpcs_wordpress'      => 'test_value',
+			'phpcs_wordpress-fake' => 'test_value',
 		);
 
 		$audit->rest_reports_update( $reports, $audit_post, 'not_reports', null, null );
 		$this->assertEmpty( get_post_meta( $audit_id, '_audit_phpcs_wordpress', true ) );
+		$this->assertEmpty( get_post_meta( $audit_id, '_audit_phpcs_wordpress-fake', true ) );
 
 		$audit->rest_reports_update( $reports, $audit_post, 'reports', null, null );
 		$this->assertEquals( 'test_value', get_post_meta( $audit_id, '_audit_phpcs_wordpress', true ) );
+		$this->assertEmpty( get_post_meta( $audit_id, '_audit_phpcs_wordpress-fake', true ) );
 	}
 
 	/**
@@ -158,6 +174,7 @@ class Test_Audit extends WP_UnitTestCase {
 		$this->assertFalse( isset( $reports['phpcs_invalid-standard'] ) );
 
 		update_post_meta( $audit_id, 'standards', array(
+			'phpcs_wordpress-vip', // Test valid standard with empty results.
 			'phpcs_wordpress',
 			'phpcs_phpcompatibility',
 			'lighthouse',
@@ -165,21 +182,122 @@ class Test_Audit extends WP_UnitTestCase {
 
 		// Test request without `standards` param but the "standards" meta is set.
 		$reports = $audit->rest_reports_get( $response, 'reports', $request );
+		$this->assertFalse( isset( $reports['phpcs_wordpress-vip'] ) );
 		$this->assertTrue( isset( $reports['phpcs_wordpress'] ) );
 		$this->assertTrue( isset( $reports['phpcs_phpcompatibility'] ) );
 		$this->assertTrue( isset( $reports['lighthouse'] ) );
 		$this->assertFalse( isset( $reports['phpcs_invalid-standard'] ) );
 
 		// Test request with `standards` param.
-		$request->set_param( 'standards', 'phpcs_wordpress,phpcs_invalid-standard,lighthouse' );
+		$request->set_param( 'standards', 'phpcs_wordpress-vip,phpcs_wordpress,phpcs_invalid-standard,lighthouse' );
 		$reports = $audit->rest_reports_get( $response, 'reports', $request );
+		$this->assertFalse( isset( $reports['phpcs_wordpress-vip'] ) );
 		$this->assertTrue( isset( $reports['phpcs_wordpress'] ) );
 		$this->assertFalse( isset( $reports['phpcs_phpcompatibility'] ) );
 		$this->assertTrue( isset( $reports['lighthouse'] ) );
 		$this->assertFalse( isset( $reports['phpcs_invalid-standard'] ) );
 
-		// Test invalid `$field_name` returns false.
+		// Test invalid `$field_name` returns `WP_REST_Request` instance.
 		$reports = $audit->rest_reports_get( $response, 'not_reports', $request );
-		$this->assertFalse( $reports );
+		$this->assertInstanceOf( 'WP_REST_Request', $reports );
+	}
+
+	/**
+	 * Test Audit::rest_field_project_author_get_callback.
+	 *
+	 * @covers ::rest_field_project_author_get_callback()
+	 */
+	public function test_rest_field_project_author_get_callback() {
+
+		$audit = new Audit();
+
+		$audit_id = $this->factory->post->create( array(
+			'post_type' => 'audit',
+		) );
+
+		$request = new WP_REST_Request( 'GET', rest_url( "tide/v1/audit/{$audit_id}" ) );
+
+		$rest_post = array(
+			'id' => $audit_id,
+		);
+
+		$code_info = array(
+ 			'details' => array(),
+  		);
+
+		// Test invalid `$field_name` returns `WP_REST_Request` instance.
+		$project_author = $audit->rest_field_project_author_get_callback( $rest_post, 'not_project_author', $request );
+		$this->assertInstanceOf( 'WP_REST_Request', $project_author );
+
+		// Test valid `$field_name` returns empty array.
+		$project_author = $audit->rest_field_project_author_get_callback( $rest_post, 'project_author', $request );
+		$this->assertEquals( array(), $project_author );
+
+		// Test valid `$field_name` returns author info.
+		$code_info['details'][] = array(
+			'key' => 'author',
+		);
+		update_post_meta( $audit_id, 'code_info', $code_info );
+		$project_author = $audit->rest_field_project_author_get_callback( $rest_post, 'project_author', $request );
+		$this->assertEquals( array(
+			'name' => '',
+			'uri'  => '',
+		), $project_author );
+
+		// Test valid `$field_name` returns author info.
+		$code_info['details'][] = array(
+			'key'   => 'author',
+			'value' => 'Test Author',
+		);
+		update_post_meta( $audit_id, 'code_info', $code_info );
+		$project_author = $audit->rest_field_project_author_get_callback( $rest_post, 'project_author', $request );
+		$this->assertEquals( array(
+			'name' => 'Test Author',
+			'uri'  => '',
+		), $project_author );
+
+		// Test valid `$field_name` returns author info.
+		$code_info['details'][] = array(
+			'key'   => 'authoruri',
+			'value' => 'http://sample.otg/',
+		);
+		update_post_meta( $audit_id, 'code_info', $code_info );
+		$project_author = $audit->rest_field_project_author_get_callback( $rest_post, 'project_author', $request );
+		$this->assertEquals( array(
+			'name' => 'Test Author',
+			'uri'  => 'http://sample.otg/',
+		), $project_author );
+	}
+
+	/**
+	 * Test Audit::rest_field_project_update_callback.
+	 *
+	 * @covers ::rest_field_project_update_callback()
+	 */
+	public function test_rest_field_project_update_callback() {
+
+		$audit = new Audit();
+
+		$audit_id = $this->factory->post->create( array(
+			'post_type' => 'audit',
+		) );
+
+		$object      = get_post( $audit_id );
+		$field_value = array( 'current' );
+		$request     = new WP_REST_Request( 'POST', rest_url( "tide/v1/audit/{$audit_id}" ) );
+		$term        = wp_insert_term( 'previous', 'audit_project' );
+
+		wp_set_object_terms( $object->ID, array( $term['term_id'] ), 'audit_project' );
+		$this->assertTrue( has_term( 'previous', 'audit_project', $object ) );
+
+		// Test invalid `$field_name` returns false.
+		$project = $audit->rest_field_project_update_callback( $field_value, $object, 'not_project', $request, null );
+		$this->assertFalse( $project );
+
+		// Test valid `$field_name` returns true.
+		$project = $audit->rest_field_project_update_callback( $field_value, $object, 'project', $request, null );
+		$this->assertTrue( $project );
+		$this->assertFalse( has_term( 'previous', 'audit_project', $object ) );
+		$this->assertTrue( has_term( 'current', 'audit_project', $object ) );
 	}
 }

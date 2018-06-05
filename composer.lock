@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "0d799bb237ee90fc40d1343a288ca0c9",
+    "content-hash": "3648b63e3cbd1c124a2adf03bd53dcb3",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.57.0",
+            "version": "3.61.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "c31ae27de4587f8f926aa09bfce35728576f5a0b"
+                "reference": "5dabf378a52afd357fedd290f6b1837aec15eab8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c31ae27de4587f8f926aa09bfce35728576f5a0b",
-                "reference": "c31ae27de4587f8f926aa09bfce35728576f5a0b",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/5dabf378a52afd357fedd290f6b1837aec15eab8",
+                "reference": "5dabf378a52afd357fedd290f6b1837aec15eab8",
                 "shasum": ""
             },
             "require": {
@@ -84,7 +84,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2018-05-24T21:57:59+00:00"
+            "time": "2018-06-04T21:48:21+00:00"
         },
         {
             "name": "firebase/php-jwt",
@@ -178,16 +178,16 @@
         },
         {
             "name": "google/cloud-core",
-            "version": "v1.20.3",
+            "version": "v1.20.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GoogleCloudPlatform/google-cloud-php-core.git",
-                "reference": "64e356d4a988c186b1386efcbbfb5bbc4f4d3ede"
+                "reference": "19a7298d6253851439206f594a70919ece07602f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GoogleCloudPlatform/google-cloud-php-core/zipball/64e356d4a988c186b1386efcbbfb5bbc4f4d3ede",
-                "reference": "64e356d4a988c186b1386efcbbfb5bbc4f4d3ede",
+                "url": "https://api.github.com/repos/GoogleCloudPlatform/google-cloud-php-core/zipball/19a7298d6253851439206f594a70919ece07602f",
+                "reference": "19a7298d6253851439206f594a70919ece07602f",
                 "shasum": ""
             },
             "require": {
@@ -233,20 +233,20 @@
                 "Apache-2.0"
             ],
             "description": "Google Cloud PHP shared dependency, providing functionality useful to all components.",
-            "time": "2018-05-24T20:25:11+00:00"
+            "time": "2018-05-31T17:51:58+00:00"
         },
         {
             "name": "google/cloud-storage",
-            "version": "v1.5.0",
+            "version": "v1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GoogleCloudPlatform/google-cloud-php-storage.git",
-                "reference": "4f604d389f6a3bebff4e29cb8ec529d3c914602c"
+                "reference": "b9fd76a9cf27b034f7709e9d74dda7be8f08c05e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GoogleCloudPlatform/google-cloud-php-storage/zipball/4f604d389f6a3bebff4e29cb8ec529d3c914602c",
-                "reference": "4f604d389f6a3bebff4e29cb8ec529d3c914602c",
+                "url": "https://api.github.com/repos/GoogleCloudPlatform/google-cloud-php-storage/zipball/b9fd76a9cf27b034f7709e9d74dda7be8f08c05e",
+                "reference": "b9fd76a9cf27b034f7709e9d74dda7be8f08c05e",
                 "shasum": ""
             },
             "require": {
@@ -283,7 +283,7 @@
                 "Apache-2.0"
             ],
             "description": "Cloud Storage Client for PHP",
-            "time": "2018-05-17T16:38:58+00:00"
+            "time": "2018-05-31T17:51:58+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -992,7 +992,7 @@
         },
         {
             "name": "symfony/config",
-            "version": "v3.4.10",
+            "version": "v3.4.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/config.git",
@@ -1056,7 +1056,7 @@
         },
         {
             "name": "symfony/console",
-            "version": "v3.4.10",
+            "version": "v3.4.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
@@ -1125,7 +1125,7 @@
         },
         {
             "name": "symfony/debug",
-            "version": "v3.4.10",
+            "version": "v3.4.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/debug.git",
@@ -1181,7 +1181,7 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v3.4.10",
+            "version": "v3.4.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
@@ -1345,7 +1345,7 @@
         },
         {
             "name": "symfony/stopwatch",
-            "version": "v3.4.10",
+            "version": "v3.4.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/stopwatch.git",
@@ -1394,7 +1394,7 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v3.4.10",
+            "version": "v3.4.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",

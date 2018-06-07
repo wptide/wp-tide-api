@@ -1134,12 +1134,14 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$post = new \WP_Query( $args );
 
 		if ( is_wp_error( $post ) || empty( $post ) || 0 === $post->post_count ) {
-			return new \WP_Error( 'rest_post_invalid_altid_lookup', __( 'Invalid post lookup.', 'tide-api' ), array(
+			$post = new \WP_Error( 'rest_post_invalid_altid_lookup', __( 'Invalid post lookup.', 'tide-api' ), array(
 				'status' => 404,
 			) );
+		} else {
+			$post = array_shift( $post->posts );
 		}
 
-		return array_shift( $post->posts );
+		return apply_filters( 'tide_api_get_altid_post', $post, $request );
 	}
 
 	/**

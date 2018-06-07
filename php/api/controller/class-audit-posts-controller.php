@@ -1141,7 +1141,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$post = array_shift( $post->posts );
 		}
 
-		return apply_filters( 'tide_api_modify_pre_response_post', $post, $request );
+		return apply_filters( 'tide_api_get_altid_post', $post, $request );
 	}
 
 	/**

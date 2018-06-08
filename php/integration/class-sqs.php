@@ -27,6 +27,12 @@ class SQS extends Base {
 	 * @throws \Exception When the audits array is empty.
 	 */
 	public function add_task( $task ) {
+
+		// If sqs is not the API_MESSAGE_PROVIDER then do nothing.
+		if ( ! defined( 'API_MESSAGE_PROVIDER' ) || 'sqs' !== API_MESSAGE_PROVIDER ) {
+			return false;
+		}
+
 		try {
 			if ( empty( $task['audits'] ) ) {
 				throw new \Exception( __( 'The audits array is empty.', 'tide-api' ) );

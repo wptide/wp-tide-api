@@ -30,6 +30,7 @@ class Test_Plugin extends WP_UnitTestCase {
 			'storage_local',
 			'storage_s3',
 			'queue_sqs',
+			'queue_mongo',
 			'user',
 		);
 

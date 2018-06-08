@@ -54,6 +54,10 @@ class Test_SQS extends WP_UnitTestCase {
 
 		$this->plugin    = WP_Tide_API\Plugin::instance();
 		$this->queue_sqs = $this->plugin->components['queue_sqs'];
+
+		if ( ! defined( 'API_MESSAGE_PROVIDER' ) ) {
+			define( 'API_MESSAGE_PROVIDER', 'sqs' );
+		}
 	}
 
 	/**

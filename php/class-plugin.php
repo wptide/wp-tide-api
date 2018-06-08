@@ -15,6 +15,7 @@ use WP_Tide_API\Authentication\Keypair_Auth;
 use WP_Tide_API\Authentication\User_Refresh_Token;
 use WP_Tide_API\Integration\GCS;
 use WP_Tide_API\Integration\Local;
+use WP_Tide_API\Integration\Mongo;
 use WP_Tide_API\Integration\S3;
 use WP_Tide_API\Integration\SQS;
 use WP_Tide_API\Restriction\Rate_Limit;
@@ -103,6 +104,7 @@ class Plugin extends Base {
 		$this->components['storage_local'] = new Local( $this );
 		$this->components['storage_s3']    = new S3( $this );
 		$this->components['queue_sqs']     = new SQS( $this );
+		$this->components['queue_mongo']   = new Mongo( $this );
 
 		/**
 		 * User setting

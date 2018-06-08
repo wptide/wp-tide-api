@@ -10,7 +10,6 @@ namespace WP_Tide_API\Integration;
 use MongoDB\Client;
 use MongoDB\Collection;
 use WP_Tide_API\Base;
-use WP_Tide_API\Utility\User;
 
 /**
  * Class Mongo
@@ -165,23 +164,5 @@ class Mongo extends Base {
 		} else {
 			return new \WP_Error( 'mongo_client_error', __( 'Could not connect to MongoDB', 'tide-api' ) );
 		}
-	}
-
-
-	/**
-	 * Get the request client from the task.
-	 *
-	 * @param array $task The audit task.
-	 *
-	 * @return string The request client login name.
-	 */
-	public function get_request_client( $task ) {
-		$request_client = $task['request_client'];
-
-		if ( empty( $request_client ) && User::authenticated() instanceof \WP_User ) {
-			$request_client = User::authenticated()->user_login;
-		}
-
-		return $request_client;
 	}
 }

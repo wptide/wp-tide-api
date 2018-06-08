@@ -13,6 +13,7 @@ use WP_Tide_API\API\Endpoint\Report;
 use WP_Tide_API\Authentication\JWT_Auth;
 use WP_Tide_API\Authentication\Keypair_Auth;
 use WP_Tide_API\Authentication\User_Refresh_Token;
+use WP_Tide_API\Integration\Firestore;
 use WP_Tide_API\Integration\GCS;
 use WP_Tide_API\Integration\Local;
 use WP_Tide_API\Integration\Mongo;
@@ -100,11 +101,12 @@ class Plugin extends Base {
 		/**
 		 * Integrations
 		 */
-		$this->components['storage_gcs']   = new GCS( $this );
-		$this->components['storage_local'] = new Local( $this );
-		$this->components['storage_s3']    = new S3( $this );
-		$this->components['queue_sqs']     = new SQS( $this );
-		$this->components['queue_mongo']   = new Mongo( $this );
+		$this->components['storage_gcs']     = new GCS( $this );
+		$this->components['storage_local']   = new Local( $this );
+		$this->components['storage_s3']      = new S3( $this );
+		$this->components['queue_sqs']       = new SQS( $this );
+		$this->components['queue_mongo']     = new Mongo( $this );
+		$this->components['queue_firestore'] = new Firestore( $this );
 
 		/**
 		 * User setting

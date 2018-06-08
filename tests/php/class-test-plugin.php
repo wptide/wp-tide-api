@@ -31,6 +31,7 @@ class Test_Plugin extends WP_UnitTestCase {
 			'storage_s3',
 			'queue_sqs',
 			'queue_mongo',
+			'queue_firestore',
 			'user',
 		);
 

@@ -52,12 +52,12 @@ class Test_SQS extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->plugin    = WP_Tide_API\Plugin::instance();
-		$this->queue_sqs = $this->plugin->components['queue_sqs'];
-
 		if ( ! defined( 'API_MESSAGE_PROVIDER' ) ) {
 			define( 'API_MESSAGE_PROVIDER', 'sqs' );
 		}
+
+		$this->plugin    = WP_Tide_API\Plugin::instance();
+		$this->queue_sqs = $this->plugin->components['queue_sqs'];
 	}
 
 	/**
@@ -68,7 +68,13 @@ class Test_SQS extends WP_UnitTestCase {
 	public function test_add_task_phpcs() {
 		define( 'AWS_SQS_QUEUE_PHPCS', 'queue-name.fifo' );
 
+		// Fail for provider disabled
+		$this->queue_sqs->enabled = false;
+		$add_task = $this->queue_sqs->add_task( array() );
+		$this->assertFalse( $add_task );
+
 		// Fail for empty audits array.
+		$this->queue_sqs->enabled = true;
 		$add_task = $this->queue_sqs->add_task( array() );
 
 		$this->assertTrue( is_wp_error( $add_task ) );

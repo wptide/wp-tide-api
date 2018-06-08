@@ -16,6 +16,13 @@ use WP_Tide_API\Base;
 class Firestore extends Base {
 
 	/**
+	 * Message provider is enabled.
+	 *
+	 * @var bool
+	 */
+	public $enabled = false;
+
+	/**
 	 * A reference to the client.
 	 *
 	 * @var FirestoreClient
@@ -38,12 +45,13 @@ class Firestore extends Base {
 			return false;
 		}
 
+		$this->enabled = defined( 'API_MESSAGE_PROVIDER' ) && 'firestore' !== API_MESSAGE_PROVIDER;
+
 		try {
 			$this->client = new FirestoreClient( [
 				'projectId' => GCP_PROJECT,
 			] );
 		} catch ( \Exception $e ) {
-			print_r( $e );
 			return new \WP_Error( 'firestore_client_fail', __( 'Failed to initiate Firestore client:', 'tide-api' ), $e );
 		}
 	}
@@ -75,8 +83,7 @@ class Firestore extends Base {
 	 */
 	public function add_task( $task ) {
 
-		// If Firestore is not the API_MESSAGE_PROVIDER then do nothing.
-		if ( ! defined( 'API_MESSAGE_PROVIDER' ) || 'firestore' !== API_MESSAGE_PROVIDER || ! $this->client ) {
+		if ( ! $this->enabled || ! $this->client ) {
 			return false;
 		}
 

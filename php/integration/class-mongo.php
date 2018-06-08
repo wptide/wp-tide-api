@@ -17,11 +17,18 @@ use WP_Tide_API\Base;
 class Mongo extends Base {
 
 	/**
+	 * Message provider is enabled.
+	 *
+	 * @var bool
+	 */
+	public $enabled = false;
+
+	/**
 	 * A reference to the client.
 	 *
 	 * @var Client
 	 */
-	private $client = false;
+	public $client = false;
 
 	/**
 	 * Mongo constructor.
@@ -34,6 +41,8 @@ class Mongo extends Base {
 		parent::__construct( $plugin );
 
 		$this->init_consts();
+
+		$this->enabled = defined( 'API_MESSAGE_PROVIDER' ) && ( 'local' === API_MESSAGE_PROVIDER || 'mongo' === API_MESSAGE_PROVIDER );
 
 		if ( '' !== MONGO_DATABASE_USERNAME && '' !== MONGO_DATABASE_PASSWORD ) {
 			$host = sprintf( 'mongodb://%s:%s@%s', MONGO_DATABASE_USERNAME, MONGO_DATABASE_PASSWORD, MONGO_HOST );
@@ -87,8 +96,7 @@ class Mongo extends Base {
 	 */
 	public function add_task( $task ) {
 
-		// If mongo is not the API_MESSAGE_PROVIDER then do nothing.
-		if ( ! defined( 'API_MESSAGE_PROVIDER' ) || ( 'local' !== API_MESSAGE_PROVIDER && 'mongo' !== API_MESSAGE_PROVIDER ) ) {
+		if ( ! $this->enabled ) {
 			return false;
 		}
 

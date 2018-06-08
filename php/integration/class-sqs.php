@@ -17,19 +17,39 @@ use WP_Tide_API\Utility\User;
 class SQS extends Base {
 
 	/**
+	 * Message provider is enabled.
+	 *
+	 * @var bool
+	 */
+	public $enabled = false;
+
+	/**
+	 * SQS constructor.
+	 *
+	 * Initializes the SQS client.
+	 *
+	 * @param bool $plugin Plugin instance.
+	 */
+	public function __construct( $plugin = false ) {
+		parent::__construct( $plugin );
+
+		$this->enabled = defined( 'API_MESSAGE_PROVIDER' ) && 'sqs' === API_MESSAGE_PROVIDER;
+	}
+
+	/**
 	 * Add a new task to the SQS queue.
 	 *
 	 * @action tide_api_audit_tasks_add_task
 	 *
 	 * @param mixed $task The task to add to the queue.
+	 *
 	 * @return mixed|\WP_Error
 	 *
 	 * @throws \Exception When the audits array is empty.
 	 */
 	public function add_task( $task ) {
 
-		// If sqs is not the API_MESSAGE_PROVIDER then do nothing.
-		if ( ! defined( 'API_MESSAGE_PROVIDER' ) || 'sqs' !== API_MESSAGE_PROVIDER ) {
+		if ( ! $this->enabled ) {
 			return false;
 		}
 

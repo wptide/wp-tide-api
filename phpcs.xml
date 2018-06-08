@@ -5,16 +5,8 @@
 	<rule ref="WordPress-Core" />
 	<rule ref="WordPress-Docs" />
 
-	<!--
-	<rule ref="WordPress.WP.I18n">
-		<properties>
-			<property name="text_domain" value="example,default" />
-		</properties>
-	</rule>
-	-->
-
 	<rule ref="PHPCompatibility"/>
-	<config name="testVersion" value="7.1-"/>
+	<config name="testVersion" value="7.2-"/>
 
 	<arg name="extensions" value="php"/>
 

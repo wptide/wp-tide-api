@@ -5,3 +5,4 @@ tests/includes
 .env
 report
 .idea
+.DS_Store

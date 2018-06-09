@@ -1,18 +1,18 @@
 <?php
 /**
- * Test_GCS
+ * Test_Storage_GCS
  *
  * @package WP_Tide_API
  */
 
-use WP_Tide_API\Integration\GCS;
+use WP_Tide_API\Integration\Storage_GCS;
 
 /**
- * Class Test_SQS
+ * Class Test_Storage_GCS
  *
- * @coversDefaultClass WP_Tide_API\Integration\GCS
+ * @coversDefaultClass WP_Tide_API\Integration\Storage_GCS
  */
-class Test_GCS extends WP_UnitTestCase {
+class Test_Storage_GCS extends WP_UnitTestCase {
 
 	/**
 	 * Plugin instance.
@@ -22,9 +22,9 @@ class Test_GCS extends WP_UnitTestCase {
 	public $plugin;
 
 	/**
-	 * AWS SQS.
+	 * GCS.
 	 *
-	 * @var SQS
+	 * @var Storage_GCS
 	 */
 	public $storage_gcs;
 
@@ -56,7 +56,7 @@ class Test_GCS extends WP_UnitTestCase {
 
 		$storage_client = $this->_create_dummy_storage_client();
 
-		$mock->method( 'create_gcs_client_instance' )->willReturn( $storage_client );
+		$mock->method( 'get_client_instance' )->willReturn( $storage_client );
 
 		$storage_client = new ReflectionClass( get_class( $this->storage_gcs ) );
 
@@ -69,14 +69,14 @@ class Test_GCS extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test create_gcs_client_instance().
+	 * Test get_client_instance().
 	 *
-	 * @covers ::create_gcs_client_instance()
+	 * @covers ::get_client_instance()
 	 */
-	public function test_create_gcs_client_instance() {
+	public function test_get_client_instance() {
 		try{
 			putenv("GOOGLE_APPLICATION_CREDENTIALS=/bad/path/service-account.json");
-			$gcs_client = $this->storage_gcs->create_gcs_client_instance();
+			$gcs_client = $this->storage_gcs->get_client_instance();
 		} catch ( \Exception $e ) {
 			$this->assertEquals( $e->getMessage(), 'Unable to read the credential file specified by  GOOGLE_APPLICATION_CREDENTIALS: file /bad/path/service-account.json does not exist' );
 		}

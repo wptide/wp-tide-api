@@ -5,12 +5,12 @@
  * @package WP_Tide_API
  */
 
-use WP_Tide_API\Integration\SQS;
+use WP_Tide_API\Integration\Queue_SQS;
 
 /**
  * Class Test_SQS
  *
- * @coversDefaultClass WP_Tide_API\Integration\SQS
+ * @coversDefaultClass WP_Tide_API\Integration\Queue_SQS
  */
 class Test_SQS extends WP_UnitTestCase {
 
@@ -52,10 +52,6 @@ class Test_SQS extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		if ( ! defined( 'API_MESSAGE_PROVIDER' ) ) {
-			define( 'API_MESSAGE_PROVIDER', 'sqs' );
-		}
-
 		$this->plugin    = WP_Tide_API\Plugin::instance();
 		$this->queue_sqs = $this->plugin->components['queue_sqs'];
 	}
@@ -65,17 +61,45 @@ class Test_SQS extends WP_UnitTestCase {
 	 *
 	 * @covers ::add_task()
 	 */
-	public function test_add_task_phpcs() {
-		define( 'AWS_SQS_QUEUE_PHPCS', 'queue-name.fifo' );
+	public function test_add_task_phpcs_is_enabled_false() {
+		$mock = $this->getMockBuilder( get_class( $this->queue_sqs ) )
+			->setMethods( array(
+				'is_enabled',
+			) )
+			->getMock();
+
+		$queue_sqs = new ReflectionClass( get_class( $this->queue_sqs ) );
+
+		$mock->expects( $this->any() )
+			->method('is_enabled')
+			->willReturn( false );
 
 		// Fail for provider disabled
-		$this->queue_sqs->enabled = false;
-		$add_task = $this->queue_sqs->add_task( array() );
+		$add_task = $queue_sqs->getMethod( 'add_task' )->invoke( $mock, array() );
+
 		$this->assertFalse( $add_task );
+	}
+
+	/**
+	 * Test add_task().
+	 *
+	 * @covers ::add_task()
+	 */
+	public function test_add_task_phpcs_failure() {
+		$mock = $this->getMockBuilder( get_class( $this->queue_sqs ) )
+			->setMethods( array(
+				'is_enabled',
+			) )
+			->getMock();
+
+		$queue_sqs = new ReflectionClass( get_class( $this->queue_sqs ) );
+
+		$mock->expects( $this->any() )
+			->method('is_enabled')
+			->willReturn( true );
 
 		// Fail for empty audits array.
-		$this->queue_sqs->enabled = true;
-		$add_task = $this->queue_sqs->add_task( array() );
+		$add_task = $queue_sqs->getMethod( 'add_task' )->invoke( $mock, array() );
 
 		$this->assertTrue( is_wp_error( $add_task ) );
 		$this->assertEquals( $add_task->get_error_code(), 'sqs_add_tasks_fail' );
@@ -97,17 +121,54 @@ class Test_SQS extends WP_UnitTestCase {
 		);
 
 		// Without connecting to SQS.
-		$add_task = $this->queue_sqs->add_task( $task );
+		$add_task = $mock->add_task( $task );
 
 		$this->assertTrue( is_wp_error( $add_task ) );
 		$this->assertEquals( $add_task->get_error_code(), 'sqs_add_tasks_fail' );
 		$this->assertEquals( $add_task->get_error_data()->getMessage(), 'The sqs service does not have version: .' );
+	}
 
-		$mock       = $this->getMockBuilder( get_class( $this->queue_sqs ) )->getMock();
-		$sqs_client = $this->_create_dummy_sqs_client_instance();
+	/**
+	 * Test add_task().
+	 *
+	 * @covers ::add_task()
+	 */
+	public function test_add_task_phpcs_success() {
+		define( 'AWS_SQS_QUEUE_PHPCS', 'queue-name.fifo' );
+
+		// Valid task.
+		$task = array(
+			'project_type'   => 'plugin',
+			'request_client' => 'wporg',
+			'audits'         => array(
+				array(
+					'type'    => 'phpcs',
+					'options' => array(),
+				),
+				array(
+					'type'    => 'phpcs',
+					'options' => array(),
+				),
+			),
+		);
+
 		$queue_sqs  = new ReflectionClass( get_class( $this->queue_sqs ) );
+		$sqs_client = $this->_create_dummy_sqs_client_instance();
 
-		$mock->method( 'create_sqs_client_instance' )->willReturn( $sqs_client );
+		$mock = $this->getMockBuilder( get_class( $this->queue_sqs ) )
+			->setMethods( array(
+				'is_enabled',
+				'get_client_instance',
+			) )
+			->getMock();
+
+		$mock->expects( $this->any() )
+			->method('is_enabled')
+			->willReturn( true );
+
+		$mock->expects( $this->any() )
+			->method('get_client_instance')
+			->willReturn( $sqs_client );
 
 		$add_task = $queue_sqs->getMethod( 'add_task' )->invoke( $mock, array(
 			'project_type' => 'plugin',
@@ -148,7 +209,8 @@ class Test_SQS extends WP_UnitTestCase {
 		$sqs_client = $this->_create_dummy_sqs_client_instance();
 		$queue_sqs  = new ReflectionClass( get_class( $this->queue_sqs ) );
 
-		$mock->method( 'create_sqs_client_instance' )->willReturn( $sqs_client );
+		$mock->method( 'get_client_instance' )->willReturn( $sqs_client );
+		$mock->method( 'is_enabled' )->willReturn( true );
 
 		$add_task = $queue_sqs->getMethod( 'add_task' )->invoke( $mock, array(
 			'project_type' => 'plugin',
@@ -181,16 +243,16 @@ class Test_SQS extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test create_sqs_client_instance().
+	 * Test get_client_instance().
 	 *
-	 * @covers ::create_sqs_client_instance()
+	 * @covers ::get_client_instance()
 	 */
-	public function test_create_sqs_client_instance() {
-		try{
-			$sqs_client_instance = $this->queue_sqs->create_sqs_client_instance();
-		} catch ( \Exception $e ) {
-			$this->assertEquals( $e->getMessage(), 'The sqs service does not have version: .' );
-		}
+	public function test_get_client_instance() {
+ 		try{
+ 			$sqs_client_instance = $this->queue_sqs->get_client_instance();
+ 		} catch ( \Exception $e ) {
+ 			$this->assertEquals( $e->getMessage(), 'The sqs service does not have version: .' );
+ 		}
 	}
 
 	/**
@@ -204,6 +266,19 @@ class Test_SQS extends WP_UnitTestCase {
 			'request_client' => '',
 		] );
 		$this->assertEquals( $user->user_login, $request_client );
+	}
+
+	/**
+	 * Test is_enabled().
+	 *
+	 * @covers ::is_enabled()
+	 */
+	public function test_is_enabled() {
+		/*
+		 * We can't define `API_MESSAGE_PROVIDER` multiple times so we have to mock
+		 * a true value in the tests above.
+		 */
+		$this->assertFalse( $this->queue_sqs->is_enabled() );
 	}
 
 	/**

@@ -12,29 +12,9 @@ use WP_Tide_API\Base;
 use WP_Tide_API\Utility\User;
 
 /**
- * Class Rate_Limit
+ * Class Queue_SQS
  */
-class SQS extends Base {
-
-	/**
-	 * Message provider is enabled.
-	 *
-	 * @var bool
-	 */
-	public $enabled = false;
-
-	/**
-	 * SQS constructor.
-	 *
-	 * Initializes the SQS client.
-	 *
-	 * @param bool $plugin Plugin instance.
-	 */
-	public function __construct( $plugin = false ) {
-		parent::__construct( $plugin );
-
-		$this->enabled = defined( 'API_MESSAGE_PROVIDER' ) && 'sqs' === API_MESSAGE_PROVIDER;
-	}
+class Queue_SQS extends Base {
 
 	/**
 	 * Add a new task to the SQS queue.
@@ -48,17 +28,16 @@ class SQS extends Base {
 	 * @throws \Exception When the audits array is empty.
 	 */
 	public function add_task( $task ) {
-
-		if ( ! $this->enabled ) {
-			return false;
-		}
-
 		try {
+			if ( ! $this->is_enabled() ) {
+				return false;
+			}
+
 			if ( empty( $task['audits'] ) ) {
 				throw new \Exception( __( 'The audits array is empty.', 'tide-api' ) );
 			}
 
-			$sqs_client = $this->create_sqs_client_instance();
+			$sqs_client = $this->get_client_instance();
 			$sqs_queues = array();
 
 			foreach ( $task['audits'] as $audit ) {
@@ -116,11 +95,13 @@ class SQS extends Base {
 	}
 
 	/**
-	 * Create new instance for SqsClient.
+	 * Get a new SqsClient instance.
 	 *
 	 * @return SqsClient
+	 *
+	 * @throws \Exception When the connection fails.
 	 */
-	public function create_sqs_client_instance() {
+	public function get_client_instance() {
 		return new SqsClient( array(
 			'idempotency_auto_fill' => true,
 			'version'               => defined( 'AWS_SQS_VERSION' ) ? AWS_SQS_VERSION : '',
@@ -147,5 +128,14 @@ class SQS extends Base {
 		}
 
 		return $request_client;
+	}
+
+	/**
+	 * Check if the message provider is enabled.
+	 *
+	 * @return bool Returns true if the provider is enabled, else false.
+	 */
+	public function is_enabled() {
+		return defined( 'API_MESSAGE_PROVIDER' ) && 'sqs' === API_MESSAGE_PROVIDER;
 	}
 }

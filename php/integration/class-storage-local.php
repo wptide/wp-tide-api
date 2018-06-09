@@ -10,9 +10,9 @@ namespace WP_Tide_API\Integration;
 use WP_Tide_API\Base;
 
 /**
- * Class Local
+ * Class Storage_Local
  */
-class Local extends Base {
+class Storage_Local extends Base {
 
 	/**
 	 * Get URL to object.

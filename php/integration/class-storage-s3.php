@@ -11,9 +11,9 @@ use Aws\S3\S3Client;
 use WP_Tide_API\Base;
 
 /**
- * Class S3
+ * Class Storage_S3
  */
-class S3 extends Base {
+class Storage_S3 extends Base {
 
 	/**
 	 * Get temporary URL to object.
@@ -24,7 +24,7 @@ class S3 extends Base {
 	 */
 	public function get_url( $meta ) {
 		try {
-			$s3_client = $this->create_s3_client_instance();
+			$s3_client = $this->get_client_instance();
 
 			$cmd = $s3_client->getCommand( 'GetObject', [
 				'Bucket'              => $meta['path'],
@@ -44,12 +44,11 @@ class S3 extends Base {
 	}
 
 	/**
-	 * Create new instance for S3client.
+	 * Get new instance for S3client.
 	 *
 	 * @return S3Client
 	 */
-	public function create_s3_client_instance() {
-
+	public function get_client_instance() {
 		return new S3Client( [
 			'version'     => defined( 'AWS_S3_VERSION' ) ? AWS_S3_VERSION : '',
 			'region'      => defined( 'AWS_S3_REGION' ) ? AWS_S3_REGION : '',

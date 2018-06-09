@@ -1,18 +1,18 @@
 <?php
 /**
- * Test_S3
+ * Test_Storage_S3
  *
  * @package WP_Tide_API
  */
 
-use WP_Tide_API\Integration\S3;
+use WP_Tide_API\Integration\Storage_S3;
 
 /**
  * Class Test_S3
  *
- * @coversDefaultClass WP_Tide_API\Integration\S3
+ * @coversDefaultClass WP_Tide_API\Integration\Storage_S3
  */
-class Test_S3 extends WP_UnitTestCase {
+class Test_Storage_S3 extends WP_UnitTestCase {
 
 	/**
 	 * Plugin instance.
@@ -24,7 +24,7 @@ class Test_S3 extends WP_UnitTestCase {
 	/**
 	 * AWS S3.
 	 *
-	 * @var S3
+	 * @var Storage_S3
 	 */
 	public $storage_s3;
 
@@ -56,7 +56,7 @@ class Test_S3 extends WP_UnitTestCase {
 
 		$s3_client = $this->_create_dummy_s3_client_instance();
 
-		$mock->method( 'create_s3_client_instance' )->willReturn( $s3_client );
+		$mock->method( 'get_client_instance' )->willReturn( $s3_client );
 
 		$storage_s3 = new ReflectionClass( get_class( $this->storage_s3 ) );
 
@@ -69,13 +69,13 @@ class Test_S3 extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test create_s3_client_instance().
+	 * Test get_client_instance().
 	 *
-	 * @covers ::create_s3_client_instance()
+	 * @covers ::get_client_instance()
 	 */
-	public function test_create_s3_client_instance() {
+	public function test_get_client_instance() {
 		try{
-			$s3_client_instance = $this->storage_s3->create_s3_client_instance();
+			$s3_client_instance = $this->storage_s3->get_client_instance();
 		} catch ( \Exception $e ) {
 			$this->assertEquals( $e->getMessage(), 'The s3 service does not have version: .' );
 		}

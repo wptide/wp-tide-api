@@ -27,6 +27,8 @@ env:
 
 install:
   - sudo apt-get install -y libxml2-utils
+  - sudo pecl install grpc
+  - sudo pecl install mongodb
   - nvm install 6 && nvm use 6
   - npm install && composer install --no-interaction
   - export DEV_LIB_PATH=dev-lib

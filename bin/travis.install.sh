@@ -13,5 +13,6 @@ sudo apt-get install libssl-dev \
     && rm -rf mongo-php-driver
 
 // Install gRPC
-yes | sudo pecl install grpc
-echo "extension=grpc.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"` \
+apt-get install php-pear \
+    && pecl install grpc \
+    && echo "extension=grpc.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`

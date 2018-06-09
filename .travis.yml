@@ -11,7 +11,6 @@ notifications:
 cache:
   directories:
     - $HOME/phpunit-bin
-    - $HOME/mongo-php-driver
 
 language:
   - php

@@ -98,7 +98,6 @@ class Test_WP_Tide_API extends WP_UnitTestCase {
 	public function test_setup_paths() {
 		global $wp_tide_api_plugin;
 
-		$this->assertArrayHasKey( 'location', $wp_tide_api_plugin->info );
 		$this->assertArrayHasKey( 'plugin_dir', $wp_tide_api_plugin->info );
 		$this->assertArrayHasKey( 'plugin_url', $wp_tide_api_plugin->info );
 		$this->assertArrayHasKey( 'base_name', $wp_tide_api_plugin->info );

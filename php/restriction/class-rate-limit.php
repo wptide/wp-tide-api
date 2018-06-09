@@ -65,13 +65,13 @@ class Rate_Limit extends Base {
 	public function __construct( Plugin $plugin ) {
 		parent::__construct( $plugin );
 
-		$settings = $this->get_rate_limit_values();
+		$settings = $this->get_values();
 
 		/**
 		 * These will be the defaults unless a client has special restrictions.
 		 */
-		$this->set_rate_limit( (int) $settings['rate_limit'] );
-		$this->set_interval( (int) $settings['interval'] );
+		$this->set_rate_limit( absint( $settings['rate_limit'] ) );
+		$this->set_interval( absint( $settings['interval'] ) );
 	}
 
 	/**
@@ -83,7 +83,7 @@ class Rate_Limit extends Base {
 	 */
 	public function is_free( WP_REST_Request $request ) {
 
-		if ( $request->get_method() === 'GET' ) {
+		if ( $request->get_method() === 'GET' && '/tide/v1/report' !== $request->get_route() ) {
 			return true;
 		}
 
@@ -277,13 +277,24 @@ class Rate_Limit extends Base {
 	}
 
 	/**
-	 * Get rate limit values.
+	 * Static method to get the rate limit values.
 	 *
 	 * @param int $user_id The user ID.
 	 *
 	 * @return array rate limits.
 	 */
 	public static function get_rate_limit_values( $user_id = false ) {
+		return ( new self( Plugin::instance() ) )->get_values( $user_id );
+	}
+
+	/**
+	 * Get rate limit values.
+	 *
+	 * @param int $user_id The user ID.
+	 *
+	 * @return array rate limits.
+	 */
+	public function get_values( $user_id = false ) {
 		$settings = get_option( self::SETTINGS_KEY );
 
 		if ( false === $settings || self::DEFAULT_LIMIT !== $settings['rate_limit'] || self::DEFAULT_INTERVAL !== $settings['interval'] ) {
@@ -299,7 +310,7 @@ class Rate_Limit extends Base {
 			if ( false !== is_user_logged_in() ) {
 				$user_id = get_current_user_id();
 			} else {
-				$jwt_user_id = Plugin::instance()->components['jwt_auth']->get_user_id();
+				$jwt_user_id = $this->plugin->components['jwt_auth']->get_user_id();
 				if ( get_user_by( 'id', $jwt_user_id ) ) {
 					$user_id = $jwt_user_id;
 				}

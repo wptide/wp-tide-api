@@ -40,6 +40,8 @@ class Autoloader {
 	/**
 	 * Autoloader.
 	 *
+	 * @codeCoverageIgnore
+	 *
 	 * @param string $class Unknown class to attempt to load.
 	 *
 	 * @return mixed

@@ -37,14 +37,3 @@ define( 'WP_TESTS_TITLE', 'Test Blog' );
 define( 'WP_PHP_BINARY', 'php' );
 
 define( 'WPLANG', '' );
-
-// Redis settings.
-if ( ! empty( getenv( 'WP_REDIS_HOST' ) ) ) {
-	global $redis_server;
-	$redis_server = array(
-		'host'     => getenv( 'WP_REDIS_HOST' ),
-		'port'     => (int) getenv( 'WP_REDIS_PORT' ),
-		'auth'     => getenv( 'WP_REDIS_AUTH' ),
-		'database' => (int) getenv( 'WP_REDIS_DATABASE' ),
-	);
-}

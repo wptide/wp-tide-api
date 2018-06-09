@@ -6,6 +6,7 @@
  */
 
 use WP_Tide_API\Authentication\Keypair_Auth;
+use WP_Tide_API\User\User;
 
 /**
  * Class Test_Keypair_Auth
@@ -93,6 +94,22 @@ class Test_Keypair_Auth extends WP_UnitTestCase {
 		$api_key    = 'dummy-api-key';
 		$api_secret = 'dummy-secret';
 
+		$api_key    = get_user_meta( $user_id, 'tide_api_user_key', true );
+		$api_secret = get_user_meta( $user_id, 'tide_api_user_key', true );
+
+		$this->assertEmpty( $api_key );
+		$this->assertEmpty( $api_secret );
+
+		ob_start();
+		$this->keypair_auth->user_profile_fields( $user );
+		$output = ob_get_clean();
+
+		$api_key    = get_user_meta( $user_id, 'tide_api_user_key', true );
+		$api_secret = get_user_meta( $user_id, 'tide_api_user_key', true );
+
+		$this->assertNotEmpty( $api_key );
+		$this->assertNotEmpty( $api_secret );
+
 		// @codingStandardsIgnoreStart - Skipping VIP sniffs.
 		update_user_meta( $user->ID, 'tide_api_user_key', $api_key );
 		update_user_meta( $user->ID, 'tide_api_user_secret', $api_secret );
@@ -120,6 +137,8 @@ class Test_Keypair_Auth extends WP_UnitTestCase {
 		$user_id = $this->factory()->user->create( array(
 			'role' => 'administrator',
 		) );
+
+		$this->assertFalse( $this->keypair_auth->authenticate_key_pair( false, $rest_request ) );
 
 		$api_key    = 'dummy-api-key';
 		$api_secret = 'dummy-api-secret';

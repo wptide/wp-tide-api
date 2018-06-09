@@ -33,8 +33,8 @@ svn co https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ ./t
 echo "Running PHPUnit Test Suite in Docker..."
 
 if [ -z "$*" ]; then
-    docker-compose run --rm -w ${DOCKER_WORKDIR} ${DOCKER_IMAGE} phpunit -c ${PHPUNIT_CONFIG}
+    docker-compose run --rm -w ${DOCKER_WORKDIR} ${DOCKER_IMAGE} ${PHPUNIT_BIN:-phpunit} -c ${PHPUNIT_CONFIG}
 else
-    docker-compose run --rm -w ${DOCKER_WORKDIR} ${DOCKER_IMAGE} phpunit "$@"
+    docker-compose run --rm -w ${DOCKER_WORKDIR} ${DOCKER_IMAGE} ${PHPUNIT_BIN:-phpunit} "$@"
 fi
 

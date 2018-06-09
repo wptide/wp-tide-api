@@ -3,7 +3,7 @@
  * Plugin Name: WP Tide API
  * Plugin URI: http://xwp.co
  * Description: This is the WP Tide API plugin.
- * Version: 0.1.0
+ * Version: 1.0.0-beta
  * Author: XWP
  * Author URI: http://xwp.co
  * License: GPL2
@@ -15,7 +15,7 @@
  *
  * @package WP_Tide_API
  *
- * Copyright (C) 2016 XWP
+ * Copyright (C) 2018 XWP
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -56,7 +56,7 @@ class WP_Tide_API {
 		/**
 		 * If not correct version of PHP, then no point in continuing.
 		 */
-		if ( version_compare( phpversion(), '5.3', '<' ) ) {
+		if ( version_compare( phpversion(), '7.1', '<' ) ) {
 			if ( defined( 'WP_CLI' ) ) {
 				WP_CLI::warning( $this->version_fail_text() );
 			} else {
@@ -124,7 +124,6 @@ class WP_Tide_API {
 		echo wp_kses_post( $html_message );
 	}
 
-
 	/**
 	 * Load the plugin's text domain.
 	 *
@@ -179,27 +178,8 @@ class WP_Tide_API {
 	 * @return bool|mixed
 	 */
 	private function setup_paths( $data ) {
-
-		if ( defined( 'WP_PLUGIN_URL' ) && defined( 'WP_PLUGIN_DIR' ) && file_exists( plugin_dir_path( __FILE__ ) . basename( __FILE__ ) ) ) {
-			/**
-			 * Normal Plugin Location
-			 */
-			$data['location']   = 'plugins';
-			$data['plugin_dir'] = plugin_dir_path( __FILE__ );
-			$data['plugin_url'] = plugins_url( '/', __FILE__ );
-
-			// Must use plugin location.
-		} elseif ( defined( 'WPMU_PLUGIN_URL' ) && defined( 'WPMU_PLUGIN_DIR' ) && file_exists( WPMU_PLUGIN_DIR . DIRECTORY_SEPARATOR . basename( __FILE__ ) ) ) {
-			/**
-			 * "Must-Use" Plugin Location
-			 */
-			$data['location']   = 'mu-plugins';
-			$data['plugin_dir'] = WPMU_PLUGIN_DIR . DIRECTORY_SEPARATOR;
-			$data['plugin_url'] = WPMU_PLUGIN_URL . '/';
-		} else {
-			return false;
-		}
-
+		$data['plugin_dir']    = plugin_dir_path( __FILE__ );
+		$data['plugin_url']    = plugins_url( '/', __FILE__ );
 		$data['base_name']     = dirname( plugin_basename( __FILE__ ) );
 		$data['include_dir']   = $data['plugin_dir'] . $data['library_path'] . DIRECTORY_SEPARATOR;
 		$data['include_url']   = $data['plugin_url'] . $data['library_path'] . DIRECTORY_SEPARATOR;

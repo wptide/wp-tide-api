@@ -9,6 +9,7 @@ namespace WP_Tide_API\Authentication;
 
 use Firebase\JWT\JWT;
 use WP_Tide_API\Base;
+use WP_Tide_API\Plugin;
 
 /**
  * Class User_Refresh_Token
@@ -24,6 +25,30 @@ class User_Refresh_Token extends Base {
 	 * @var bool
 	 */
 	private static $refresh_authentication = false;
+
+	/**
+	 * Secure auth key.
+	 *
+	 * @var string
+	 */
+	private $secure_auth_key = '';
+
+	/**
+	 * User_Refresh_Token constructor.
+	 *
+	 * @param Plugin $plugin The TIDE API plugin.
+	 * @param string $secure_auth_key The secure auth key.
+	 */
+	public function __construct( Plugin $plugin, $secure_auth_key = '' ) {
+		parent::__construct( $plugin );
+
+		$this->secure_auth_key = $secure_auth_key;
+
+		// Use SECURE_AUTH_KEY defined in wp-config.php as secret.
+		if ( '' === $this->secure_auth_key && defined( 'SECURE_AUTH_KEY' ) ) {
+			$this->secure_auth_key = SECURE_AUTH_KEY;
+		}
+	}
 
 	/**
 	 * Add a refresh token to the JWT token.
@@ -47,11 +72,11 @@ class User_Refresh_Token extends Base {
 		}
 
 		/**
-		 * If we don't have a secret, just return the original response (which should be an error).
+		 * Get secret to decode the JWT tokens with.
 		 */
 		$secret = $this->get_secret();
 		if ( is_wp_error( $secret ) ) {
-			return $response;
+			return $secret;
 		}
 
 		/**
@@ -92,13 +117,20 @@ class User_Refresh_Token extends Base {
 		 */
 		if ( 'wp_user' === $type ) {
 
-			$user_refresh_token        = get_user_meta( $client->ID, 'tide_api_refresh_token', true );
-			$user_refresh_token_decode = empty( $user_refresh_token ) ? false : JWT::decode( $user_refresh_token, $secret, array( 'HS256' ) );
+			try {
+				$user_refresh_token = get_user_meta( $client->ID, 'tide_api_refresh_token', true );
 
-			if ( time() > $user_refresh_token_decode->exp ) {
-				update_user_meta( $client->ID, 'tide_api_refresh_token', $refresh_token );
-			} else {
-				$refresh_token = $user_refresh_token;
+				$user_refresh_token_decode = empty( $user_refresh_token ) ? false : JWT::decode( $user_refresh_token, $secret, array( 'HS256' ) );
+			} catch ( \Exception $e ) {
+
+				// We don't want to throw a `\Firebase\JWT\ExpiredException` instead we want to refresh the token.
+				unset( $user_refresh_token );
+			} finally {
+				if ( ! isset( $user_refresh_token_decode->exp ) || time() > $user_refresh_token_decode->exp ) {
+					update_user_meta( $client->ID, 'tide_api_refresh_token', $refresh_token );
+				} else {
+					$refresh_token = $user_refresh_token;
+				}
 			}
 		}
 
@@ -171,9 +203,8 @@ class User_Refresh_Token extends Base {
 	 */
 	public function get_secret() {
 
-		// Use SECURE_AUTH_KEY defined in wp-config.php as secret.
-		if ( defined( 'SECURE_AUTH_KEY' ) ) {
-			$secret = SECURE_AUTH_KEY;
+		if ( $this->secure_auth_key ) {
+			$secret = $this->secure_auth_key;
 		} else {
 			$secret = new \WP_Error(
 				'rest_auth_key',

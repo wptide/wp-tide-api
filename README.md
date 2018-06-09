@@ -1,6 +1,6 @@
 # WP Tide API
 
-[![Build Status](https://travis-ci.org/wptide/wp-tide-api.svg?branch=master)](https://travis-ci.org/wptide/wp-tide-api) [![Coverage Status](https://coveralls.io/repos/wptide/wp-tide-api/badge.svg?branch=master)](https://coveralls.io/github/wptide/wp-tide-api) [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+[![Build Status](https://travis-ci.org/wptide/wp-tide-api.svg?branch=develop)](https://travis-ci.org/wptide/wp-tide-api) [![Coverage Status](https://coveralls.io/repos/wptide/wp-tide-api/badge.svg?branch=develop)](https://coveralls.io/github/wptide/wp-tide-api) [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 
 If you're looking for the plugin which updates the WordPress admin UI with the audit results, **this is not the plugin you’re looking for**, that plugin does not yet exist.

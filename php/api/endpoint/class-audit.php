@@ -9,6 +9,7 @@ namespace WP_Tide_API\API\Endpoint;
 
 use WP_Tide_API\Base;
 use WP_Tide_API\Integration\AWS_S3;
+use WP_Tide_API\Utility\Audit_Meta;
 
 /**
  * Class Audit
@@ -76,16 +77,14 @@ class Audit extends Base {
 					'original_request' => array(),
 					'code_info'        => array(),
 					'standards'        => array(),
-					'results'          => array(
-						'get_callback'    => array( $this, 'rest_results_get' ),
-						'update_callback' => array( $this, 'rest_results_update' ),
+					'reports'          => array(
+						'get_callback'    => array( $this, 'rest_reports_get' ),
+						'update_callback' => array( $this, 'rest_reports_update' ),
 					),
 					// This is the plugin/theme author. Not the user attributed to the audit.
 					'project_author'   => array(
 						// This should not be possible.
-						'update_callback' => function () {
-							return;
-						},
+						'update_callback' => '__return_false',
 						'get_callback'    => array( $this, 'rest_field_project_author_get_callback' ),
 					),
 					// Updates taxonomy terms without IDs.
@@ -108,19 +107,15 @@ class Audit extends Base {
 	 * @return array
 	 */
 	public static function allowed_standards() {
-		return array_merge(
-			apply_filters( 'tide_api_client_allowed_audits', array(
-				'phpcs_wordpress-core'  => array(),
-				'phpcs_wordpress-docs'  => array(),
-				'phpcs_wordpress-extra' => array(),
-				'phpcs_wordpress-vip'   => array(),
-				'lighthouse'            => array(),
-			) ),
-			array(
-				'phpcs_wordpress'        => array(), // Always include the WordPress standard.
-				'phpcs_phpcompatibility' => array(), // Always include the PHP Compatibility standard.
-			)
-		);
+		return apply_filters( 'tide_api_client_allowed_audits', array(
+			'lighthouse'             => array(),
+			'phpcs_phpcompatibility' => array(),
+			'phpcs_wordpress'        => array(),
+			'phpcs_wordpress-core'   => array(),
+			'phpcs_wordpress-docs'   => array(),
+			'phpcs_wordpress-extra'  => array(),
+			'phpcs_wordpress-vip'    => array(),
+		) );
 	}
 
 	/**
@@ -143,15 +138,16 @@ class Audit extends Base {
 	 *
 	 * Note: This is used when creating an audit task and specifies the default audits to execute.
 	 * Note: An array of standards can be provided using the `standards` field in an API request which
-	 *       to add additional audits to execute.
+	 * adds additional audits to execute.
 	 *
 	 * @return array
 	 */
 	public static function executable_audit_fields() {
 
-		return array_merge( apply_filters( 'tide_api_executable_audits', array() ), array(
-			'phpcs_wordpress'        => array(), // Always include the WordPress standard.
-			'phpcs_phpcompatibility' => array(), // Always include the PHP Compatibility standard.
+		return apply_filters( 'tide_api_executable_audits', array(
+			'lighthouse'             => array(),
+			'phpcs_phpcompatibility' => array(),
+			'phpcs_wordpress'        => array(),
 		) );
 	}
 
@@ -192,121 +188,119 @@ class Audit extends Base {
 	}
 
 	/**
-	 * A custom update callback for the `results` rest field.
+	 * A custom update callback for the `reports` rest field.
 	 *
-	 * Breaks each result into separate post_meta.
+	 * Breaks each report into separate post_meta.
 	 *
 	 * @param mixed            $field_value The field value.
-	 * @param mixed            $post      The object data.
+	 * @param mixed            $post        The object data.
 	 * @param string           $field_name  The name of the field.
 	 * @param \WP_REST_Request $request     The WP REST Request.
 	 * @param string           $object_type The type of object.
 	 *
 	 * @return bool|int
 	 */
-	public function rest_results_update( $field_value, $post, $field_name, $request, $object_type ) {
+	public function rest_reports_update( $field_value, $post, $field_name, $request, $object_type ) {
+
+		if ( 'reports' !== $field_name ) {
+			return false;
+		}
 
 		/**
 		 * Check of an audit standards is allowed and then write the result to
 		 * individual post_meta for standard.
 		 */
 		$allowed_standards = array_keys( self::allowed_standards() );
-		foreach ( (array) $field_value as $field => $results ) {
+		foreach ( (array) $field_value as $field => $reports ) {
 			if ( ! in_array( $field, $allowed_standards, true ) ) {
 				continue;
 			}
-			update_post_meta( $post->ID, sprintf( '_audit_%s', $field ), $results );
+			update_post_meta( $post->ID, sprintf( '_audit_%s', $field ), $reports );
 		}
 
 		return true;
 	}
 
 	/**
-	 * Get the `results` rest field to send via request.
+	 * Get the `reports` rest field to send via request.
 	 *
 	 * @param array            $rest_post  The post.
-	 * @param string           $field_name "results".
+	 * @param string           $field_name "reports".
 	 * @param \WP_REST_Request $request    The REST request.
 	 *
 	 * @return array Return the requested standards.
 	 */
-	public function rest_results_get( $rest_post, $field_name, $request ) {
+	public function rest_reports_get( $rest_post, $field_name, $request ) {
 
-		// If "standards" has been passed with the request then use those standard.
-		$standards = $request->get_param( 'standards' );
-
-		// If not, then use default standards.
-		if ( ! empty( $standards ) ) {
-			$allowed_standards = array_keys( self::allowed_standards() );
-
-			$standards = array_filter( explode( ',', $standards ), function ( $standard ) use ( $allowed_standards ) {
-				return in_array( $standard, $allowed_standards, true );
-			} );
-		} else {
-			$standards = array_keys( self::executable_audit_fields() );
+		if ( 'reports' !== $field_name ) {
+			return $request;
 		}
 
-		$results = array();
+		// If "standards" has been passed with the request then use those standards.
+		$standards = $request->get_param( 'standards' );
 
-		// Get the details value.
-		$request_details = isset( $_REQUEST['details'] ) ? wp_unslash( $_REQUEST['details'] ) : ''; // WPCS: input var okay. CSRF ok.
+		// Get "standards" from the post meta.
+		if ( empty( $standards ) ) {
+			$standards = get_post_meta( $rest_post['id'], 'standards', true );
+		}
+
+		// Convert a csv string to an array.
+		if ( ! is_array( $standards ) ) {
+			$standards = array_filter( explode( ',', $standards ) );
+		}
+
+		// Filter standards for allowed standards (audit fields as fallback).
+		$standards = Audit_Meta::filter_standards( $standards );
+
+		$reports = array();
 
 		foreach ( $standards as $standard ) {
 			$meta = get_post_meta( $rest_post['id'], sprintf( '_audit_%s', $standard ), true );
 
-			// If we don't have any data for the standard then there's no point in adding an empty element to the results.
+			// If we don't have any data for the standard then there's no point in adding an empty element to the reports.
 			if ( empty( $meta ) ) {
 				continue;
 			}
 
-			$results[ $standard ] = $meta;
-
-			// Validate the details option.
-			$is_valid_details = (
-				! empty( $request_details )
-				&&
-				(
-					$standard === $request_details
-					||
-					'all' === $request_details
-				)
-			);
-
-			// Setup the detailed report.
-			if ( isset( $results[ $standard ]['details'] ) && $is_valid_details ) {
-				$results[ $standard ]['details'] = $this->plugin->components['aws_s3']->get_file( $results[ $standard ]['details'] );
-			}
+			$reports[ $standard ] = $meta;
 		}
 
-		return $results;
+		return $reports;
 	}
 
 	/**
 	 * This is the theme/plugin author details.
 	 *
-	 * @param array            $rest_post The post.
+	 * @param array            $rest_post  The post.
 	 * @param string           $field_name "project_author".
-	 * @param \WP_REST_Request $request The REST request.
+	 * @param \WP_REST_Request $request    The REST request.
 	 *
 	 * @return array
 	 */
 	public function rest_field_project_author_get_callback( $rest_post, $field_name, $request ) {
 
-		$code_info    = get_post_meta( $rest_post['id'], 'code_info', true );
+		if ( 'project_author' !== $field_name ) {
+			return $request;
+		}
+
 		$project_info = array();
+		$code_info    = get_post_meta( $rest_post['id'], 'code_info', true );
 
 		if ( empty( $code_info['details'] ) ) {
 			return $project_info;
 		}
 
 		foreach ( $code_info['details'] as $item ) {
+			if ( ! isset( $item['key'] ) || ! isset( $item['value'] ) ) {
+				continue;
+			}
 			$key                  = strtolower( $item['key'] );
 			$project_info[ $key ] = $item['value'];
 		}
 
 		return array(
-			'name' => $project_info['author'],
-			'uri'  => $project_info['authoruri'],
+			'name' => isset( $project_info['author'] ) ? $project_info['author'] : '',
+			'uri'  => isset( $project_info['authoruri'] ) ? $project_info['authoruri'] : '',
 		);
 	}
 
@@ -314,14 +308,18 @@ class Audit extends Base {
 	 * Turn the supplied values into taxonomy terms.
 	 *
 	 * @param string           $field_value The field value.
-	 * @param \WP_Post         $object The object data.
-	 * @param string           $field_name The name of the field.
-	 * @param \WP_REST_Request $request The WP REST Request.
+	 * @param \WP_Post         $object      The object data.
+	 * @param string           $field_name  The name of the field.
+	 * @param \WP_REST_Request $request     The WP REST Request.
 	 * @param string           $object_type The type of object.
 	 *
 	 * @return bool
 	 */
 	public function rest_field_project_update_callback( $field_value, $object, $field_name, $request, $object_type ) {
+
+		if ( 'project' !== $field_name ) {
+			return false;
+		}
 
 		$field_value = (array) $field_value;
 
@@ -340,8 +338,10 @@ class Audit extends Base {
 		}
 
 		if ( ! empty( $terms ) ) {
-			$current = wp_get_object_terms( $object->ID, 'audit_project' );
-			wp_remove_object_terms( $object->ID, $current, 'audit_project' );
+			$current = wp_get_object_terms( $object->ID, 'audit_project', array( 'fields' => 'ids' ) );
+			if ( ! is_wp_error( $current ) ) {
+				wp_remove_object_terms( $object->ID, $current, 'audit_project' );
+			}
 			wp_set_object_terms( $object->ID, $terms, 'audit_project' );
 		}
 

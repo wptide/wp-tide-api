@@ -5,6 +5,7 @@
  * @package WP_Tide_API
  */
 
+use WP_Tide_API\Authentication\JWT_Auth;
 use WP_Tide_API\Authentication\User_Refresh_Token;
 use Firebase\JWT\JWT;
 
@@ -56,6 +57,11 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 	const JWT_REFRESH_EXPIRATION = 31536000; // 1 Year
 
 	/**
+	 * Random auth key.
+	 */
+	static $SECURE_AUTH_KEY = '54fda65we2aeb65abaq354150966b198e3444198';
+
+	/**
 	 * Setup.
 	 *
 	 * @inheritdoc
@@ -70,8 +76,9 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 
 		do_action( 'rest_api_init' );
 
-		$this->plugin             = WP_Tide_API\Plugin::instance();
-		$this->user_refresh_token = new User_Refresh_Token( $this->plugin );
+		$this->plugin                         = WP_Tide_API\Plugin::instance();
+		$this->user_refresh_token             = new User_Refresh_Token( $this->plugin, self::$SECURE_AUTH_KEY );
+		$this->plugin->components['jwt_auth'] = new JWT_Auth( $this->plugin, self::$SECURE_AUTH_KEY );
 	}
 
 	/**
@@ -92,7 +99,7 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 	 */
 	public function test_append_refresh_token() {
 		$rest_request = new WP_REST_Request( 'POST', $this->namespace );
-		$secret       = $this->_set_secret();
+		$secret       = $this->user_refresh_token->get_secret();
 		$user_id      = $this->factory()->user->create( array(
 			'role' => 'administrator',
 		) );
@@ -140,20 +147,44 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 		update_user_meta( $user_id, 'tide_api_refresh_token', $token );
 		// @codingStandardsIgnoreEnd
 
-		$this->expectException( '\Firebase\JWT\ExpiredException' );
-		$this->expectExceptionMessage( 'Expired token' );
-		$this->user_refresh_token->append_refresh_token( array(), $rest_request, $client, false );
+		$response = $this->user_refresh_token->append_refresh_token( array(), $rest_request, $client, false );
+
+		$this->assertNotEmpty( $response );
+		$this->assertArrayHasKey( 'refresh_token', $response );
+		$this->assertNotEquals( $response['refresh_token'], $token );
+	}
+
+
+	/**
+	 * Test append_refresh_token().
+	 *
+	 * @covers ::append_refresh_token()
+	 */
+	public function test_append_refresh_token_is_wp_error() {
+		$refresh_token = new User_Refresh_Token( $this->plugin, false );
+		$result        = $refresh_token->append_refresh_token( array( 'response' ), false, false, false );
+
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( $result->get_error_code(), 'rest_auth_key' );
+	}
+
+	/**
+	 * Test append_refresh_token().
+	 *
+	 * @covers ::append_refresh_token()
+	 */
+	public function test_append_refresh_token_refresh_authentication() {
+		$reflector    = new ReflectionClass( get_class( $this->user_refresh_token ) );
+		$refresh_auth = $reflector->getProperty( 'refresh_authentication' );
 
 		// Test with static property set to true.
-		$reflector              = new ReflectionClass( get_class( $this->user_refresh_token ) );
-		$refresh_authentication = $reflector->getProperty( 'refresh_authentication' );
-		$refresh_authentication->setAccessible( true );
+		$refresh_auth->setAccessible( true );
+		$refresh_auth->setValue( true );
 
-		$this->assertEquals( $refresh_authentication->getValue( $this->user_refresh_token ), false );
+		$this->assertEquals( $refresh_auth->getValue( $this->user_refresh_token ), true );
 
-		$refresh_authentication->setValue( true );
-		$result = $reflector->getMethod( 'append_refresh_token' )->invoke( $this->user_refresh_token, array(), $rest_request, false, false );
-		$this->assertEquals( $result, array() );
+		$result = $reflector->getMethod( 'append_refresh_token' )->invoke( $this->user_refresh_token, array( 'response' ), false, false, false );
+		$this->assertEquals( $result, array( 'response' ) );
 	}
 
 	/**
@@ -165,7 +196,7 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 		$rest_request = new WP_REST_Request( 'POST', $this->namespace );
 		$this->assertFalse( $this->user_refresh_token->authenticate_with_refresh_token( false, $rest_request ) );
 
-		$secret  = $this->_set_secret();
+		$secret  = $this->user_refresh_token->get_secret();
 		$user_id = $this->factory()->user->create( array(
 			'role' => 'administrator',
 		) );
@@ -187,6 +218,12 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 		// @codingStandardsIgnoreStart
 		$_SERVER['HTTP_AUTHORIZATION'] = sprintf( 'Bearer %s', $token );
 		// @codingStandardsIgnoreEnd
+
+
+		$tmp = $this->plugin->components['jwt_auth'];
+		$this->plugin->components['jwt_auth'] = null;
+		$this->assertEquals( 'fake-client', $this->user_refresh_token->authenticate_with_refresh_token( 'fake-client', $rest_request ) );
+		$this->plugin->components['jwt_auth'] = $tmp;
 
 		$this->assertFalse( $this->user_refresh_token->authenticate_with_refresh_token( false, $rest_request ) );
 
@@ -212,31 +249,18 @@ class Test_User_Refresh_Token extends WP_UnitTestCase {
 	 * @covers ::get_secret()
 	 */
 	public function test_get_secret() {
-		/**
-		 * SECURE_AUTH_KEY may already be defined in previous tests and cannot be unset.
-		 */
-		if ( defined( 'SECURE_AUTH_KEY' ) ) {
-			$this->assertEquals( $this->user_refresh_token->get_secret(), SECURE_AUTH_KEY );
-		} else {
-			$this->assertTrue( is_wp_error( $this->user_refresh_token->get_secret() ) );
-			$this->assertEquals( $this->user_refresh_token->get_secret()->get_error_code(), 'rest_auth_key' );
+		if ( ! defined( 'SECURE_AUTH_KEY' ) ) {
+			define( 'SECURE_AUTH_KEY', self::$SECURE_AUTH_KEY );
 		}
-	}
+		self::$SECURE_AUTH_KEY = SECURE_AUTH_KEY;
+		$user_refresh_token = new User_Refresh_Token( $this->plugin );
+		$this->assertEquals( self::$SECURE_AUTH_KEY, $user_refresh_token->get_secret() );
 
-	/**
-	 * Set secret.
-	 *
-	 * @return string $secret
-	 */
-	public function _set_secret() {
-		$secret = '54fda65we2aeb65abaq354150966b198e3444198';
+		$user_refresh_token = new User_Refresh_Token( $this->plugin, false );
+		$this->assertTrue( is_wp_error( $user_refresh_token->get_secret() ) );
+		$this->assertEquals( $user_refresh_token->get_secret()->get_error_code(), 'rest_auth_key' );
 
-		if ( defined( 'SECURE_AUTH_KEY' ) ) {
-			$secret = SECURE_AUTH_KEY;
-		} else {
-			define( 'SECURE_AUTH_KEY', $secret );
-		}
-
-		return $secret;
+		$user_refresh_token = new User_Refresh_Token( $this->plugin, self::$SECURE_AUTH_KEY );
+		$this->assertEquals( $user_refresh_token->get_secret(), self::$SECURE_AUTH_KEY );
 	}
 }

@@ -2,7 +2,7 @@
   "name": "wptide/wp-tide-api",
   "type": "wordpress-plugin",
   "description": "This is the WP Tide API plugin",
-  "version": "0.1.0",
+  "version": "1.0.0-beta",
   "homepage": "https://github.com/wptide/wp-tide-api/",
   "license": [ "GPL-2.0+" ],
   "repositories": [
@@ -19,12 +19,21 @@
   ],
   "require": {
     "firebase/php-jwt": "^4.0",
-    "aws/aws-sdk-php": "^3.22"
+    "aws/aws-sdk-php": "^3.22",
+    "google/cloud-storage": "^1.4",
+    "mongodb/mongodb": "^1.3",
+    "google/cloud-firestore": "^0.10.1"
   },
   "require-dev": {
     "wp-coding-standards/wpcs": "*",
     "wimg/php-compatibility": "*",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
-    "satooshi/php-coveralls": "~2.0"
+    "php-coveralls/php-coveralls": "~2.1"
+  },
+  "config": {
+    "platform": {
+      "ext-mongodb": "1.4.3",
+      "ext-grpc": "1.12.0"
+    }
   }
 }

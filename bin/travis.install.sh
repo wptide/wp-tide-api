@@ -1,8 +1,11 @@
 #!/bin/bash
 
+set -e
+shopt -s expand_aliases
+
 # Get and make mongodb PHP driver
 if [[ ! -e $HOME/mongo-php-driver ]]; then
-    apt-get install libssl-dev \
+    sudo apt-get install libssl-dev \
         && git clone https://github.com/mongodb/mongo-php-driver.git --recursive \
         && cd mongo-php-driver \
         && phpize \

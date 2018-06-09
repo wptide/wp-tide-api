@@ -13,10 +13,12 @@ use WP_Tide_API\API\Endpoint\Report;
 use WP_Tide_API\Authentication\JWT_Auth;
 use WP_Tide_API\Authentication\Keypair_Auth;
 use WP_Tide_API\Authentication\User_Refresh_Token;
-use WP_Tide_API\Integration\GCS;
-use WP_Tide_API\Integration\Local;
-use WP_Tide_API\Integration\S3;
-use WP_Tide_API\Integration\SQS;
+use WP_Tide_API\Integration\Storage_GCS;
+use WP_Tide_API\Integration\Storage_Local;
+use WP_Tide_API\Integration\Storage_S3;
+use WP_Tide_API\Integration\Queue_Firestore;
+use WP_Tide_API\Integration\Queue_Local;
+use WP_Tide_API\Integration\Queue_SQS;
 use WP_Tide_API\Restriction\Rate_Limit;
 use WP_Tide_API\User\User;
 
@@ -99,10 +101,12 @@ class Plugin extends Base {
 		/**
 		 * Integrations
 		 */
-		$this->components['storage_gcs']   = new GCS( $this );
-		$this->components['storage_local'] = new Local( $this );
-		$this->components['storage_s3']    = new S3( $this );
-		$this->components['queue_sqs']     = new SQS( $this );
+		$this->components['storage_gcs']     = new Storage_GCS( $this );
+		$this->components['storage_local']   = new Storage_Local( $this );
+		$this->components['storage_s3']      = new Storage_S3( $this );
+		$this->components['queue_firestore'] = new Queue_Firestore( $this );
+		$this->components['queue_local']     = new Queue_Local( $this );
+		$this->components['queue_sqs']       = new Queue_SQS( $this );
 
 		/**
 		 * User setting

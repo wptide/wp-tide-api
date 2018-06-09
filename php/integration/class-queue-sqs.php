@@ -12,9 +12,9 @@ use WP_Tide_API\Base;
 use WP_Tide_API\Utility\User;
 
 /**
- * Class Rate_Limit
+ * Class Queue_SQS
  */
-class SQS extends Base {
+class Queue_SQS extends Base {
 
 	/**
 	 * Add a new task to the SQS queue.
@@ -22,17 +22,22 @@ class SQS extends Base {
 	 * @action tide_api_audit_tasks_add_task
 	 *
 	 * @param mixed $task The task to add to the queue.
+	 *
 	 * @return mixed|\WP_Error
 	 *
 	 * @throws \Exception When the audits array is empty.
 	 */
 	public function add_task( $task ) {
 		try {
+			if ( ! $this->is_enabled() ) {
+				return false;
+			}
+
 			if ( empty( $task['audits'] ) ) {
 				throw new \Exception( __( 'The audits array is empty.', 'tide-api' ) );
 			}
 
-			$sqs_client = $this->create_sqs_client_instance();
+			$sqs_client = $this->get_client_instance();
 			$sqs_queues = array();
 
 			foreach ( $task['audits'] as $audit ) {
@@ -90,11 +95,13 @@ class SQS extends Base {
 	}
 
 	/**
-	 * Create new instance for SqsClient.
+	 * Get a new SqsClient instance.
 	 *
 	 * @return SqsClient
+	 *
+	 * @throws \Exception When the connection fails.
 	 */
-	public function create_sqs_client_instance() {
+	public function get_client_instance() {
 		return new SqsClient( array(
 			'idempotency_auto_fill' => true,
 			'version'               => defined( 'AWS_SQS_VERSION' ) ? AWS_SQS_VERSION : '',
@@ -121,5 +128,14 @@ class SQS extends Base {
 		}
 
 		return $request_client;
+	}
+
+	/**
+	 * Check if the message provider is enabled.
+	 *
+	 * @return bool Returns true if the provider is enabled, else false.
+	 */
+	public function is_enabled() {
+		return defined( 'API_MESSAGE_PROVIDER' ) && 'sqs' === API_MESSAGE_PROVIDER;
 	}
 }

@@ -11,9 +11,9 @@ use Google\Cloud\Storage\StorageClient;
 use WP_Tide_API\Base;
 
 /**
- * Class GCS
+ * Class Storage_GCS
  */
-class GCS extends Base {
+class Storage_GCS extends Base {
 
 	/**
 	 * Get temporary URL to object.
@@ -25,7 +25,7 @@ class GCS extends Base {
 	public function get_url( $meta ) {
 		// Catch all failures.
 		try {
-			$storage = $this->create_gcs_client_instance();
+			$storage = $this->get_client_instance();
 
 			$bucket = $storage->bucket( $meta['path'] );
 			$object = $bucket->object( $meta['filename'] );
@@ -40,11 +40,11 @@ class GCS extends Base {
 	}
 
 	/**
-	 * Create new StorageClient instance.
+	 * Get new StorageClient instance.
 	 *
-	 * @return S3Client
+	 * @return StorageClient
 	 */
-	public function create_gcs_client_instance() {
+	public function get_client_instance() {
 		return new StorageClient();
 	}
 }

@@ -1,18 +1,18 @@
 <?php
 /**
- * Test_Local
+ * Test_Storage_Local
  *
  * @package WP_Tide_API
  */
 
-use WP_Tide_API\Integration\Local;
+use WP_Tide_API\Integration\Storage_Local;
 
 /**
- * Class Test_Local
+ * Class Test_Storage_Local
  *
- * @coversDefaultClass WP_Tide_API\Integration\Local
+ * @coversDefaultClass WP_Tide_API\Integration\Storage_Local
  */
-class Test_Local extends WP_UnitTestCase {
+class Test_Storage_Local extends WP_UnitTestCase {
 
 	/**
 	 * Plugin instance.
@@ -24,7 +24,7 @@ class Test_Local extends WP_UnitTestCase {
 	/**
 	 * Local.
 	 *
-	 * @var Local
+	 * @var Storage_Local
 	 */
 	public $storage_local;
 

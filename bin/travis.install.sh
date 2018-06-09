@@ -1,8 +1,8 @@
 #!/bin/bash
 
 // Install gRPC
-apt-get install php-pear \
-    && pecl install grpc \
+sudo apt-get install php-pear \
+    && sudo pecl install grpc \
     && echo "extension=grpc.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
 
 # Get and make mongodb PHP driver

@@ -2,7 +2,7 @@
   "name": "wptide/wp-tide-api",
   "type": "wordpress-plugin",
   "description": "This is the WP Tide API plugin",
-  "version": "1.0.0-beta",
+  "version": "1.0.0-beta-2",
   "homepage": "https://github.com/wptide/wp-tide-api/",
   "license": [ "GPL-2.0+" ],
   "repositories": [

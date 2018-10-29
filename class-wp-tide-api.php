@@ -3,7 +3,7 @@
  * Plugin Name: WP Tide API
  * Plugin URI: http://xwp.co
  * Description: This is the WP Tide API plugin.
- * Version: 1.0.0-beta
+ * Version: 1.0.0-beta-2
  * Author: XWP
  * Author URI: http://xwp.co
  * License: GPL2

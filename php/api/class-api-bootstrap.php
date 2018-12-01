@@ -84,6 +84,18 @@ class API_Bootstrap extends Base {
 			} );
 
 		}
+
+		// Get the file time for this file as the version number.
+		$version = filemtime( __FILE__ );
+		$option  = __CLASS__ . '_flush';
+
+		// Flush the rewrite rules once after the api initializes, and if this file changes in the future.
+		if ( get_option( $option, 0 ) !== $version ) {
+			flush_rewrite_rules();
+			if ( ! update_option( $option, $version ) ) {
+				add_option( $option, $version );
+			}
+		}
 	}
 
 	/**

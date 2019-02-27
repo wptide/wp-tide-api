@@ -82,7 +82,7 @@ class Keypair_Auth extends Base {
 		// @codingStandardsIgnoreStart - Skipping VIP sniffs.
 		$api_secret = get_user_meta( $user->ID, 'tide_api_user_secret', true );
 		if ( empty( $api_secret ) ) {
-			$api_secret = wp_generate_password( 32 );
+			$api_secret = str_replace( '#', '$', wp_generate_password( 32 ) );
 			update_user_meta( $user->ID, 'tide_api_user_secret', $api_secret );
 		}
 		// @codingStandardsIgnoreEnd

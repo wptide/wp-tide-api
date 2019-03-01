@@ -116,7 +116,7 @@ class Report extends Base {
 
 		// Error fetching from storage provider.
 		if ( is_wp_error( $url ) ) {
-			return rest_ensure_response( $this->report_error( 'report_fetch_error', __( 'Fetching report failed', 'tide-api' ), 500 ) );
+			return rest_ensure_response( $this->report_error( 'report_fetch_error', $url->get_error_message(), 500 ) );
 		}
 
 		$response_object = [

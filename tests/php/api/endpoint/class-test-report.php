@@ -307,7 +307,7 @@ class Test_Report extends WP_UnitTestCase {
 				],
 				'want'   => $report->report_error(
 					'report_fetch_error',
-					'Fetching report failed',
+					'resource failed',
 					500
 				),
 			],

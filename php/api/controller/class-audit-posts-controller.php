@@ -215,11 +215,11 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array(
 					$this,
-					'get_item_altid',
+					'get_items',
 				),
 				'permission_callback' => array(
 					$this,
-					'get_item_permissions_check_altid',
+					'get_items_permissions_check',
 				),
 				'args'                => $get_item_args,
 			),
@@ -252,11 +252,11 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array(
 					$this,
-					'get_item_altid',
+					'get_items',
 				),
 				'permission_callback' => array(
 					$this,
-					'get_item_permissions_check_altid',
+					'get_items_permissions_check',
 				),
 				'args'                => $get_item_args,
 			),
@@ -278,10 +278,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 		$is_single = false;
 		$args      = array(
-			'post_type' => $this->post_type,
-			'order'     => 'DESC',
-			// @todo: Make this ensure it's the latest version.
-			'orderby'   => 'post_date',
+			'post_type'  => $this->post_type,
+			'orderby'    => 'post_date',
+			'order'      => 'DESC',
+			'meta_query' => array(),
 		);
 
 		if ( null !== $request->get_param( 'project_client' ) ) {
@@ -295,18 +295,14 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		}
 
 		if ( null !== $request->get_param( 'project_type' ) ) {
-
-			$args['meta_query'] = array(
-				array(
-					'key'     => 'project_type',
-					'value'   => $request->get_param( 'project_type' ),
-					'compare' => '=',
-				),
+			$args['meta_query'][] = array(
+				'key'     => 'project_type',
+				'value'   => $request->get_param( 'project_type' ),
+				'compare' => '=',
 			);
 		}
 
 		if ( null !== $request->get_param( 'project_slug' ) ) {
-
 			$args['tax_query'] = array(
 				array(
 					'taxonomy' => 'audit_project',
@@ -314,8 +310,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 					'terms'    => $request->get_param( 'project_slug' ),
 				),
 			);
-			// Only a single one.
-			$is_single = true;
+
+			$args['meta_key'] = 'version';
+			$args['orderby'] = 'meta_value';
+			$args['order'] = 'DESC';
 		}
 
 		if ( null !== $request->get_param( 'page' ) ) {
@@ -326,16 +324,25 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$args['s'] = $request->get_param( 'search' );
 		}
 
-		// version.
-		if ( null !== $request->get_param( 'version' ) ) {
-			$args['meta_query'] = array(
-				array(
-					'key'     => 'version',
-					'value'   => $request->get_param( 'version' ),
-					'compare' => '=',
-				),
-			);
+		if ( null !== $request->get_param( 'per_page' ) ) {
+			$args['posts_per_page'] = $request->get_param( 'per_page' );
 		}
+
+		// Version.
+		if ( null !== $request->get_param( 'version' ) ) {
+			$args['meta_query'][] = array(
+				'key'     => 'version',
+				'value'   => $request->get_param( 'version' ),
+				'compare' => '=',
+			);
+
+			$is_single = true;
+		}
+
+		if ( empty( $args['meta_query'] ) ) {
+			unset( $args['meta_query'] );
+		}
+
 		$args       = apply_filters( "rest_{$this->post_type}_query", $args, $request );
 		$query_args = $this->prepare_items_query( $args, $request );
 
@@ -350,7 +357,6 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 			$data    = $this->prepare_item_for_response( $post, $request );
 			$posts[] = $this->prepare_response_for_collection( $data );
-
 		}
 
 		if ( true === $is_single ) {
@@ -1076,7 +1082,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	public function get_altid_post( $request ) {
 
 		$args = array(
-			'post_type' => 'audit',
+			'post_type'  => $this->post_type,
+			'meta_query' => array(),
 		);
 
 		if ( null === $request->get_param( 'checksum' ) && null === $request->get_param( 'project_slug' ) ) {
@@ -1101,12 +1108,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		}
 
 		if ( null !== $request->get_param( 'project_type' ) ) {
-			$args['meta_query'] = array(
-				array(
-					'key'     => 'project_type',
-					'value'   => $request->get_param( 'project_type' ),
-					'compare' => '=',
-				),
+			$args['meta_query'][] = array(
+				'key'     => 'project_type',
+				'value'   => $request->get_param( 'project_type' ),
+				'compare' => '=',
 			);
 		}
 
@@ -1121,14 +1126,15 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		}
 
 		if ( null !== $request->get_param( 'version' ) ) {
-			$args['meta_query'] = array(
-				array(
-					'key'     => 'version',
-					'value'   => $request->get_param( 'version' ),
-					'compare' => '=',
-				),
+			$args['meta_query'][] = array(
+				'key'     => 'version',
+				'value'   => $request->get_param( 'version' ),
+				'compare' => '=',
 			);
-			$is_single          = true;
+		}
+
+		if ( empty( $args['meta_query'] ) ) {
+			unset( $args['meta_query'] );
 		}
 
 		$post = new \WP_Query( $args );

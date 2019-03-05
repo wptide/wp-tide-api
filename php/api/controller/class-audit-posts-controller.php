@@ -312,8 +312,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			);
 
 			$args['meta_key'] = 'version';
-			$args['orderby'] = 'meta_value';
-			$args['order'] = 'DESC';
+			$args['orderby']  = 'meta_value';
+			$args['order']    = 'DESC';
 		}
 
 		if ( null !== $request->get_param( 'page' ) ) {

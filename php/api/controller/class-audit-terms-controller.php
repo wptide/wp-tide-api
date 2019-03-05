@@ -29,9 +29,6 @@ class Audit_Terms_Controller extends \WP_REST_Terms_controller {
 	/**
 	 * Prepares a single term output for response.
 	 *
-	 * @since  4.7.0
-	 * @access public
-	 *
 	 * @param object           $item    Term object.
 	 * @param \WP_REST_Request $request Request object.
 	 *

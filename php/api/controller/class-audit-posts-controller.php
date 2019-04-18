@@ -618,7 +618,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$visibility   = $request->get_param( 'visibility' ) ? $request->get_param( 'visibility' ) : 'private';
 		$slug         = $request->get_param( 'slug' ) ? $request->get_param( 'slug' ) : '';
 
-		// Cant go much further without these.
+		// Can't go much further without these.
 		if ( empty( $source_type ) || empty( $source_url ) ) {
 			return;
 		}

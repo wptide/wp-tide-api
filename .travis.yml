@@ -1,5 +1,3 @@
-sudo: required
-
 notifications:
     email:
         on_success: never
@@ -29,7 +27,8 @@ env:
         - PHPUNIT_VERSION=6
 
 before_install:
-  - source bin/travis.install.sh
+  - pecl channel-update pecl.php.net
+  - pecl install grpc && echo "extension=grpc.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
 
 install:
   - composer install --no-interaction

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d3e00e8661d9f650191953d2ee82413d",
+    "content-hash": "415cb7f3595113ec7f183f4642fe593b",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -91,20 +91,23 @@
         },
         {
             "name": "firebase/php-jwt",
-            "version": "v4.0.0",
+            "version": "v5.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/firebase/php-jwt.git",
-                "reference": "dccf163dc8ed7ed6a00afc06c51ee5186a428d35"
+                "reference": "9984a4d3a32ae7673d6971ea00bae9d0a1abba0e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/dccf163dc8ed7ed6a00afc06c51ee5186a428d35",
-                "reference": "dccf163dc8ed7ed6a00afc06c51ee5186a428d35",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/9984a4d3a32ae7673d6971ea00bae9d0a1abba0e",
+                "reference": "9984a4d3a32ae7673d6971ea00bae9d0a1abba0e",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": " 4.8.35"
             },
             "type": "library",
             "autoload": {
@@ -130,7 +133,7 @@
             ],
             "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
             "homepage": "https://github.com/firebase/php-jwt",
-            "time": "2016-07-18T04:51:16+00:00"
+            "time": "2017-06-27T22:17:23+00:00"
         },
         {
             "name": "google/auth",
@@ -245,23 +248,22 @@
         },
         {
             "name": "google/cloud-firestore",
-            "version": "v0.10.1",
+            "version": "v1.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-cloud-php-firestore.git",
-                "reference": "8be871114e8dce85cb9656fef69e8faddca6a5f9"
+                "reference": "aef07b9c4b3dc015545ff323d2174e64446bdca2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-firestore/zipball/8be871114e8dce85cb9656fef69e8faddca6a5f9",
-                "reference": "8be871114e8dce85cb9656fef69e8faddca6a5f9",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-firestore/zipball/aef07b9c4b3dc015545ff323d2174e64446bdca2",
+                "reference": "aef07b9c4b3dc015545ff323d2174e64446bdca2",
                 "shasum": ""
             },
             "require": {
                 "ext-grpc": "*",
-                "google/cloud-core": "^1.14",
-                "google/gax": "^0.33",
-                "google/proto-client": "^0.40",
+                "google/cloud-core": "^1.28",
+                "google/gax": "^1.0",
                 "ramsey/uuid": "~3"
             },
             "require-dev": {
@@ -277,14 +279,15 @@
             "extra": {
                 "component": {
                     "id": "cloud-firestore",
-                    "target": "GoogleCloudPlatform/google-cloud-php-firestore.git",
+                    "target": "googleapis/google-cloud-php-firestore.git",
                     "path": "Firestore",
                     "entry": "src/FirestoreClient.php"
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Google\\Cloud\\Firestore\\": "src"
+                    "Google\\Cloud\\Firestore\\": "src",
+                    "GPBMetadata\\Google\\Firestore\\": "metadata"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -292,7 +295,7 @@
                 "Apache-2.0"
             ],
             "description": "Cloud Firestore client for PHP",
-            "time": "2018-05-31T17:51:58+00:00"
+            "time": "2019-05-15T17:30:22+00:00"
         },
         {
             "name": "google/cloud-storage",
@@ -345,42 +348,80 @@
             "time": "2019-05-02T16:40:15+00:00"
         },
         {
-            "name": "google/gax",
-            "version": "0.33.1",
+            "name": "google/common-protos",
+            "version": "1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/googleapis/gax-php.git",
-                "reference": "9d15f56374ab3940f5f11761cfefc7dfb18ea363"
+                "url": "https://github.com/googleapis/common-protos-php.git",
+                "reference": "13daea6a4f257f3448fbf4450860e659462e0ad5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/gax-php/zipball/9d15f56374ab3940f5f11761cfefc7dfb18ea363",
-                "reference": "9d15f56374ab3940f5f11761cfefc7dfb18ea363",
+                "url": "https://api.github.com/repos/googleapis/common-protos-php/zipball/13daea6a4f257f3448fbf4450860e659462e0ad5",
+                "reference": "13daea6a4f257f3448fbf4450860e659462e0ad5",
+                "shasum": ""
+            },
+            "require": {
+                "google/protobuf": "^3.6.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.36",
+                "sami/sami": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Google\\": "src",
+                    "GPBMetadata\\Google\\": "metadata"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Google API Common Protos for PHP",
+            "homepage": "https://github.com/googleapis/common-protos-php",
+            "keywords": [
+                "google"
+            ],
+            "time": "2019-03-14T19:01:14+00:00"
+        },
+        {
+            "name": "google/gax",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/googleapis/gax-php.git",
+                "reference": "48387fb818c6882296710a2302a0aa973b99afb2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/googleapis/gax-php/zipball/48387fb818c6882296710a2302a0aa973b99afb2",
+                "reference": "48387fb818c6882296710a2302a0aa973b99afb2",
                 "shasum": ""
             },
             "require": {
                 "google/auth": "^1.2.0",
-                "google/protobuf": "3.5.*",
+                "google/common-protos": "^1.0",
+                "google/grpc-gcp": "^0.1.0",
+                "google/protobuf": "^3.7.1",
                 "grpc/grpc": "^1.4",
                 "guzzlehttp/promises": "^1.3",
                 "guzzlehttp/psr7": "^1.2",
                 "php": ">=5.5"
             },
+            "conflict": {
+                "ext-protobuf": "<3.7.0"
+            },
             "require-dev": {
                 "phpunit/phpunit": "^4.8.36",
-                "squizlabs/php_codesniffer": "2.*"
+                "sami/sami": "*",
+                "squizlabs/php_codesniffer": "3.*"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Google\\Api\\": "src/Api",
-                    "Google\\ApiCore\\": "src/ApiCore",
-                    "Google\\Cloud\\": "src/Cloud",
-                    "Google\\Iam\\": "src/Iam",
-                    "Google\\Jison\\": "src/Jison",
-                    "Google\\LongRunning\\": "src/LongRunning",
-                    "Google\\Rpc\\": "src/Rpc",
-                    "Google\\Type\\": "src/Type",
+                    "Google\\ApiCore\\": "src",
                     "GPBMetadata\\Google\\": "metadata"
                 }
             },
@@ -393,60 +434,59 @@
             "keywords": [
                 "google"
             ],
-            "time": "2018-06-07T17:09:36+00:00"
+            "time": "2019-04-23T22:57:39+00:00"
         },
         {
-            "name": "google/proto-client",
-            "version": "0.40.0",
+            "name": "google/grpc-gcp",
+            "version": "0.1.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/googleapis/proto-client-php.git",
-                "reference": "69470e8d34a1d5c676c731ad738b3d4473fccb04"
+                "url": "https://github.com/GoogleCloudPlatform/grpc-gcp-php.git",
+                "reference": "e1ec44c0c39bd204868e2a2ed3cc87ed9006984e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/proto-client-php/zipball/69470e8d34a1d5c676c731ad738b3d4473fccb04",
-                "reference": "69470e8d34a1d5c676c731ad738b3d4473fccb04",
+                "url": "https://api.github.com/repos/GoogleCloudPlatform/grpc-gcp-php/zipball/e1ec44c0c39bd204868e2a2ed3cc87ed9006984e",
+                "reference": "e1ec44c0c39bd204868e2a2ed3cc87ed9006984e",
                 "shasum": ""
             },
             "require": {
-                "google/protobuf": "^3.4",
-                "php": ">=5.5"
+                "google/auth": "^1.3",
+                "google/protobuf": "^v3.3.0",
+                "grpc/grpc": "^v1.13.0",
+                "php": ">=5.5.0",
+                "psr/cache": "^1.0.1"
             },
             "require-dev": {
-                "google/gax": ">=0.25.0",
-                "phpunit/phpunit": "^4.8.36"
+                "google/cloud-spanner": "^1.7",
+                "phpunit/phpunit": "4.8.36"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Google\\": "src/Google/",
-                    "GPBMetadata\\": "src/GPBMetadata/"
+                    "Grpc\\Gcp\\": "src/",
+                    "": "src/generated/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "BSD-3-Clause"
+                "Apache-2.0"
             ],
-            "description": "Generated proto and gRPC classes for Google Cloud Platform in PHP",
-            "homepage": "https://github.com/googleapis/proto-client-php",
-            "keywords": [
-                "google"
-            ],
-            "time": "2018-05-29T20:18:42+00:00"
+            "description": "gRPC GCP library for channel management",
+            "time": "2019-02-14T02:21:15+00:00"
         },
         {
             "name": "google/protobuf",
-            "version": "v3.5.2",
+            "version": "v3.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/protocolbuffers/protobuf-php.git",
-                "reference": "801d776b4e4c9fce294d800974266c616bb2ce40"
+                "reference": "0657d28864692480c3d8506ba4fc90e8813deae5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/801d776b4e4c9fce294d800974266c616bb2ce40",
-                "reference": "801d776b4e4c9fce294d800974266c616bb2ce40",
+                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/0657d28864692480c3d8506ba4fc90e8813deae5",
+                "reference": "0657d28864692480c3d8506ba4fc90e8813deae5",
                 "shasum": ""
             },
             "require": {
@@ -461,8 +501,8 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Google\\Protobuf\\": "php/src/Google/Protobuf",
-                    "GPBMetadata\\Google\\Protobuf\\": "php/src/GPBMetadata/Google/Protobuf"
+                    "Google\\Protobuf\\": "src/Google/Protobuf",
+                    "GPBMetadata\\Google\\Protobuf\\": "src/GPBMetadata/Google/Protobuf"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -474,7 +514,7 @@
             "keywords": [
                 "proto"
             ],
-            "time": "2018-03-06T03:54:18+00:00"
+            "time": "2019-03-26T18:06:41+00:00"
         },
         {
             "name": "grpc/grpc",
@@ -702,22 +742,22 @@
         },
         {
             "name": "mongodb/mongodb",
-            "version": "1.3.2",
+            "version": "1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mongodb/mongo-php-library.git",
-                "reference": "b9f35916125976533f4b1e67a4a0ee7baf1d3bb9"
+                "reference": "bd148eab0493e38354e45e2cd7db59b90fdcad79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mongodb/mongo-php-library/zipball/b9f35916125976533f4b1e67a4a0ee7baf1d3bb9",
-                "reference": "b9f35916125976533f4b1e67a4a0ee7baf1d3bb9",
+                "url": "https://api.github.com/repos/mongodb/mongo-php-library/zipball/bd148eab0493e38354e45e2cd7db59b90fdcad79",
+                "reference": "bd148eab0493e38354e45e2cd7db59b90fdcad79",
                 "shasum": ""
             },
             "require": {
                 "ext-hash": "*",
                 "ext-json": "*",
-                "ext-mongodb": "^1.4.0",
+                "ext-mongodb": "^1.5.0",
                 "php": ">=5.5"
             },
             "require-dev": {
@@ -726,7 +766,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.3.x-dev"
+                    "dev-master": "1.4.x-dev"
                 }
             },
             "autoload": {
@@ -763,7 +803,7 @@
                 "mongodb",
                 "persistence"
             ],
-            "time": "2018-04-19T17:20:30+00:00"
+            "time": "2018-07-18T14:33:41+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -2033,7 +2073,7 @@
     "platform": [],
     "platform-dev": [],
     "platform-overrides": {
-        "ext-mongodb": "1.4.3",
-        "ext-grpc": "1.12.0"
+        "ext-mongodb": "1.5.0",
+        "ext-grpc": "1.20.0"
     }
 }

@@ -21,8 +21,11 @@ env:
         - WP_MULTISITE=0
         - PHPUNIT_VERSION=6
 
+before_script:
+  - pecl -q install grpc && echo "extension=grpc.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
+  - pecl -q install mongo && echo "extension=mongo.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
+
 install:
-  - source bin/travis.install.sh
   - composer install --no-interaction
   - export DEV_LIB_PATH=dev-lib
   - if [ ! -e "$DEV_LIB_PATH" ] && [ -L .travis.yml ]; then export DEV_LIB_PATH=$( dirname $( readlink .travis.yml ) ); fi

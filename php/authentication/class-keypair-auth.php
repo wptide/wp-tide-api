@@ -151,10 +151,12 @@ class Keypair_Auth extends Base {
 		/**
 		 * Retrieve a user if a valid key is given; or send back original value.
 		 */
-		$user = get_users( array(
-			'meta_key'   => 'tide_api_user_key', // WPCS: slow query ok.
-			'meta_value' => $key, // WPCS: slow query ok.
-		) );
+		$user = get_users(
+			array(
+				'meta_key'   => 'tide_api_user_key', // WPCS: slow query ok.
+				'meta_value' => $key, // WPCS: slow query ok.
+			)
+		);
 
 		$user = is_array( $user ) && ! empty( $user ) ? array_shift( $user ) : false;
 		if ( false === $user ) {
@@ -197,16 +199,20 @@ class Keypair_Auth extends Base {
 		/**
 		 * POST endpoint for generating new keypairs.
 		 */
-		register_rest_route( $this->namespace, sprintf( '/%s', $this->keypair_base ), array(
+		register_rest_route(
+			$this->namespace,
+			sprintf( '/%s', $this->keypair_base ),
 			array(
-				'methods'  => \WP_REST_Server::EDITABLE,
-				'callback' => array( $this, 'generate_keypair' ),
-			),
-			array(
-				'methods'  => \WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_keypair' ),
-			),
-		) );
+				array(
+					'methods'  => \WP_REST_Server::EDITABLE,
+					'callback' => array( $this, 'generate_keypair' ),
+				),
+				array(
+					'methods'  => \WP_REST_Server::READABLE,
+					'callback' => array( $this, 'get_keypair' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -222,7 +228,8 @@ class Keypair_Auth extends Base {
 		$user    = get_user_by( 'id', $user_id );
 
 		if ( ! current_user_can( 'edit_users' ) || is_wp_error( $user ) ) {
-			return new \WP_Error( 'rest_user_error',
+			return new \WP_Error(
+				'rest_user_error',
 				__( 'Invalid user request.', 'tide-api' ),
 				array(
 					'status' => 403,
@@ -259,7 +266,8 @@ class Keypair_Auth extends Base {
 		$user    = get_user_by( 'id', $user_id );
 
 		if ( ! current_user_can( 'edit_users' ) || is_wp_error( $user ) ) {
-			return new \WP_Error( 'rest_user_error',
+			return new \WP_Error(
+				'rest_user_error',
 				__( 'Invalid user request.', 'tide-api' ),
 				array(
 					'status' => 403,

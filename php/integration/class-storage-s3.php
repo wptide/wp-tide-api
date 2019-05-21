@@ -26,11 +26,13 @@ class Storage_S3 extends Base {
 		try {
 			$s3_client = $this->get_client_instance();
 
-			$cmd = $s3_client->getCommand( 'GetObject', [
+			$args = array(
 				'Bucket'              => $meta['path'],
 				'Key'                 => $meta['filename'],
 				'ResponseContentType' => 'application/json',
-			] );
+			);
+
+			$cmd = $s3_client->getCommand( 'GetObject', $args );
 
 			$request = $s3_client->createPresignedRequest( $cmd, '+5 minutes' );
 
@@ -49,13 +51,14 @@ class Storage_S3 extends Base {
 	 * @return S3Client
 	 */
 	public function get_client_instance() {
-		return new S3Client( [
+		$args = array(
 			'version'     => defined( 'AWS_S3_VERSION' ) ? AWS_S3_VERSION : '',
 			'region'      => defined( 'AWS_S3_REGION' ) ? AWS_S3_REGION : '',
 			'credentials' => [
 				'key'    => defined( 'AWS_API_KEY' ) ? AWS_API_KEY : '',
 				'secret' => defined( 'AWS_API_SECRET' ) ? AWS_API_SECRET : '',
 			],
-		] );
+		);
+		return new S3Client( $args );
 	}
 }

@@ -97,9 +97,11 @@ class Queue_Firestore extends Base {
 	public function get_client_instance() {
 		$project_id = defined( 'GCP_PROJECT' ) ? GCP_PROJECT : '';
 
-		return new FirestoreClient( array(
+		$args = array(
 			'projectId' => $project_id,
-		) );
+		);
+
+		return new FirestoreClient( $args );
 	}
 
 	/**

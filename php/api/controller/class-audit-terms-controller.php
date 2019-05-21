@@ -37,14 +37,17 @@ class Audit_Terms_Controller extends \WP_REST_Terms_controller {
 	public function prepare_item_for_response( $item, $request ) {
 		$response = parent::prepare_item_for_response( $item, $request );
 
-		$removed_fields = apply_filters( 'tide_api_response_removed_fields', array(
-			'id',
-			'link',
-			'slug',
-			'taxonomy',
-			'_links',
-			'status',
-		) );
+		$removed_fields = apply_filters(
+			'tide_api_response_removed_fields',
+			array(
+				'id',
+				'link',
+				'slug',
+				'taxonomy',
+				'_links',
+				'status',
+			)
+		);
 
 		$removed_hal_link_fields = array(
 			'about',

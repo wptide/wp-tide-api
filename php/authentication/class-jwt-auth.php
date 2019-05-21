@@ -78,10 +78,14 @@ class JWT_Auth extends Base {
 		/**
 		 * POST endpoint for generating new tokens.
 		 */
-		register_rest_route( $this->namespace, sprintf( '/%s', $this->base ), array(
-			'methods'  => WP_REST_Server::CREATABLE,
-			'callback' => array( $this, 'generate_token' ),
-		) );
+		register_rest_route(
+			$this->namespace,
+			sprintf( '/%s', $this->base ),
+			array(
+				'methods'  => WP_REST_Server::CREATABLE,
+				'callback' => array( $this, 'generate_token' ),
+			)
+		);
 	}
 
 	/**
@@ -151,14 +155,18 @@ class JWT_Auth extends Base {
 		 * The `data` private claim will always be added, but additional claims can be added via the
 		 * `tide_api_jwt_token_payload_private_claims` filter.
 		 */
-		$payload = array_merge( $payload, array(
-			'data' => array(
-				'client' => array(
-					'id'   => $client->ID,
-					'type' => isset( $client->type ) ? $client->type : 'wp_user',
+		$payload = array_merge(
+			$payload,
+			array(
+				'data' => array(
+					'client' => array(
+						'id'   => $client->ID,
+						'type' => isset( $client->type ) ? $client->type : 'wp_user',
+					),
 				),
 			),
-		), apply_filters( 'tide_api_jwt_token_payload_private_claims', array(), $request, $client ) );
+			apply_filters( 'tide_api_jwt_token_payload_private_claims', array(), $request, $client )
+		);
 
 		/**
 		 * Generate JWT token.
@@ -168,10 +176,16 @@ class JWT_Auth extends Base {
 		/**
 		 * Return response containing the JWT token and $client.
 		 */
-		return apply_filters( 'tide_api_jwt_token_response', array(
-			'access_token' => $token,
-			'client'       => $client,
-		), $request, $client, $token );
+		return apply_filters(
+			'tide_api_jwt_token_response',
+			array(
+				'access_token' => $token,
+				'client'       => $client,
+			),
+			$request,
+			$client,
+			$token
+		);
 	}
 
 	/**

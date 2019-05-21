@@ -56,14 +56,14 @@ class API_Bootstrap extends Base {
 			}
 
 			if ( isset( $values['rest_fields'] ) ) {
-				add_action( 'rest_api_init', function () use ( $post_type, $values ) {
+				$action = function () use ( $post_type, $values ) {
 					$this->register_rest_fields( $post_type, $values['rest_fields'] );
-				} );
+				};
+				add_action( 'rest_api_init', $action );
 			}
 
-			// Enable filtering.
-			add_action( 'rest_api_init', function () use ( $post_type ) {
-				add_filter( 'rest_' . $post_type . '_query', function ( $args, $request ) {
+			$filter = function () use ( $post_type ) {
+				$sub_filter = function ( $args, $request ) {
 					if ( empty( $request['filter'] ) || ! is_array( $request['filter'] ) ) {
 						return $args;
 					}
@@ -80,8 +80,12 @@ class API_Bootstrap extends Base {
 					}
 
 					return $args;
-				}, 10, 2 );
-			} );
+				};
+				add_filter( 'rest_' . $post_type . '_query', $sub_filter, 10, 2 );
+			};
+
+			// Enable filtering.
+			add_action( 'rest_api_init', $filter );
 
 		}
 

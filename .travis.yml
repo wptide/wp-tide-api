@@ -29,8 +29,15 @@ env:
         - PHPUNIT_VERSION=6
 
 before_install:
-  - pecl channel-update pecl.php.net
-  - pecl install grpc && echo "extension=grpc.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
+  - git clone https://github.com/mongodb/mongo-php-driver.git $HOME/mongodb/mongo-php-driver --recursive
+  - cd $HOME/mongodb/mongo-php-driver
+  - phpize
+  - ./configure --with-mongodb-ssl=openssl
+  - make all
+  - make install
+  - echo "extension=mongodb.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
+  - cd -
+  - rm -rf $HOME/mongodb/mongo-php-driver
 
 install:
   - composer install --no-interaction

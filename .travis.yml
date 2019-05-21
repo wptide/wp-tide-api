@@ -21,7 +21,7 @@ php:
 
 env:
     global:
-        - WP_VERSION=4.9.6
+        - WP_VERSION=4.9.8
         - WP_MULTISITE=0
         - PHPUNIT_VERSION=6
 

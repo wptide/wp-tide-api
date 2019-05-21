@@ -220,6 +220,11 @@ class Test_Queue_Firestore extends WP_UnitTestCase {
 	 * @covers ::get_client_instance()
 	 */
 	public function test_get_client_instance() {
+		if ( ! extension_loaded('grpc') ) {
+			$this->markTestSkipped(
+			  'The gRPC extension is not available.'
+			);
+		}
 		try{
 			putenv("GOOGLE_APPLICATION_CREDENTIALS=/bad/path/service-account.json");
 			$firestore_client = $this->queue_firestore->get_client_instance();

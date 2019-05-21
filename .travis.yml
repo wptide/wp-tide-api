@@ -31,8 +31,6 @@ env:
         - PHPUNIT_VERSION=6
 
 before_install:
-  - sudo pecl install grpc
-  - echo "extension=grpc.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
   - git clone https://github.com/mongodb/mongo-php-driver.git $HOME/mongodb/mongo-php-driver --recursive
   - cd $HOME/mongodb/mongo-php-driver
   - phpize

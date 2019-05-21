@@ -1037,9 +1037,13 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 		if ( ! empty( $tax_query ) ) {
 			if ( isset( $args['tax_query'] ) && ! empty( $args['tax_query'] ) ) { // WPCS: slow query ok.
-				$args['tax_query'] = array_merge( array( // WPCS: slow query ok.
-					'relation' => 'AND',
-				), $args['tax_query'], $tax_query ); // WPCS: slow query ok.
+				$args['tax_query'] = array_merge( // WPCS: slow query ok.
+					array(
+						'relation' => 'AND',
+					),
+					args['tax_query'], // WPCS: slow query ok.
+					$tax_query
+				);
 			} else {
 				$args['tax_query'] = $tax_query; // WPCS: slow query ok.
 			}

@@ -25,7 +25,7 @@
     "google/cloud-firestore": "^1.5"
   },
   "require-dev": {
-    "wp-coding-standards/wpcs": "2.0.0",
+    "wp-coding-standards/wpcs": "*",
     "phpcompatibility/php-compatibility": "*",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
     "php-coveralls/php-coveralls": "~2.1"

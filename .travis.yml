@@ -31,20 +31,8 @@ env:
         - PHPUNIT_VERSION=6
 
 before_install:
-  - BUILDDIR=$(pwd)
-  - GRPC_VERSION=$(curl -L https://grpc.io/release)
-  - git clone -b ${GRPC_VERSION%.0}.x https://github.com/grpc/grpc $HOME/grpc
-  - cd $HOME/grpc
-  - git pull --recurse-submodules && git submodule update --init --recursive
-  - make
-  - sudo make install
-  - cd src/php/ext/grpc
-  - phpize
-  - ./configure
-  - make
-  - sudo make install
+  - sudo pecl install grpc
   - echo "extension=grpc.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
-  - cd $BUILDDIR
   - git clone https://github.com/mongodb/mongo-php-driver.git $HOME/mongodb/mongo-php-driver --recursive
   - cd $HOME/mongodb/mongo-php-driver
   - phpize
@@ -52,7 +40,7 @@ before_install:
   - make all
   - make install
   - echo "extension=mongodb.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
-  - cd $BUILDDIR
+  - cd -
 
 install:
   - composer install --no-interaction

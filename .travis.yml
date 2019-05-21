@@ -26,10 +26,6 @@ env:
         - WP_MULTISITE=0
         - PHPUNIT_VERSION=6
 
-before_install:
-  - pecl channel-update pecl.php.net
-  - pecl install grpc && echo "extension=grpc.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
-
 install:
   - composer install --no-interaction
   - export DEV_LIB_PATH=dev-lib

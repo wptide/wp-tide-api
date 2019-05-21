@@ -1084,7 +1084,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 					array(
 						'relation' => 'AND',
 					),
-					args['tax_query'], // WPCS: slow query ok.
+					$args['tax_query'], // WPCS: slow query ok.
 					$tax_query
 				);
 			} else {

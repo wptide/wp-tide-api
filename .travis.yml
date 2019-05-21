@@ -21,9 +21,8 @@ env:
         - WP_MULTISITE=0
         - PHPUNIT_VERSION=6
 
-before_script:
-  - pecl -q install grpc && echo "extension=grpc.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
-  - pecl -q install mongo && echo "extension=mongo.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
+before_install:
+  - source bin/travis.install.sh
 
 install:
   - composer install --no-interaction

@@ -32,7 +32,8 @@ env:
 
 before_install:
   - BUILDDIR=$(pwd)
-  - git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc $HOME/grpc
+  - GRPC_VERSION=$(curl -L https://grpc.io/release)
+  - git clone -b ${GRPC_VERSION%.0}.x https://github.com/grpc/grpc $HOME/grpc
   - cd $HOME/grpc
   - git pull --recurse-submodules && git submodule update --init --recursive
   - make

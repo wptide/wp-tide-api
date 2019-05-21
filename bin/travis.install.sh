@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get and make mongodb PHP driver
-apt-get install libssl-dev \
+sudo apt-get install libssl-dev \
     && git clone https://github.com/mongodb/mongo-php-driver.git --recursive \
     && cd mongo-php-driver \
     && phpize \
@@ -13,7 +13,7 @@ apt-get install libssl-dev \
     && rm -rf mongo-php-driver
 
 // Install gRPC
-apt-get install php-pear \
-    && pecl channel-update pecl.php.net \
-    && pecl install grpc \
+sudo apt-get install php-pear \
+    && sudo pecl channel-update pecl.php.net \
+    && sudo pecl install grpc \
     && echo "extension=grpc.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`

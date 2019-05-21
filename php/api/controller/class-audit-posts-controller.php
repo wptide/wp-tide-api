@@ -618,7 +618,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$visibility   = $request->get_param( 'visibility' ) ? $request->get_param( 'visibility' ) : 'private';
 		$slug         = $request->get_param( 'slug' ) ? $request->get_param( 'slug' ) : '';
 
-		// Can't go much further without these.
+		// Cant go much further without these.
 		if ( empty( $source_type ) || empty( $source_url ) ) {
 			return;
 		}
@@ -1010,8 +1010,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	public function handle_custom_args( $args, $request ) {
 
 		$tax_query = false;
-		if ( isset( $_GET['project'] ) ) { // WPCS: input var okay. CSRF OK.
-			$project   = explode( ',', sanitize_text_field( wp_unslash( $_GET['project'] ) ) ); // WPCS: input var okay. CSRF OK.
+		if ( isset( $_GET['project'] ) ) { // WPCS: input var okay. CSRF ok.
+			$project   = explode( ',', sanitize_text_field( wp_unslash( $_GET['project'] ) ) ); // WPCS: input var okay. CSRF ok.
 			$tax_query = array(
 				array(
 					'taxonomy' => 'audit_project',
@@ -1036,12 +1036,12 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	public function add_tax_query( $args, $tax_query ) {
 
 		if ( ! empty( $tax_query ) ) {
-			if ( isset( $args['tax_query'] ) && ! empty( $args['tax_query'] ) ) { // WPCS: slow query OK.
-				$args['tax_query'] = array_merge( array( // WPCS: slow query OK.
+			if ( isset( $args['tax_query'] ) && ! empty( $args['tax_query'] ) ) { // WPCS: slow query ok.
+				$args['tax_query'] = array_merge( array( // WPCS: slow query ok.
 					'relation' => 'AND',
-				), $args['tax_query'], $tax_query ); // WPCS: slow query OK.
+				), $args['tax_query'], $tax_query ); // WPCS: slow query ok.
 			} else {
-				$args['tax_query'] = $tax_query; // WPCS: slow query OK.
+				$args['tax_query'] = $tax_query; // WPCS: slow query ok.
 			}
 		}
 
@@ -1093,8 +1093,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		}
 
 		if ( null !== $request->get_param( 'checksum' ) ) {
-			$args['meta_key']   = 'checksum'; // WPCS: slow query OK.
-			$args['meta_value'] = $request->get_param( 'checksum' ); // WPCS: slow query OK.
+			$args['meta_key']   = 'checksum'; // WPCS: slow query ok.
+			$args['meta_value'] = $request->get_param( 'checksum' ); // WPCS: slow query ok.
 		}
 
 		if ( null !== $request->get_param( 'project_client' ) ) {

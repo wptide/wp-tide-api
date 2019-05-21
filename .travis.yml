@@ -1,5 +1,3 @@
-sudo: required
-
 notifications:
     email:
         on_success: never
@@ -12,17 +10,10 @@ cache:
   directories:
     - $HOME/phpunit-bin
 
-language:
-  - php
-  - node_js
+language: php
 
 php:
   - 7.2.6
-
-addons:
-  apt:
-    packages:
-    - libxml2-utils
 
 env:
     global:
@@ -32,7 +23,7 @@ env:
 
 install:
   - source bin/travis.install.sh
-  - composer install
+  - composer install --no-interaction
   - export DEV_LIB_PATH=dev-lib
   - if [ ! -e "$DEV_LIB_PATH" ] && [ -L .travis.yml ]; then export DEV_LIB_PATH=$( dirname $( readlink .travis.yml ) ); fi
   - if [ ! -e "$DEV_LIB_PATH" ]; then git clone https://github.com/xwp/wp-dev-lib.git $DEV_LIB_PATH; fi

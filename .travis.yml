@@ -1,5 +1,3 @@
-sudo: required
-
 notifications:
     email:
         on_success: never
@@ -10,8 +8,9 @@ notifications:
 
 cache:
   directories:
-    - $HOME/phpunit-bin
+    - $HOME/.composer/cache
     - $HOME/pecl_cache
+    - $HOME/phpunit-bin
 
 language: php
 
@@ -21,12 +20,14 @@ php:
 addons:
   apt:
     packages:
-      - libxml2-utils
-      - libssl-dev
+      - php7.0-dev
       - php-pear
+      - libz-dev
+      - libssl-dev
+      - libxml2-utils
 
 env:
-  - WP_VERSION=4.9.8 WP_MULTISITE=0
+  - WP_VERSION=4.9.8 WP_MULTISITE=0 PHPUNIT_VERSION=6
 
 install:
   - composer install --no-interaction

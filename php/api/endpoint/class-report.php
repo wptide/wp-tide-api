@@ -34,7 +34,6 @@ class Report extends Base {
 	const TYPE_PATTERN     = '(?P<type>(raw|parsed))';
 	const STANDARD_PATTERN = '(?P<standard>[\w-]+)';
 
-
 	/**
 	 * Register new routes.
 	 *
@@ -42,20 +41,32 @@ class Report extends Base {
 	 */
 	public function register_routes() {
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
-			'methods'  => 'GET',
-			'callback' => array( $this, 'report_response' ),
-		) );
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
+			array(
+				'methods'  => 'GET',
+				'callback' => array( $this, 'report_response' ),
+			)
+		);
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::CHECKSUM_PATTERN . '/' . static::TYPE_PATTERN . '/' . static::STANDARD_PATTERN, array(
-			'methods'  => 'GET',
-			'callback' => array( $this, 'report_response' ),
-		) );
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/' . static::CHECKSUM_PATTERN . '/' . static::TYPE_PATTERN . '/' . static::STANDARD_PATTERN,
+			array(
+				'methods'  => 'GET',
+				'callback' => array( $this, 'report_response' ),
+			)
+		);
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::POST_PATTERN . '/' . static::TYPE_PATTERN . '/' . static::STANDARD_PATTERN, array(
-			'methods'  => 'GET',
-			'callback' => array( $this, 'report_response' ),
-		) );
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/' . static::POST_PATTERN . '/' . static::TYPE_PATTERN . '/' . static::STANDARD_PATTERN,
+			array(
+				'methods'  => 'GET',
+				'callback' => array( $this, 'report_response' ),
+			)
+		);
 	}
 
 	/**

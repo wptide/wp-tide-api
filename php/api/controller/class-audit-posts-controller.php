@@ -63,14 +63,25 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		/**
 		 * Only update audit fields if the client has permission to do so.
 		 */
-		add_filter( 'tide_api_rest_do_field_update', array(
-			$this,
-			'filter_audit_fields',
-		), 10, 4 );
-		add_filter( 'rest_audit_query', array(
-			$this,
-			'handle_custom_args',
-		), 10, 2 );
+		add_filter(
+			'tide_api_rest_do_field_update',
+			array(
+				$this,
+				'filter_audit_fields',
+			),
+			10,
+			4
+		);
+
+		add_filter(
+			'rest_audit_query',
+			array(
+				$this,
+				'handle_custom_args',
+			),
+			10,
+			2
+		);
 	}
 
 	/**
@@ -82,12 +93,14 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		parent::register_routes();
 
 		$get_item_args = array(
-			'context' => $this->get_context_param( array(
-				'default' => 'view',
-			) ),
+			'context' => $this->get_context_param(
+				array(
+					'default' => 'view',
+				)
+			),
 		);
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::CHECKSUM_PATTERN, array(
+		$args = array(
 			'args'   => array(
 				'altid' => array(
 					'description' => __( 'An alternate unique id to query on (e.g. checksum)' ),
@@ -140,9 +153,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				$this,
 				'get_public_item_schema',
 			),
-		) );
+		);
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::CHECKSUM_PATTERN, $args );
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN, array(
+		$args = array(
 			'args'   => array(
 				'project_client' => array(
 					'description' => __( 'User login name representing a project client.' ),
@@ -165,9 +179,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				$this,
 				'get_public_item_schema',
 			),
-		) );
+		);
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN, $args );
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN, array(
+		$args = array(
 			'args'   => array(
 				'project_client' => array(
 					'description' => __( 'User login name representing a project client.' ),
@@ -194,9 +209,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				$this,
 				'get_public_item_schema',
 			),
-		) );
+		);
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN, $args );
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN . '/' . static::PROJECT_SLUG_PATTERN, array(
+		$args = array(
 			'args'   => array(
 				'project_client' => array(
 					'description' => __( 'User login name representing a project client.' ),
@@ -227,9 +243,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				$this,
 				'get_public_item_schema',
 			),
-		) );
+		);
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN . '/' . static::PROJECT_SLUG_PATTERN, $args );
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN . '/' . static::PROJECT_SLUG_PATTERN . '/' . static::PROJECT_VERSION_PATTERN, array(
+		$args = array(
 			'args'   => array(
 				'project_client' => array(
 					'description' => __( 'User login name representing a project client.' ),
@@ -252,11 +269,11 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array(
 					$this,
-					'get_items',
+					'get_item_altid',
 				),
 				'permission_callback' => array(
 					$this,
-					'get_items_permissions_check',
+					'get_item_permissions_check_altid',
 				),
 				'args'                => $get_item_args,
 			),
@@ -264,7 +281,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 				$this,
 				'get_public_item_schema',
 			),
-		) );
+		);
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/' . static::PROJECT_CLIENT_PATTERN . '/' . static::PROJECT_TYPE_PATTERN . '/' . static::PROJECT_SLUG_PATTERN . '/' . static::PROJECT_VERSION_PATTERN, $args );
 	}
 
 	/**
@@ -287,9 +305,13 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		if ( null !== $request->get_param( 'project_client' ) ) {
 			$user = get_user_by( 'login', $request->get_param( 'project_client' ) );
 			if ( false === $user ) {
-				return new \WP_Error( 'tide_audit_invalid_project_client', __( 'Invalid project client.' ), array(
-					'status' => 404,
-				) );
+				return new \WP_Error(
+					'tide_audit_invalid_project_client',
+					__( 'Invalid project client.' ),
+					array(
+						'status' => 404,
+					)
+				);
 			}
 			$args['author'] = $user->ID;
 		}
@@ -361,9 +383,13 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 
 		if ( true === $is_single ) {
 			if ( empty( $posts ) ) {
-				return new \WP_Error( 'tide_audit_invalid_item', __( 'Invalid item.' ), array(
-					'status' => 404,
-				) );
+				return new \WP_Error(
+					'tide_audit_invalid_item',
+					__( 'Invalid item.' ),
+					array(
+						'status' => 404,
+					)
+				);
 			}
 			$posts = array_shift( $posts );
 		}
@@ -388,23 +414,26 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		 */
 		$_GET['_embed'] = 1;
 
-		$removed_fields = apply_filters( 'tide_api_response_removed_fields', array(
-			'guid',
-			'slug',
-			'type',
-			'date_gmt',
-			'link',
-			'excerpt',
-			'author',
-			'template',
-			'modified_gmt',
-			'password',
-			'status',
-			'post_name',
-			'original_request',
-			'project', // Hide the rest field in the response.
-			'meta',
-		) );
+		$removed_fields = apply_filters(
+			'tide_api_response_removed_fields',
+			array(
+				'guid',
+				'slug',
+				'type',
+				'date_gmt',
+				'link',
+				'excerpt',
+				'author',
+				'template',
+				'modified_gmt',
+				'password',
+				'status',
+				'post_name',
+				'original_request',
+				'project', // Hide the rest field in the response.
+				'meta',
+			)
+		);
 
 		$removed_hal_link_fields = array(
 			'about',
@@ -455,11 +484,15 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 						}
 
 						// Add the report link.
-						$response->add_link( 'report', rest_url( $path ), [
-							'standard' => $standard,
-							'type'     => $type,
-							'rel'      => 'download',
-						] );
+						$response->add_link(
+							'report',
+							rest_url( $path ),
+							[
+								'standard' => $standard,
+								'type'     => $type,
+								'rel'      => 'download',
+							]
+						);
 					}
 
 					// Remove raw & parsed from the response.
@@ -519,7 +552,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$standards = Audit::filter_standards( $standards );
 
 		// Remove lighthouse if this is not a theme.
-		$lh_key = array_search( 'lighthouse', $standards );
+		$lh_key = array_search( 'lighthouse', $standards, true );
 		if ( 'theme' !== $project_type && false !== $lh_key ) {
 			unset( $standards[ $lh_key ] );
 		}
@@ -528,17 +561,25 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$standards = array_values( $standards );
 
 		if ( ( empty( $source_type ) || empty( $source_url ) ) && ! ( $response instanceof \WP_Error ) ) {
-			$response = new \WP_Error( 'insufficient_parameters', __( 'Please check your request and ensure you have supplied all required parameters.', 'tide-api' ), array(
-				'status' => 400,
-			) );
+			$response = new \WP_Error(
+				'insufficient_parameters',
+				__( 'Please check your request and ensure you have supplied all required parameters.', 'tide-api' ),
+				array(
+					'status' => 400,
+				)
+			);
 		}
 
 		// Check that the source URL is valid.
 		$ext = substr( $source_url, strrpos( $source_url, '.' ) + 1 );
 		if ( ! in_array( $ext, $this->allowed_extensions, true ) ) {
-			$response = new \WP_Error( 'rest_invalid_source_url', __( 'Please check that the source URL is .zip or .git.', 'tide-api' ), array(
-				'status' => 400,
-			) );
+			$response = new \WP_Error(
+				'rest_invalid_source_url',
+				__( 'Please check that the source URL is .zip or .git.', 'tide-api' ),
+				array(
+					'status' => 400,
+				)
+			);
 		}
 
 		$request->set_param( 'status', 'publish' );
@@ -633,9 +674,11 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			$response_api_endpoint = rest_url( sprintf( '%s/%s/%d', $this->namespace, $this->rest_base, $post ) );
 		}
 
-		$standards = array_map( function ( $standard ) {
+		$map = function ( $standard ) {
 			return sanitize_text_field( $standard );
-		}, $standards );
+		};
+
+		$standards = array_map( $map, $standards );
 
 		$task_args = array(
 			'response_api_endpoint' => esc_url_raw( $response_api_endpoint ),
@@ -773,7 +816,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		}
 
 		// Remove lighthouse if this is not a theme.
-		$lh_key = array_search( 'lighthouse', $standards );
+		$lh_key = array_search( 'lighthouse', $standards, true );
 		if ( 'theme' !== $request->get_param( 'project_type' ) && false !== $lh_key ) {
 			unset( $standards[ $lh_key ] );
 		}
@@ -822,10 +865,10 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 					$slug = strtolower( str_replace( ' ', '-', $term ) );
 					// @codingStandardsIgnoreStart - Ignore VIP discouraged usage if running against VIP standards.
 					$the_term = term_exists( $term, $key );
-					// @codingStandardsIgnoreEnd
 					$the_term   = empty( $the_term ) ? wp_insert_term( $term, $key, array(
 						'slug' => $slug,
 					) ) : $the_term;
+					// @codingStandardsIgnoreEnd
 					$term_ids[] = $the_term['term_id'];
 				}
 
@@ -1010,8 +1053,8 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	public function handle_custom_args( $args, $request ) {
 
 		$tax_query = false;
-		if ( isset( $_GET['project'] ) ) { // WPCS: input var okay. CSRF OK.
-			$project   = explode( ',', sanitize_text_field( wp_unslash( $_GET['project'] ) ) ); // WPCS: input var okay. CSRF OK.
+		if ( isset( $_GET['project'] ) ) { // WPCS: input var okay. CSRF ok.
+			$project   = explode( ',', sanitize_text_field( wp_unslash( $_GET['project'] ) ) ); // WPCS: input var okay. CSRF ok.
 			$tax_query = array(
 				array(
 					'taxonomy' => 'audit_project',
@@ -1036,12 +1079,16 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	public function add_tax_query( $args, $tax_query ) {
 
 		if ( ! empty( $tax_query ) ) {
-			if ( isset( $args['tax_query'] ) && ! empty( $args['tax_query'] ) ) { // WPCS: slow query OK.
-				$args['tax_query'] = array_merge( array( // WPCS: slow query OK.
-					'relation' => 'AND',
-				), $args['tax_query'], $tax_query ); // WPCS: slow query OK.
+			if ( isset( $args['tax_query'] ) && ! empty( $args['tax_query'] ) ) { // WPCS: slow query ok.
+				$args['tax_query'] = array_merge( // WPCS: slow query ok.
+					array(
+						'relation' => 'AND',
+					),
+					$args['tax_query'], // WPCS: slow query ok.
+					$tax_query
+				);
 			} else {
-				$args['tax_query'] = $tax_query; // WPCS: slow query OK.
+				$args['tax_query'] = $tax_query; // WPCS: slow query ok.
 			}
 		}
 
@@ -1064,9 +1111,13 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$response = rest_ensure_response( $data );
 
 		if ( is_post_type_viewable( get_post_type_object( $post->post_type ) ) ) {
-			$response->link_header( 'alternate', get_permalink( $post->ID ), array(
-				'type' => 'text/html',
-			) );
+			$response->link_header(
+				'alternate',
+				get_permalink( $post->ID ),
+				array(
+					'type' => 'text/html',
+				)
+			);
 		}
 
 		return $response;
@@ -1087,22 +1138,30 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		);
 
 		if ( null === $request->get_param( 'checksum' ) && null === $request->get_param( 'project_slug' ) ) {
-			return new \WP_Error( 'invalid_key', 'Invalid key for lookup.', array(
-				'status' => 400,
-			) );
+			return new \WP_Error(
+				'invalid_key',
+				'Invalid key for lookup.',
+				array(
+					'status' => 400,
+				)
+			);
 		}
 
 		if ( null !== $request->get_param( 'checksum' ) ) {
-			$args['meta_key']   = 'checksum'; // WPCS: slow query OK.
-			$args['meta_value'] = $request->get_param( 'checksum' ); // WPCS: slow query OK.
+			$args['meta_key']   = 'checksum'; // WPCS: slow query ok.
+			$args['meta_value'] = $request->get_param( 'checksum' ); // WPCS: slow query ok.
 		}
 
 		if ( null !== $request->get_param( 'project_client' ) ) {
 			$user = get_user_by( 'login', $request->get_param( 'project_client' ) );
 			if ( false === $user ) {
-				return new \WP_Error( 'tide_audit_invalid_project_client', __( 'Invalid project client.' ), array(
-					'status' => 404,
-				) );
+				return new \WP_Error(
+					'tide_audit_invalid_project_client',
+					__( 'Invalid project client.' ),
+					array(
+						'status' => 404,
+					)
+				);
 			}
 			$args['author'] = $user->ID;
 		}
@@ -1140,9 +1199,13 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$post = new \WP_Query( $args );
 
 		if ( is_wp_error( $post ) || empty( $post ) || 0 === $post->post_count ) {
-			$post = new \WP_Error( 'rest_post_invalid_altid_lookup', __( 'Invalid post lookup.', 'tide-api' ), array(
-				'status' => 404,
-			) );
+			$post = new \WP_Error(
+				'rest_post_invalid_altid_lookup',
+				__( 'Invalid post lookup.', 'tide-api' ),
+				array(
+					'status' => 404,
+				)
+			);
 		} else {
 			$post = array_shift( $post->posts );
 		}

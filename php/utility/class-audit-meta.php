@@ -46,9 +46,11 @@ class Audit_Meta {
 		if ( ! empty( $standards ) ) {
 			$allowed_standards = array_keys( Audit::allowed_standards() );
 
-			$standards = array_filter( $standards, function ( $standard ) use ( $allowed_standards ) {
+			$filter = function ( $standard ) use ( $allowed_standards ) {
 				return in_array( $standard, $allowed_standards, true );
-			} );
+			};
+
+			$standards = array_filter( $standards, $filter );
 		} else {
 			$standards = array_keys( Audit::executable_audit_fields() );
 		}

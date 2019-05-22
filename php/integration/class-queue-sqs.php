@@ -72,9 +72,11 @@ class Queue_SQS extends Base {
 					continue;
 				}
 
-				$result    = $sqs_client->getQueueUrl( array(
-					'QueueName' => $sqs_queues[ $audit_type ],
-				) );
+				$result    = $sqs_client->getQueueUrl(
+					array(
+						'QueueName' => $sqs_queues[ $audit_type ],
+					)
+				);
 				$queue_url = $result->get( 'QueueUrl' );
 
 				// Send the message.
@@ -102,7 +104,7 @@ class Queue_SQS extends Base {
 	 * @throws \Exception When the connection fails.
 	 */
 	public function get_client_instance() {
-		return new SqsClient( array(
+		$args = array(
 			'idempotency_auto_fill' => true,
 			'version'               => defined( 'AWS_SQS_VERSION' ) ? AWS_SQS_VERSION : '',
 			'region'                => defined( 'AWS_SQS_REGION' ) ? AWS_SQS_REGION : '',
@@ -110,7 +112,8 @@ class Queue_SQS extends Base {
 				'key'    => defined( 'AWS_API_KEY' ) ? AWS_API_KEY : '',
 				'secret' => defined( 'AWS_API_SECRET' ) ? AWS_API_SECRET : '',
 			),
-		) );
+		);
+		return new SqsClient( $args );
 	}
 
 	/**

@@ -87,11 +87,9 @@ class Rate_Limit extends Base {
 			return true;
 		}
 
-		$free_routes = apply_filters( 'tide_api_free_post_routes', [
-			'/tide/v1/auth',
-		] );
+		$free_routes = apply_filters( 'tide_api_free_post_routes', [ '/tide/v1/auth' ] );
 
-		return in_array( $request->get_route(), $free_routes );
+		return in_array( $request->get_route(), $free_routes, true );
 	}
 
 	/**

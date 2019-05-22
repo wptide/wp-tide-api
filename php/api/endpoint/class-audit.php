@@ -107,15 +107,18 @@ class Audit extends Base {
 	 * @return array
 	 */
 	public static function allowed_standards() {
-		return apply_filters( 'tide_api_client_allowed_audits', array(
-			'lighthouse'             => array(),
-			'phpcs_phpcompatibility' => array(),
-			'phpcs_wordpress'        => array(),
-			'phpcs_wordpress-core'   => array(),
-			'phpcs_wordpress-docs'   => array(),
-			'phpcs_wordpress-extra'  => array(),
-			'phpcs_wordpress-vip'    => array(),
-		) );
+		return apply_filters(
+			'tide_api_client_allowed_audits',
+			array(
+				'lighthouse'             => array(),
+				'phpcs_phpcompatibility' => array(),
+				'phpcs_wordpress'        => array(),
+				'phpcs_wordpress-core'   => array(),
+				'phpcs_wordpress-docs'   => array(),
+				'phpcs_wordpress-extra'  => array(),
+				'phpcs_wordpress-vip'    => array(),
+			)
+		);
 	}
 
 	/**
@@ -128,9 +131,11 @@ class Audit extends Base {
 	public static function filter_standards( $standards ) {
 		$allowed = array_keys( self::allowed_standards() );
 
-		return array_filter( (array) $standards, function ( $standard ) use ( $allowed ) {
+		$filter = function ( $standard ) use ( $allowed ) {
 			return in_array( $standard, $allowed, true );
-		} );
+		};
+
+		return array_filter( (array) $standards, $filter );
 	}
 
 	/**
@@ -144,11 +149,14 @@ class Audit extends Base {
 	 */
 	public static function executable_audit_fields() {
 
-		return apply_filters( 'tide_api_executable_audits', array(
-			'lighthouse'             => array(),
-			'phpcs_phpcompatibility' => array(),
-			'phpcs_wordpress'        => array(),
-		) );
+		return apply_filters(
+			'tide_api_executable_audits',
+			array(
+				'lighthouse'             => array(),
+				'phpcs_phpcompatibility' => array(),
+				'phpcs_wordpress'        => array(),
+			)
+		);
 	}
 
 	/**

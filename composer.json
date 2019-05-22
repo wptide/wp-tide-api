@@ -18,22 +18,23 @@
     }
   ],
   "require": {
-    "firebase/php-jwt": "^4.0",
-    "aws/aws-sdk-php": "^3.22",
-    "google/cloud-storage": "^1.4",
-    "mongodb/mongodb": "^1.3",
-    "google/cloud-firestore": "^0.10.1"
+    "firebase/php-jwt": "^5.0",
+    "aws/aws-sdk-php": "^3.94",
+    "google/cloud-storage": "^1.12",
+    "mongodb/mongodb": "^1.4",
+    "google/cloud-firestore": "^1.5"
   },
   "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "*",
     "wp-coding-standards/wpcs": "*",
-    "wimg/php-compatibility": "*",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
-    "php-coveralls/php-coveralls": "~2.1"
+    "phpcompatibility/php-compatibility": "*",
+    "php-coveralls/php-coveralls": "~2.1",
+    "phwoolcon/ci-pecl-cacher": "^1.0"
   },
   "config": {
     "platform": {
-      "ext-mongodb": "1.4.3",
-      "ext-grpc": "1.12.0"
+      "ext-mongodb": "1.5.0",
+      "ext-grpc": "1.20.0"
     }
   }
 }

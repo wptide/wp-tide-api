@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "85df82aa7c784f1a99d0b2f4c1a20c1d",
+    "content-hash": "54f701acdc71aa92c4f922d52121db8b",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.94.0",
+            "version": "3.94.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "fcc8593b3da8465d1181c73689117d13101a1c9a"
+                "reference": "759a565285324d2248b6ee783de541ce65bddd46"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/fcc8593b3da8465d1181c73689117d13101a1c9a",
-                "reference": "fcc8593b3da8465d1181c73689117d13101a1c9a",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/759a565285324d2248b6ee783de541ce65bddd46",
+                "reference": "759a565285324d2248b6ee783de541ce65bddd46",
                 "shasum": ""
             },
             "require": {
@@ -87,7 +87,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2019-05-20T18:14:09+00:00"
+            "time": "2019-05-21T18:29:47+00:00"
         },
         {
             "name": "firebase/php-jwt",
@@ -1558,6 +1558,50 @@
                 "standards"
             ],
             "time": "2018-12-30T23:16:27+00:00"
+        },
+        {
+            "name": "phwoolcon/ci-pecl-cacher",
+            "version": "v1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phwoolcon/ci-pecl-cacher.git",
+                "reference": "58abb6802319565ec6978e3482ba78d2355fa24f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phwoolcon/ci-pecl-cacher/zipball/58abb6802319565ec6978e3482ba78d2355fa24f",
+                "reference": "58abb6802319565ec6978e3482ba78d2355fa24f",
+                "shasum": ""
+            },
+            "bin": [
+                "bin/ci-pecl-install"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Christopher CHEN",
+                    "email": "fishdrowned@gmail.com",
+                    "homepage": "https://github.com/Fishdrowned",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PECL installing script with cache for Travis CI",
+            "homepage": "https://github.com/phwoolcon/ci-pecl-cacher",
+            "keywords": [
+                "ci",
+                "pecl cache",
+                "phwoolcon"
+            ],
+            "time": "2018-06-07T07:52:23+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",

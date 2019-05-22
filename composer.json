@@ -28,7 +28,8 @@
     "dealerdirect/phpcodesniffer-composer-installer": "*",
     "wp-coding-standards/wpcs": "*",
     "phpcompatibility/php-compatibility": "*",
-    "php-coveralls/php-coveralls": "~2.1"
+    "php-coveralls/php-coveralls": "~2.1",
+    "phwoolcon/ci-pecl-cacher": "^1.0"
   },
   "config": {
     "platform": {

@@ -27,9 +27,10 @@ env:
 
 install:
   - composer install --no-interaction
-  - vendor/bin/ci-pecl-install mongodb
   - export DEV_LIB_PATH=dev-lib/scripts
   - source "$DEV_LIB_PATH/travis.install.sh"
+  - vendor/bin/ci-pecl-install mongodb
+  - vendor/bin/ci-pecl-install grpc
 
 script:
   - source "$DEV_LIB_PATH/travis.script.sh"

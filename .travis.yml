@@ -20,7 +20,6 @@ php:
 addons:
   apt:
     packages:
-      - php7.0-dev
       - php-pear
       - libz-dev
       - libssl-dev

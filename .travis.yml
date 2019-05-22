@@ -20,9 +20,6 @@ php:
 addons:
   apt:
     packages:
-      - php-pear
-      - libz-dev
-      - libssl-dev
       - libxml2-utils
 
 env:

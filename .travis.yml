@@ -11,6 +11,7 @@ notifications:
 cache:
   directories:
     - $HOME/phpunit-bin
+    - $HOME/pecl_cache
 
 language: php
 
@@ -31,6 +32,8 @@ env:
         - PHPUNIT_VERSION=6
 
 before_install:
+  - composer require phwoolcon/ci-pecl-cacher -n
+  - vendor/bin/ci-pecl-install grpc
   - git clone https://github.com/mongodb/mongo-php-driver.git $HOME/mongodb/mongo-php-driver --recursive
   - cd $HOME/mongodb/mongo-php-driver
   - phpize

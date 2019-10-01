@@ -172,7 +172,7 @@ class Test_Keypair_Auth extends WP_UnitTestCase {
 	 * @covers ::register_keypair_routes()
 	 */
 	public function test_register_keypair_routes() {
-		$routes       = $this->server->get_routes();
+		$routes       = rest_get_server()->get_routes();
 		$keypair_base = sprintf( '%s/%s', $this->namespace, $this->keypair_base );
 		$this->assertArrayHasKey( $this->namespace, $routes );
 		$this->assertArrayHasKey( $keypair_base, $routes );

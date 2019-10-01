@@ -89,7 +89,7 @@ class Test_Report extends WP_UnitTestCase {
 	 * @covers ::register_routes()
 	 */
 	public function test_register_routes() {
-		$routes = $this->server->get_routes();
+		$routes = rest_get_server()->get_routes();
 		$this->assertArrayHasKey( static::REPORT_ROUTE, $routes );
 	}
 

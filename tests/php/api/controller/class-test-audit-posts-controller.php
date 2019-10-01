@@ -15,15 +15,6 @@ use WP_Tide_API\API\Controller\Audit_Posts_Controller;
 class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 
 	/**
-	 * REST Server.
-	 *
-	 * Note that this variable is already defined on the parent class but it lacks the phpdoc variable type.
-	 *
-	 * @var WP_REST_Server
-	 */
-	protected $server;
-
-	/**
 	 * API client user ID.
 	 *
 	 * @var int
@@ -90,7 +81,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	 * @covers ::register_routes()
 	 */
 	public function test_register_routes() {
-		$routes = $this->server->get_routes();
+		$routes = rest_get_server()->get_routes();
 		$this->assertArrayHasKey( '/tide/v1/audit/(?P<checksum>' . static::CHECKSUM_PATTERN . ')', $routes );
 	}
 
@@ -167,7 +158,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		update_post_meta( $audit_id, 'visibility', 'public' );
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertNotInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 200, $response->get_status() );
@@ -193,7 +184,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		$this->assertTrue( has_term( 'test-project', 'audit_project', $audit_id ) );
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s/%s/%s', 'wporg', 'plugin', 'test-project' ) );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertNotInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 200, $response->get_status() );
@@ -216,7 +207,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		update_post_meta( $audit_id, 'visibility', 'private' );
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertNotInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 200, $response->get_status() );
@@ -236,7 +227,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		$checksum = '7d9e35c703a7f8c6def92d5dbcf4a85a9271ce390474339cef7e404a00000000';
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_post_invalid_altid_lookup', $response, 404 );
 	}
@@ -260,7 +251,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		update_post_meta( $audit_id, 'checksum', $checksum );
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertNotInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 200, $response->get_status() );
@@ -286,7 +277,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		update_post_meta( $audit_id, 'visibility', 'private' );
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
 	}
@@ -310,7 +301,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		update_post_meta( $audit_id, 'visibility', 'private' );
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/tide/v1/audit/%s', $checksum ) );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertNotInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 200, $response->get_status() );
@@ -338,7 +329,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		$request = new WP_REST_Request( 'POST', sprintf( '/tide/v1/audit/%s', $checksum ) );
 		$request->set_param( 'id', $audit_id );
 		$request->set_param( 'source_type', 'git' );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertNotInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 200, $response->get_status() );
@@ -447,7 +438,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 		update_post_meta( $audit_id, 'visibility', 'public' );
 
 		$request  = new WP_REST_Request( 'DELETE', sprintf( '/tide/v1/audit/%s', $checksum ) );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertNotInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 200, $response->get_status() );
@@ -520,7 +511,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/tide/v1/audit' );
 		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertNotInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 201, $response->get_status() );
@@ -556,7 +547,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/tide/v1/audit' );
 		$request->set_body_params( $params );
-		$response = $this->server->dispatch( $request );
+		$response = rest_get_server()->dispatch( $request );
 
 		$data = $response->get_data();
 

@@ -91,7 +91,7 @@ class Test_JWT_Auth extends WP_UnitTestCase {
 	 * @covers ::register_jwt_routes()
 	 */
 	public function test_register_jwt_routes() {
-		$routes = $this->server->get_routes();
+		$routes = rest_get_server()->get_routes();
 		$this->assertArrayHasKey( $this->namespace, $routes );
 		$this->assertArrayHasKey( sprintf( '%s/%s', $this->namespace, $this->base ), $routes );
 	}

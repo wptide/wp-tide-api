@@ -4,4 +4,4 @@ PHPUNIT_CONFIG=phpunit.xml.dist
 DOCKER_PHPUNIT_BIN=bin/phpunit
 DOCKER_WORKDIR=/app/wp-content/plugins/wp-tide-api
 DOCKER_IMAGE=api-php
-WP_VERSION=5.2.3
+WP_VERSION=5.3

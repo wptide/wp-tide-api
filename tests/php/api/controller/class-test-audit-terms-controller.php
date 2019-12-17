@@ -43,19 +43,31 @@ class Test_Audit_Terms_Controller extends WP_Test_REST_Controller_TestCase {
 	}
 
 	/**
+	 * Setup.
+	 *
+	 * @inheritdoc
+	 */
+	public function setUp() {
+		parent::setUp();
+		$this->server = rest_get_server();
+	}
+
+	/**
 	 * Test registering route.
 	 */
 	public function test_register_routes() {
-
-		// Not applicable.
+		$this->markTestSkipped(
+			'Not applicable.'
+		);
 	}
 
 	/**
 	 * Test getting item.
 	 */
 	public function test_get_item() {
-
-		// Not applicable.
+		$this->markTestSkipped(
+			'Not applicable.'
+		);
 	}
 
 	/**
@@ -84,16 +96,18 @@ class Test_Audit_Terms_Controller extends WP_Test_REST_Controller_TestCase {
 	 * Test updating item.
 	 */
 	public function test_update_item() {
-
-		// Not applicable.
+		$this->markTestSkipped(
+			'Not applicable.'
+		);
 	}
 
 	/**
 	 * Test deleting item.
 	 */
 	public function test_delete_item() {
-
-		// Not applicable.
+		$this->markTestSkipped(
+			'Not applicable.'
+		);
 	}
 
 	/**
@@ -122,32 +136,36 @@ class Test_Audit_Terms_Controller extends WP_Test_REST_Controller_TestCase {
 	 * Test creating item.
 	 */
 	public function test_create_item() {
-
-		// Not applicable.
+		$this->markTestSkipped(
+			'Not applicable.'
+		);
 	}
 
 	/**
 	 * Test getting item schema.
 	 */
 	public function test_get_item_schema() {
-
-		// Not applicable.
+		$this->markTestSkipped(
+			'Not applicable.'
+		);
 	}
 
 	/**
 	 * Test context param.
 	 */
 	public function test_context_param() {
-
-		// Not applicable.
+		$this->markTestSkipped(
+			'Not applicable.'
+		);
 	}
 
 	/**
 	 * Test getting items.
 	 */
 	public function test_get_items() {
-
-		// Not applicable.
+		$this->markTestSkipped(
+			'Not applicable.'
+		);
 	}
 
 }

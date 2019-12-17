@@ -86,6 +86,17 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	}
 
 	/**
+	 * Test constructor.
+	 *
+	 * @covers ::__construct()
+	 */
+	public function test__construct() {
+		$controller = new Audit_Posts_Controller( 'audit' );
+		$this->assertEquals( 10, has_action( 'tide_api_rest_do_field_update', array( $controller, 'filter_audit_fields' ) ) );
+		$this->assertEquals( 10, has_action( 'rest_audit_query', array( $controller, 'handle_custom_args' ) ) );
+	}
+
+	/**
 	 * Test registering route.
 	 *
 	 * @covers ::register_routes()

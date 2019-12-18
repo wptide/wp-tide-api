@@ -4,6 +4,8 @@
 
 	<rule ref="WordPress-Core">
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax" />
+		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date" />
+		<exclude name="WordPress.Arrays.ArrayDeclarationSpacing.AssociativeKeyFound" />
 	</rule>
 	<rule ref="WordPress-Docs" />
 

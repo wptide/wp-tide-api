@@ -71,6 +71,7 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
+		$this->server = rest_get_server();
 		wp_set_current_user( self::$audit_client_id );
 	}
 
@@ -82,6 +83,17 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	function tearDown() {
 		$GLOBALS['current_user'] = null;
 		parent::tearDown();
+	}
+
+	/**
+	 * Test constructor.
+	 *
+	 * @covers ::__construct()
+	 */
+	public function test__construct() {
+		$controller = new Audit_Posts_Controller( 'audit' );
+		$this->assertEquals( 10, has_action( 'tide_api_rest_do_field_update', array( $controller, 'filter_audit_fields' ) ) );
+		$this->assertEquals( 10, has_action( 'rest_audit_query', array( $controller, 'handle_custom_args' ) ) );
 	}
 
 	/**
@@ -756,23 +768,26 @@ class Test_Audit_Posts_Controller extends WP_Test_REST_Controller_TestCase {
 	 * Test prepare item.
 	 */
 	public function test_prepare_item() {
-
-		// Not applicable.
+		$this->markTestSkipped(
+			'Not applicable.'
+		);
 	}
 
 	/**
 	 * Test get item schema.
 	 */
 	public function test_get_item_schema() {
-
-		// Not applicable.
+		$this->markTestSkipped(
+			'Not applicable.'
+		);
 	}
 
 	/**
 	 * Test context param.
 	 */
 	public function test_context_param() {
-
-		// Not applicable.
+		$this->markTestSkipped(
+			'Not applicable.'
+		);
 	}
 }

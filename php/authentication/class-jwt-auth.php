@@ -428,7 +428,7 @@ class JWT_Auth extends Base {
 	public function authentication_errors( $result ) {
 
 		/**
-		 * User is already authenticated, so skipp authentication.
+		 * User is already authenticated, so skip authentication.
 		 */
 		$user = wp_get_current_user();
 		if ( isset( $user->ID ) && 0 !== $user->ID ) {

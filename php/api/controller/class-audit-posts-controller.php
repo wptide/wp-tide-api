@@ -103,7 +103,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$args = array(
 			'args'   => array(
 				'altid' => array(
-					'description' => __( 'An alternate unique id to query on (e.g. checksum)' ),
+					'description' => __( 'An alternate unique id to query on (e.g. checksum)', 'tide-api' ),
 					'type'        => 'string',
 				),
 			),
@@ -145,7 +145,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 					'force' => array(
 						'type'        => 'boolean',
 						'default'     => false,
-						'description' => __( 'Whether to bypass trash and force deletion.' ),
+						'description' => __( 'Whether to bypass trash and force deletion.', 'tide-api' ),
 					),
 				),
 			),
@@ -185,11 +185,11 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$args = array(
 			'args'   => array(
 				'project_client' => array(
-					'description' => __( 'User login name representing a project client.' ),
+					'description' => __( 'User login name representing a project client.', 'tide-api' ),
 					'type'        => 'string',
 				),
 				'project_type'   => array(
-					'description' => __( 'The project type: theme or plugin.' ),
+					'description' => __( 'The project type: theme or plugin.', 'tide-api' ),
 					'type'        => 'string',
 				),
 			),
@@ -215,11 +215,11 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$args = array(
 			'args'   => array(
 				'project_client' => array(
-					'description' => __( 'User login name representing a project client.' ),
+					'description' => __( 'User login name representing a project client.', 'tide-api' ),
 					'type'        => 'string',
 				),
 				'project_type'   => array(
-					'description' => __( 'The project type: theme or plugin.' ),
+					'description' => __( 'The project type: theme or plugin.', 'tide-api' ),
 					'type'        => 'string',
 				),
 				'project_slug'   => array(
@@ -249,19 +249,19 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 		$args = array(
 			'args'   => array(
 				'project_client' => array(
-					'description' => __( 'User login name representing a project client.' ),
+					'description' => __( 'User login name representing a project client.', 'tide-api' ),
 					'type'        => 'string',
 				),
 				'project_type'   => array(
-					'description' => __( 'The project type: theme or plugin.' ),
+					'description' => __( 'The project type: theme or plugin.', 'tide-api' ),
 					'type'        => 'string',
 				),
 				'project_slug'   => array(
-					'description' => __( 'The taxonomy term representing the project.' ),
+					'description' => __( 'The taxonomy term representing the project.', 'tide-api' ),
 					'type'        => 'string',
 				),
 				'version'        => array(
-					'description' => __( 'The version representing the project.' ),
+					'description' => __( 'The version representing the project.', 'tide-api' ),
 					'type'        => 'string',
 				),
 			),
@@ -307,7 +307,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			if ( false === $user ) {
 				return new \WP_Error(
 					'tide_audit_invalid_project_client',
-					__( 'Invalid project client.' ),
+					__( 'Invalid project client.', 'tide-api' ),
 					array(
 						'status' => 404,
 					)
@@ -385,7 +385,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			if ( empty( $posts ) ) {
 				return new \WP_Error(
 					'tide_audit_invalid_item',
-					__( 'Invalid item.' ),
+					__( 'Invalid item.', 'tide-api' ),
 					array(
 						'status' => 404,
 					)
@@ -1157,7 +1157,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 			if ( false === $user ) {
 				return new \WP_Error(
 					'tide_audit_invalid_project_client',
-					__( 'Invalid project client.' ),
+					__( 'Invalid project client.', 'tide-api' ),
 					array(
 						'status' => 404,
 					)

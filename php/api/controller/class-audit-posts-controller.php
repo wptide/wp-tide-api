@@ -846,7 +846,7 @@ class Audit_Posts_Controller extends \WP_REST_Posts_Controller {
 	/**
 	 * Update the meta for the audit.
 	 *
-	 * @todod Do we even need this, should it be removed?
+	 * @todo Do we even need this, should it be removed?
 	 *
 	 * @param int              $post_id ID of an audit to update.
 	 * @param \WP_REST_Request $request The update Request.

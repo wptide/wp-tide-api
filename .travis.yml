@@ -25,7 +25,7 @@ addons:
       - libxml2-utils
 
 env:
-  - WP_VERSION=5.3.1 WP_MULTISITE=0 PHPUNIT_VERSION=6
+  - WP_VERSION=5.3.2 WP_MULTISITE=0 PHPUNIT_VERSION=6
 
 install:
   - composer install --no-interaction
